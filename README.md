@@ -28,7 +28,10 @@ lib/
 │   │   └── usecases/       # 共享用例
 │   │       ├── auth_usecases.dart
 │   │       └── config_usecases.dart
-│   ├── presentation/       # 共享UI组件
+│   ├── presentation/       # 共享UI组件lib/
+  core/
+    functional/
+      either.dart
 │   │   ├── providers/      # 共享状态管理
 │   │   │   ├── auth_provider.dart
 │   │   │   └── theme_provider.dart
