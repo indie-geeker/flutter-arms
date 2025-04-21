@@ -1,0 +1,23 @@
+{
+  "@@locale": "zh",
+  "title": "音乐",
+  "appName": "嗨音乐",
+  "themeSettings": "主题设置",
+  "currentThemeMode": "当前主题模式",
+  "switchTheme": "切换主题",
+  "customizeColors": "自定义颜色",
+  "resetColors": "重置颜色",
+  "languageSettings": "语言设置",
+  "currentLanguage": "当前语言",
+  "switchLanguage": "切换语言",
+  "lightMode": "浅色",
+  "darkMode": "深色",
+  "systemMode": "跟随系统",
+  "loading": "加载中...",
+  "error": "错误",
+  "settings": "设置",
+  "home": "首页",
+  "search": "搜索",
+  "library": "音乐库",
+  "profile": "我的"
+}

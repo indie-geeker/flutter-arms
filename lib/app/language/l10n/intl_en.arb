@@ -1,0 +1,83 @@
+{
+  "@@locale": "en",
+  "title": "Music",
+  "appName": "Hi Music",
+  "themeSettings": "Theme Settings",
+  "currentThemeMode": "Current Theme Mode",
+  "switchTheme": "Switch Theme",
+  "customizeColors": "Customize Colors",
+  "resetColors": "Reset Colors",
+  "languageSettings": "Language Settings",
+  "currentLanguage": "Current Language",
+  "switchLanguage": "Switch Language",
+  "lightMode": "Light",
+  "darkMode": "Dark",
+  "systemMode": "System",
+  "loading": "Loading...",
+  "error": "Error",
+  "settings": "Settings",
+  "home": "Home",
+  "search": "Search",
+  "library": "Library",
+  "profile": "Profile",
+  "@title": {
+    "description": "App title"
+  },
+  "@appName": {
+    "description": "Name of the application"
+  },
+  "@themeSettings": {
+    "description": "Theme settings title"
+  },
+  "@currentThemeMode": {
+    "description": "Current theme mode label"
+  },
+  "@switchTheme": {
+    "description": "Switch theme button text"
+  },
+  "@customizeColors": {
+    "description": "Customize colors button text"
+  },
+  "@resetColors": {
+    "description": "Reset colors button text"
+  },
+  "@languageSettings": {
+    "description": "Language settings title"
+  },
+  "@currentLanguage": {
+    "description": "Current language label"
+  },
+  "@switchLanguage": {
+    "description": "Switch language button text"
+  },
+  "@lightMode": {
+    "description": "Light theme mode"
+  },
+  "@darkMode": {
+    "description": "Dark theme mode"
+  },
+  "@systemMode": {
+    "description": "System theme mode"
+  },
+  "@loading": {
+    "description": "Loading text"
+  },
+  "@error": {
+    "description": "Error text"
+  },
+  "@settings": {
+    "description": "Settings tab title"
+  },
+  "@home": {
+    "description": "Home tab title"
+  },
+  "@search": {
+    "description": "Search tab title"
+  },
+  "@library": {
+    "description": "Library tab title"
+  },
+  "@profile": {
+    "description": "Profile tab title"
+  }
+}
