@@ -1,12 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
 
+import '../../utils/logger_util.dart';
+
 class LoggingInterceptor extends Interceptor {
-  final Logger _logger = Logger();
+
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    _logger.i(
+    logger.i(
       'REQUEST[${options.method}] => PATH: ${options.path}\n'
       'Headers: ${options.headers}\n'
       'Query Parameters: ${options.queryParameters}\n'
@@ -17,7 +19,7 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    _logger.i(
+    logger.i(
       'RESPONSE[${response.statusCode}] => PATH: ${response.requestOptions.path}\n'
       'Headers: ${response.headers}\n'
       'Data: ${response.data}',
@@ -58,7 +60,7 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    _logger.e(_formatError(err));
+    logger.e(_formatError(err));
     super.onError(err, handler);
   }
 }

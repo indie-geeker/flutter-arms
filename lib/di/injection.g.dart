@@ -6,26 +6,24 @@ part of 'injection.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$sharedPreferencesHash() => r'ca2ab91a184dd23e07dc9e2361460fd79b06331e';
+String _$cacheServiceHash() => r'0469dbfc513b6dd50ee00674d9df8c850d78f7c1';
 
-/// SharedPreferences 提供者
+/// 缓存服务提供者
 ///
-/// Copied from [sharedPreferences].
-@ProviderFor(sharedPreferences)
-final sharedPreferencesProvider =
-    AutoDisposeProvider<SharedPreferences>.internal(
-  sharedPreferences,
-  name: r'sharedPreferencesProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$sharedPreferencesHash,
+/// Copied from [cacheService].
+@ProviderFor(cacheService)
+final cacheServiceProvider = AutoDisposeProvider<CacheService>.internal(
+  cacheService,
+  name: r'cacheServiceProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$cacheServiceHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef SharedPreferencesRef = AutoDisposeProviderRef<SharedPreferences>;
+typedef CacheServiceRef = AutoDisposeProviderRef<CacheService>;
 String _$themePreferencesDataSourceHash() =>
-    r'e617410995d89aff2b752ef6c1a1546c2fe06379';
+    r'e0966f4d19bba32fcb6e6d84ae72c0fae3a0dc94';
 
 /// 主题偏好数据源提供者
 ///
@@ -182,7 +180,7 @@ final saveFontFamilyUseCaseProvider =
 typedef SaveFontFamilyUseCaseRef
     = AutoDisposeProviderRef<SaveFontFamilyUseCase>;
 String _$localePreferencesDataSourceHash() =>
-    r'6946f7249fcdea42b40fb29b3e28396141a50293';
+    r'7000138f9af04cd8f22787d093fff8753311423b';
 
 /// 语言偏好数据源提供者
 ///

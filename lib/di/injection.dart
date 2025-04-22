@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/cache/cache_service.dart';
+import '../core/cache/provider/cache_providers.dart';
 import '../shared/data/datasources/local/theme_preferences_data_source.dart';
 import '../shared/data/repositories/theme_preferences_repository_impl.dart';
 import '../shared/domain/repositories/theme_preferences_repository.dart';
@@ -13,10 +14,11 @@ import '../shared/domain/repositories/locale_preferences_repository.dart';
 import '../shared/domain/usecases/locale_preferences_usecases.dart';
 part 'injection.g.dart';
 
-/// SharedPreferences 提供者
+/// 缓存服务提供者
 @riverpod
-SharedPreferences sharedPreferences(Ref ref) {
-  throw UnimplementedError('需要在 ProviderScope.overrides 中初始化');
+CacheService cacheService(Ref ref) {
+  // 使用 cacheServiceNotifierProvider 获取缓存服务
+  return ref.watch(cacheServiceNotifierProvider).value!;
 }
 
 // ==================== 主题相关提供者 ====================
@@ -24,8 +26,9 @@ SharedPreferences sharedPreferences(Ref ref) {
 /// 主题偏好数据源提供者
 @riverpod
 ThemePreferencesDataSource themePreferencesDataSource(Ref ref) {
-  final sharedPreferences = ref.watch(sharedPreferencesProvider);
-  return ThemePreferencesDataSourceImpl(sharedPreferences);
+  // 使用缓存服务替代 SharedPreferences
+  final cacheService = ref.watch(cacheServiceNotifierProvider).value!;
+  return ThemePreferencesDataSourceImpl(cacheService);
 }
 
 /// 主题偏好仓库提供者
@@ -82,8 +85,9 @@ SaveFontFamilyUseCase saveFontFamilyUseCase(Ref ref) {
 /// 语言偏好数据源提供者
 @riverpod
 LocalePreferencesDataSource localePreferencesDataSource(Ref ref) {
-  final sharedPreferences = ref.watch(sharedPreferencesProvider);
-  return LocalePreferencesDataSourceImpl(sharedPreferences);
+  // 使用缓存服务替代 SharedPreferences
+  final cacheService = ref.watch(cacheServiceNotifierProvider).value!;
+  return LocalePreferencesDataSourceImpl(cacheService);
 }
 
 /// 语言偏好仓库提供者

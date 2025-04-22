@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/cache/cache_service.dart';
 import '../../../../core/constants/storage_keys.dart';
 
 /// 主题偏好本地数据源接口
@@ -33,13 +33,13 @@ abstract class ThemePreferencesDataSource {
 
 /// 主题偏好本地数据源实现
 class ThemePreferencesDataSourceImpl implements ThemePreferencesDataSource {
-  final SharedPreferences _preferences;
+  final CacheService _cacheService;
   
-  ThemePreferencesDataSourceImpl(this._preferences);
+  ThemePreferencesDataSourceImpl(this._cacheService);
   
   @override
   Future<ThemeMode?> getThemeMode() async {
-    final value = _preferences.getString(StorageKeys.themeMode);
+    final value = await _cacheService.get<String>(StorageKeys.themeMode);
     if (value == null) return null;
     
     switch (value) {
@@ -69,12 +69,13 @@ class ThemePreferencesDataSourceImpl implements ThemePreferencesDataSource {
         break;
     }
     
-    return await _preferences.setString(StorageKeys.themeMode, value);
+    await _cacheService.set<String>(StorageKeys.themeMode, value);
+    return true;
   }
   
   @override
   Future<Color?> getPrimaryColor() async {
-    final value = _preferences.getInt(StorageKeys.primaryColor);
+    final value = await _cacheService.get<int>(StorageKeys.primaryColor);
     if (value == null) return null;
     
     return Color(value);
@@ -82,12 +83,13 @@ class ThemePreferencesDataSourceImpl implements ThemePreferencesDataSource {
   
   @override
   Future<bool> savePrimaryColor(Color color) async {
-    return await _preferences.setInt(StorageKeys.primaryColor, color.value);
+    await _cacheService.set<int>(StorageKeys.primaryColor, color.value);
+    return true;
   }
   
   @override
   Future<Color?> getSecondaryColor() async {
-    final value = _preferences.getInt(StorageKeys.secondaryColor);
+    final value = await _cacheService.get<int>(StorageKeys.secondaryColor);
     if (value == null) return null;
     
     return Color(value);
@@ -95,16 +97,18 @@ class ThemePreferencesDataSourceImpl implements ThemePreferencesDataSource {
   
   @override
   Future<bool> saveSecondaryColor(Color color) async {
-    return await _preferences.setInt(StorageKeys.secondaryColor, color.value);
+    await _cacheService.set<int>(StorageKeys.secondaryColor, color.value);
+    return true;
   }
   
   @override
   Future<String?> getFontFamily() async {
-    return _preferences.getString(StorageKeys.fontFamily);
+    return await _cacheService.get<String>(StorageKeys.fontFamily);
   }
   
   @override
   Future<bool> saveFontFamily(String fontFamily) async {
-    return await _preferences.setString(StorageKeys.fontFamily, fontFamily);
+    await _cacheService.set<String>(StorageKeys.fontFamily, fontFamily);
+    return true;
   }
 }

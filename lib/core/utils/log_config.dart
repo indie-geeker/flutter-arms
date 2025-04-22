@@ -11,14 +11,14 @@ class LogConfig {
   /// 开发环境配置
   static Logger developmentLogger() {
     return Logger(
-      level: Level.verbose,
+      level: Level.trace,
       printer: PrettyPrinter(
         methodCount: 2,
         errorMethodCount: 8,
-        lineLength: 120,
+        lineLength: 150,
         colors: true,
         printEmojis: true,
-        printTime: true,
+        dateTimeFormat: DateTimeFormat.dateAndTime,
       ),
       output: ConsoleOutput(),
     );
@@ -31,10 +31,10 @@ class LogConfig {
       printer: PrettyPrinter(
         methodCount: 1,
         errorMethodCount: 5,
-        lineLength: 80,
+        lineLength: 100,
         colors: true,
         printEmojis: true,
-        printTime: true,
+        dateTimeFormat: DateTimeFormat.dateAndTime,
       ),
       output: ConsoleOutput(),
     );
@@ -78,7 +78,7 @@ class FileOutput extends LogOutput {
     // 例如使用 dart:io 的 File 类
     for (var line in event.lines) {
       // 将 line 写入文件
-      print('写入文件: $filePath, 内容: $line');
+      debugPrint('写入文件: $filePath, 内容: $line');
     }
   }
 }

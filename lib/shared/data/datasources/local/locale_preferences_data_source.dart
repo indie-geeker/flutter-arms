@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/cache/cache_service.dart';
 import '../../../../core/constants/storage_keys.dart';
 
 /// 语言偏好本地数据源接口
@@ -15,13 +15,13 @@ abstract class LocalePreferencesDataSource {
 
 /// 语言偏好本地数据源实现
 class LocalePreferencesDataSourceImpl implements LocalePreferencesDataSource {
-  final SharedPreferences _preferences;
+  final CacheService _cacheService;
   
-  LocalePreferencesDataSourceImpl(this._preferences);
+  LocalePreferencesDataSourceImpl(this._cacheService);
   
   @override
   Future<Locale?> getLocale() async {
-    final value = _preferences.getString(StorageKeys.locale);
+    final value = await _cacheService.get<String>(StorageKeys.locale);
     if (value == null) return null;
     
     final parts = value.split('_');
@@ -43,6 +43,7 @@ class LocalePreferencesDataSourceImpl implements LocalePreferencesDataSource {
       value = locale.languageCode;
     }
     
-    return await _preferences.setString(StorageKeys.locale, value);
+    await _cacheService.set<String>(StorageKeys.locale, value);
+    return true;
   }
 }

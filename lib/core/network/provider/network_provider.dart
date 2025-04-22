@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'network_config.dart';
-import 'interceptors/logging_interceptor.dart';
-import 'api_client.dart';
+import '../network_config.dart';
+import '../interceptors/logging_interceptor.dart';
+import '../api_client.dart';
 
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(NetworkConfig.options);

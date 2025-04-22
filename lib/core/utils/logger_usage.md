@@ -55,7 +55,7 @@ void someFunction() {
 
 ```dart
 import 'package:dio/dio.dart';
-import 'package:flutter_arms/core/network/log_interceptor.dart';
+import 'package:flutter_arms/core/network/logging_interceptor.dart';
 
 Dio createDio() {
   final dio = Dio();
