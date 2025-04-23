@@ -7,8 +7,8 @@ import '../../../app/providers/locale_providers.dart';
 import '../../../app/providers/theme_providers.dart';
 
 @RoutePage()
-class HomePage extends ConsumerWidget {
-  const HomePage({Key? key}) : super(key: key);
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

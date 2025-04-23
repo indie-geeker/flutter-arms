@@ -52,3 +52,6 @@ class AppRouter extends _$AppRouter {
 class EmptyRouterPage extends AutoRouter {
   const EmptyRouterPage({super.key});
 }
+
+
+final appRouter = AppRouter();

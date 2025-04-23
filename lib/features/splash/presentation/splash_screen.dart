@@ -18,7 +18,7 @@ class SplashScreen extends ConsumerWidget {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/logo.png'),
+                Image.asset('assets/images/logo.png'),
                 const SizedBox(height: 24),
                 if (snapshot.connectionState == ConnectionState.waiting)
                   const CircularProgressIndicator()
@@ -46,6 +46,6 @@ class SplashScreen extends ConsumerWidget {
 
     
     // 导航到主界面
-    context.router.replace(const HomeRoute());
+    appRouter.replace(const HomeRoute());
   }
 }
