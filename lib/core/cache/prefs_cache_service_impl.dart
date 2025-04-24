@@ -45,7 +45,7 @@ class PrefsCacheServiceImpl implements CacheService {
       await _setValue(key, value);
       _memoryCache[key] = value;
     } catch (e) {
-      throw CacheException('Failed to set value for key: $key. Error: $e');
+      throw CacheException(message: 'Failed to set value for key: $key. Error: $e');
     }
   }
 
@@ -65,7 +65,7 @@ class PrefsCacheServiceImpl implements CacheService {
       }
       return value;
     } catch (e) {
-      throw CacheException('Failed to get value for key: $key. Error: $e');
+      throw CacheException(message: 'Failed to get value for key: $key. Error: $e');
     }
   }
 
@@ -78,7 +78,7 @@ class PrefsCacheServiceImpl implements CacheService {
       _expiryTimes[key] = expiryTime;
       await _prefs!.setString('$_expiryPrefix$key', expiryTime.toIso8601String());
     } catch (e) {
-      throw CacheException('Failed to set value with expiry for key: $key. Error: $e');
+      throw CacheException(message: 'Failed to set value with expiry for key: $key. Error: $e');
     }
   }
 
@@ -99,7 +99,7 @@ class PrefsCacheServiceImpl implements CacheService {
 
       return get<T>(key);
     } catch (e) {
-      throw CacheException('Failed to get value with expiry for key: $key. Error: $e');
+      throw CacheException(message: 'Failed to get value with expiry for key: $key. Error: $e');
     }
   }
 
@@ -112,7 +112,7 @@ class PrefsCacheServiceImpl implements CacheService {
       await _prefs!.remove('$_expiryPrefix$key');
       return await _prefs!.remove(key);
     } catch (e) {
-      throw CacheException('Failed to remove key: $key. Error: $e');
+      throw CacheException(message: 'Failed to remove key: $key. Error: $e');
     }
   }
 
@@ -124,7 +124,7 @@ class PrefsCacheServiceImpl implements CacheService {
       _expiryTimes.clear();
       await _prefs!.clear();
     } catch (e) {
-      throw CacheException('Failed to clear cache. Error: $e');
+      throw CacheException(message: 'Failed to clear cache. Error: $e');
     }
   }
 
@@ -136,7 +136,7 @@ class PrefsCacheServiceImpl implements CacheService {
         await set<T>(entry.key, entry.value);
       }
     } catch (e) {
-      throw CacheException('Failed to set multiple entries. Error: $e');
+      throw CacheException(message: 'Failed to set multiple entries. Error: $e');
     }
   }
 
@@ -153,7 +153,7 @@ class PrefsCacheServiceImpl implements CacheService {
       }
       return result;
     } catch (e) {
-      throw CacheException('Failed to get multiple entries. Error: $e');
+      throw CacheException(message: 'Failed to get multiple entries. Error: $e');
     }
   }
 
@@ -206,7 +206,7 @@ class PrefsCacheServiceImpl implements CacheService {
         final jsonStr = value as String;
         return jsonDecode(jsonStr) as T;
       } catch (e) {
-        throw CacheException('Failed to decode complex object for key: $key');
+        throw CacheException(message: 'Failed to decode complex object for key: $key');
       }
     }
   }

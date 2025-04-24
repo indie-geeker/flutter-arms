@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
-import '../annotations/skip_response_result.dart';
-import '../models/response_result.dart';
-import '../models/response_status.dart';
-import '../converter/response_converter.dart';
+import 'package:flutter/material.dart';
+
+import '../../errors/failures.dart';
+import '../converter/adaptable_response_converter.dart';
 
 class ResponseInterceptor extends Interceptor {
-  final _converter = const ResponseConverter();
+  final AdaptableResponseConverter _converter;
+
+  ResponseInterceptor(this._converter);
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
@@ -18,27 +20,27 @@ class ResponseInterceptor extends Interceptor {
       return;
     }
 
-    // 否则包装成ResponseResult格式
+    // 处理响应数据
     if (response.data is Map<String, dynamic>) {
-      // 使用转换器处理响应数据
-      response.data = _converter.convert(response.data as Map<String, dynamic>);
+      try {
+        // 使用适配器检查响应格式
+        final result = _converter.convert(
+            response,
+                (data) => data  // 这里只进行格式检查
+        );
+
+        // 如果响应格式正确，可以保持不变
+        // 如果响应中有错误，可以处理它
+        if (result is Failure) {
+          // 处理API业务错误，例如将其转换为标准格式
+          // 或者抛出异常
+        }
+      } catch (e) {
+        // 处理转换错误
+        debugPrint('Response conversion error: $e');
+      }
     }
 
     handler.next(response);
-  }
-
-  @override
-  void onError(DioException err, ErrorInterceptorHandler handler) {
-    // 如果错误响应不是标准格式，转换为标准格式
-    if (err.response?.data is! Map<String, dynamic> ||
-        !err.response!.data.containsKey('code')) {
-      ResponseResult<dynamic> responseResult = ResponseResult<dynamic>(
-        success: err.response?.statusCode ?? ResponseStatus.unknownError.code,
-        message: err.message ?? ResponseStatus.unknownError.message,
-        data: null,
-      );
-      err.response?.data = responseResult;
-    }
-    handler.next(err);
   }
 }

@@ -1,41 +1,67 @@
 import 'package:equatable/equatable.dart';
 
 /// 所有Failure的基类
+/// 对应于异常的失败类型
 abstract class Failure extends Equatable {
-  final String? message;
-  
-  const Failure([this.message]);
+  final String message;
+  final int? code;
+  final dynamic details;
+
+  const Failure({required this.message, this.code, this.details});
 
   @override
-  List<Object?> get props => [message];
-}
-
-/// 服务器错误
-class ServerFailure extends Failure {
-  const ServerFailure([String? message]) : super(message);
+  List<Object?> get props => [message, code, details];
 }
 
 /// 缓存错误
 class CacheFailure extends Failure {
-  const CacheFailure([String? message]) : super(message);
+  const CacheFailure({
+    required super.message,
+    super.code,
+    super.details,
+  });
 }
 
 /// 网络错误
 class NetworkFailure extends Failure {
-  const NetworkFailure([String? message]) : super(message);
-}
+  final int? statusCode;
 
-/// 验证错误
-class ValidationFailure extends Failure {
-  const ValidationFailure([String? message]) : super(message);
+  const NetworkFailure(
+      {required super.message, super.code, super.details, this.statusCode});
 }
 
 /// 未授权错误
 class UnauthorizedFailure extends Failure {
-  const UnauthorizedFailure([String? message]) : super(message);
+  const UnauthorizedFailure({
+    required super.message,
+    super.code,
+    super.details,
+  });
+}
+
+/// 服务器错误
+class ServerFailure extends Failure {
+  const ServerFailure({
+    required super.message,
+    super.code,
+    super.details,
+  });
+}
+
+/// 解析错误
+class ParseFailure extends Failure {
+  const ParseFailure({
+    required super.message,
+    super.code,
+    super.details,
+  });
 }
 
 /// 未知错误
 class UnknownFailure extends Failure {
-  const UnknownFailure([String? message]) : super(message);
+  const UnknownFailure({
+    required super.message,
+    super.code,
+    super.details,
+  });
 }

@@ -8,9 +8,9 @@ class NetworkConfig {
 
   static BaseOptions get options => BaseOptions(
         baseUrl: baseUrl,
-        connectTimeout: Duration(milliseconds: connectTimeout),
-        receiveTimeout: Duration(milliseconds: receiveTimeout),
-        sendTimeout: Duration(milliseconds: sendTimeout),
+        connectTimeout: const Duration(milliseconds: connectTimeout),
+        receiveTimeout: const Duration(milliseconds: receiveTimeout),
+        sendTimeout: const Duration(milliseconds: sendTimeout),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',

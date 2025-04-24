@@ -11,8 +11,6 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 创建路由器实例
-    final appRouter = AppRouter();
     
     // 使用 Riverpod 获取主题配置
     final themeConfigAsync = ref.watch(themeConfigProvider);
@@ -39,7 +37,7 @@ class MyApp extends ConsumerWidget {
           darkTheme: themeConfig.darkTheme.themeData,
           themeMode: themeConfig.themeMode,
           
-          // 路由配置
+          // 路由配置 - 使用全局定义的appRouter
           routerConfig: appRouter.config(),
         );
       },
@@ -62,5 +60,3 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
-
-
