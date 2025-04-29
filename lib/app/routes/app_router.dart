@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 
+import '../../features/authorization/presentation/pages/auth_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 
@@ -15,19 +16,24 @@ class AppRouter extends _$AppRouter {
           page: SplashRoute.page,
           initial: true,
         ),
-        
+
+        AutoRoute(
+          path: '/auth',
+          page: AuthRoute.page,
+        ),
+
         // 主页路由
         AutoRoute(
           path: '/home',
           page: HomeRoute.page,
         ),
-        
+
         // 可以添加更多路由
         // AutoRoute(
         //   path: '/profile',
         //   page: ProfileRoute.page,
         // ),
-        
+
         // 嵌套路由示例
         // AutoRoute(
         //   path: '/settings',
@@ -51,6 +57,5 @@ class AppRouter extends _$AppRouter {
 class EmptyRouterPage extends AutoRouter {
   const EmptyRouterPage({super.key});
 }
-
 
 final appRouter = AppRouter();

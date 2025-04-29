@@ -11,11 +11,11 @@ class ResponseInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    // 检查是否有SkipResponseResult注解
-    final skipResponseResult = response.requestOptions.extra['skip_response_result'] as bool?;
+    // 检查是否有RawResponseResult注解
+    final rawResponseResult = response.requestOptions.extra['raw_response_result'] as bool?;
 
-    if (skipResponseResult == true) {
-      // 如果有SkipResponseResult注解，直接返回原始数据
+    if (rawResponseResult == true) {
+      // 如果有RawResponseResult注解，直接返回原始数据
       handler.next(response);
       return;
     }

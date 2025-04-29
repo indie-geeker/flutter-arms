@@ -46,6 +46,6 @@ class SplashScreen extends ConsumerWidget {
 
     
     // 导航到主界面
-    appRouter.replace(const HomeRoute());
+    appRouter.replace(const AuthRoute());
   }
 }

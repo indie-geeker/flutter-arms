@@ -36,4 +36,7 @@ class ConfigManager {
     // 可以在这里添加更多配置初始化逻辑
     // 例如从本地存储或远程服务器加载配置
   }
+
+  /// 获取环境配置
+  EnvConfig getEnvConfig() => envConfig;
 }
