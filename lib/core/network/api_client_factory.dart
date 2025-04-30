@@ -3,6 +3,7 @@ import 'package:flutter_arms/core/network/api_client.dart';
 import 'package:flutter_arms/core/network/interceptors/mock_interceptor.dart';
 
 import 'adapters/default_response_adapter.dart';
+import 'adapters/response_adapter.dart';
 import 'converter/adaptable_response_converter.dart';
 import 'interceptors/error_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
@@ -14,6 +15,7 @@ class ApiClientFactory {
   static const int sendTimeout = 15000;
 
   static List<Interceptor> interceptors = [
+    MockInterceptor(),
     LoggingInterceptor(),
     ErrorInterceptor(),
   ];
@@ -30,11 +32,10 @@ class ApiClientFactory {
   );
 
 
-  static ApiClient createDefaultApiClient(String baseUrl) {
+  static ApiClient createDefaultApiClient(String baseUrl, {ResponseAdapter adapter = const DefaultResponseAdapter()}) {
     final dio = Dio(appOptions(baseUrl));
-    const convert = AdaptableResponseConverter(DefaultResponseAdapter());
+    final convert = AdaptableResponseConverter(adapter);
 
-    interceptors.add(MockInterceptor());
     interceptors.add(ResponseInterceptor(convert));
     dio.interceptors.addAll(interceptors);
     return ApiClient(dio);

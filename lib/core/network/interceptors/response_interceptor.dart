@@ -1,13 +1,17 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../../errors/failures.dart';
 import '../converter/adaptable_response_converter.dart';
+import 'package:dio/dio.dart';
+import '../adapters/response_adapter.dart';
 
 class ResponseInterceptor extends Interceptor {
   final AdaptableResponseConverter _converter;
 
   ResponseInterceptor(this._converter);
+  
+  // 添加获取adapter的getter方法
+  ResponseAdapter get adapter => _converter.adapter;
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {

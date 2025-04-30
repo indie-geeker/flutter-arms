@@ -4,15 +4,16 @@ import 'package:flutter_arms/core/presentation/base_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/error_handler.dart';
+import '../../../../core/network/adapters/default_response_adapter.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/auth.dart';
 import '../../domain/usecases/auth_usecase.dart';
 
 final loginRemoteDataSourceProvider = Provider((ref) {
-  final apiClient = ref.watch(defaultApiClientProvider);
+  final apiClientWrapper = ref.watch(apiClientWithAdapterProvider(adapter: const DefaultResponseAdapter()));
   final errorHandler = ref.watch(errorHandlerProvider);
-  return AuthRemoteDatasource(apiClient, errorHandler);
+  return AuthRemoteDatasource(apiClientWrapper, errorHandler);
 });
 
 final authRepositoryProvider = Provider((ref) {

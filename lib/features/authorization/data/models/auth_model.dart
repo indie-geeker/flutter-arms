@@ -1,6 +1,9 @@
 import 'package:equatable/equatable.dart';
-import '../../domain/entities/auth.dart';
 
+import '../../domain/entities/auth.dart';
+// part 'auth_model.g.dart';
+//
+// @JsonSerializable()
 class AuthModel extends Equatable {
   final String token;
   final String userId;

@@ -5,23 +5,24 @@ import 'package:flutter_arms/features/authorization/data/models/auth_model.dart'
 import 'auth_datasource.dart';
 
 class AuthRemoteDatasource extends BaseRemoteDataSource implements AuthDatasource {
-  AuthRemoteDatasource(super.client, super.errorHandler);
+  AuthRemoteDatasource(super.clientWrapper, super.errorHandler);
+
+@override
+Future<Result<AuthModel>> login(String username, String password) {
+  final result = safeApiCall(() async {
+    final response = await apiClient.login(username, password);
+    return parseResponse(response, AuthModel.fromJson);
+  });
+  return result;
+}
 
 
-  @override
-  Future<Result<AuthModel>> login(String username, String password) async {
-    return errorHandler.handleException(() async {
-      final response = await client.login(username, password);
-      final authModel = AuthModel.fromJson(response);
-      return Result.success(authModel);
-    });
-  }
 
 
   @override
   Future<Result<void>> logout() async {
     return errorHandler.handleException((){
-
+      // 实现登出逻辑
     });
   }
 }

@@ -15,6 +15,7 @@ class AuthRepositoryImpl extends BaseRepository<AuthModel, Auth> implements Auth
   Future<Result<Auth>> login(String username, String password) {
     // 从API获取数据（使用Model）
     // 这里可以不用 async/await 修饰，因为mapDomainResult已经处理
+
     final result =  remoteDatasource.login(username, password);
 
     // 转换为实体（Entity）
