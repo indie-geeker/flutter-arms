@@ -20,6 +20,9 @@ class HomeScreen extends ConsumerWidget {
 
     // 获取当前主题（异步）
     final currentThemeAsync = ref.watch(currentThemeProvider(context));
+    
+    // 获取本地化字符串
+    final s = S.of(context);
 
     // 处理加载状态
     return currentThemeAsync.when(
@@ -113,18 +116,25 @@ class HomeScreen extends ConsumerWidget {
       },
       loading: () => Scaffold(
         appBar: AppBar(
-          title: const Text('音乐应用'),
+          title: Text(s.title),
         ),
-        body: const Center(
-          child: CircularProgressIndicator(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16),
+              Text(s.loading),
+            ],
+          ),
         ),
       ),
       error: (error, stackTrace) => Scaffold(
         appBar: AppBar(
-          title: const Text('音乐应用'),
+          title: Text(s.title),
         ),
         body: Center(
-          child: Text('加载主题时出错: $error'),
+          child: Text('${s.error}: $error'),
         ),
       ),
     );
@@ -142,4 +152,3 @@ class HomeScreen extends ConsumerWidget {
     }
   }
 }
-

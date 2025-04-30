@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'config/config_manager.dart';
+import 'config/env_config.dart';
 import 'language/generated/l10n.dart';
 import 'providers/locale_providers.dart';
 import 'providers/theme_providers.dart';
@@ -18,11 +20,14 @@ class MyApp extends ConsumerWidget {
     // 获取语言设置
     final localeAsync = ref.watch(localeNotifierProvider);
 
+    EnvConfig envConfig = ConfigManager().getEnvConfig();
+
+
     // 处理加载状态
     return themeConfigAsync.when(
       data: (themeConfig) {
         return MaterialApp.router(
-          title: '音乐应用',
+          title: envConfig.appName,
           // 国际化配置
           localizationsDelegates: const [
             S.delegate,
@@ -42,7 +47,7 @@ class MyApp extends ConsumerWidget {
         );
       },
       loading: () => MaterialApp(
-        title: '音乐应用',
+        title: envConfig.appName,
         home: Scaffold(
           body: Center(
             child: CircularProgressIndicator(),
@@ -50,7 +55,7 @@ class MyApp extends ConsumerWidget {
         ),
       ),
       error: (error, stackTrace) => MaterialApp(
-        title: '音乐应用',
+        title: envConfig.appName,
         home: Scaffold(
           body: Center(
             child: Text('加载主题时出错: $error'),

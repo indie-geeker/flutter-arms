@@ -21,19 +21,19 @@ class EnvConfig {
       case Environment.dev:
         return EnvConfig(
           apiBaseUrl: 'https://dev-api.himusic.com',
-          appName: '音乐应用(开发版)',
+          appName: 'ARMS(开发版)',
           enableLogging: true,
         );
       case Environment.staging:
         return EnvConfig(
           apiBaseUrl: 'https://staging-api.himusic.com',
-          appName: '音乐应用(测试版)',
+          appName: 'ARMS(测试版)',
           enableLogging: true,
         );
       case Environment.prod:
         return EnvConfig(
           apiBaseUrl: 'https://api.himusic.com',
-          appName: '音乐应用',
+          appName: 'ARMS',
           enableLogging: kDebugMode,
         );
     }

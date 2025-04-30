@@ -1,7 +1,7 @@
 {
   "@@locale": "zh",
-  "title": "音乐",
-  "appName": "嗨音乐",
+  "title": "ARMS",
+  "appName": "ARMS",
   "themeSettings": "主题设置",
   "currentThemeMode": "当前主题模式",
   "switchTheme": "切换主题",
@@ -18,6 +18,5 @@
   "settings": "设置",
   "home": "首页",
   "search": "搜索",
-  "library": "音乐库",
   "profile": "我的"
 }

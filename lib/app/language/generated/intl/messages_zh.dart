@@ -22,7 +22,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "appName": MessageLookupByLibrary.simpleMessage("嗨音乐"),
+        "appName": MessageLookupByLibrary.simpleMessage("ARMS"),
         "currentLanguage": MessageLookupByLibrary.simpleMessage("当前语言"),
         "currentThemeMode": MessageLookupByLibrary.simpleMessage("当前主题模式"),
         "customizeColors": MessageLookupByLibrary.simpleMessage("自定义颜色"),
@@ -30,7 +30,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "error": MessageLookupByLibrary.simpleMessage("错误"),
         "home": MessageLookupByLibrary.simpleMessage("首页"),
         "languageSettings": MessageLookupByLibrary.simpleMessage("语言设置"),
-        "library": MessageLookupByLibrary.simpleMessage("音乐库"),
         "lightMode": MessageLookupByLibrary.simpleMessage("浅色"),
         "loading": MessageLookupByLibrary.simpleMessage("加载中..."),
         "profile": MessageLookupByLibrary.simpleMessage("我的"),
@@ -41,6 +40,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "switchTheme": MessageLookupByLibrary.simpleMessage("切换主题"),
         "systemMode": MessageLookupByLibrary.simpleMessage("跟随系统"),
         "themeSettings": MessageLookupByLibrary.simpleMessage("主题设置"),
-        "title": MessageLookupByLibrary.simpleMessage("音乐")
+        "title": MessageLookupByLibrary.simpleMessage("ARMS")
       };
 }

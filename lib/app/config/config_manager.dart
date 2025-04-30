@@ -30,7 +30,7 @@ class ConfigManager {
     
     // 加载服务配置
     servicesConfig = ServicesConfig(
-      musicApiKey: '这里应该是从安全存储或环境变量获取的密钥',
+      googleClientId: '这里应该是从安全存储或环境变量获取的密钥',
     );
     
     // 可以在这里添加更多配置初始化逻辑

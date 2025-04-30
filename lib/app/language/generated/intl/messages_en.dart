@@ -22,7 +22,7 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "appName": MessageLookupByLibrary.simpleMessage("Hi Music"),
+        "appName": MessageLookupByLibrary.simpleMessage("Arms"),
         "currentLanguage":
             MessageLookupByLibrary.simpleMessage("Current Language"),
         "currentThemeMode":
@@ -34,7 +34,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "home": MessageLookupByLibrary.simpleMessage("Home"),
         "languageSettings":
             MessageLookupByLibrary.simpleMessage("Language Settings"),
-        "library": MessageLookupByLibrary.simpleMessage("Library"),
         "lightMode": MessageLookupByLibrary.simpleMessage("Light"),
         "loading": MessageLookupByLibrary.simpleMessage("Loading..."),
         "profile": MessageLookupByLibrary.simpleMessage("Profile"),
@@ -46,6 +45,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "switchTheme": MessageLookupByLibrary.simpleMessage("Switch Theme"),
         "systemMode": MessageLookupByLibrary.simpleMessage("System"),
         "themeSettings": MessageLookupByLibrary.simpleMessage("Theme Settings"),
-        "title": MessageLookupByLibrary.simpleMessage("Music")
+        "title": MessageLookupByLibrary.simpleMessage("Arms")
       };
 }

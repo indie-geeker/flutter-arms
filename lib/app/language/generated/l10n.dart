@@ -50,20 +50,20 @@ class S {
     return Localizations.of<S>(context, S);
   }
 
-  /// `Music`
+  /// `Arms`
   String get title {
     return Intl.message(
-      'Music',
+      'Arms',
       name: 'title',
       desc: 'App title',
       args: [],
     );
   }
 
-  /// `Hi Music`
+  /// `Arms`
   String get appName {
     return Intl.message(
-      'Hi Music',
+      'Arms',
       name: 'appName',
       desc: 'Name of the application',
       args: [],
@@ -226,16 +226,6 @@ class S {
       'Search',
       name: 'search',
       desc: 'Search tab title',
-      args: [],
-    );
-  }
-
-  /// `Library`
-  String get library {
-    return Intl.message(
-      'Library',
-      name: 'library',
-      desc: 'Library tab title',
       args: [],
     );
   }

@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
-  "title": "Music",
-  "appName": "Hi Music",
+  "title": "Arms",
+  "appName": "Arms",
   "themeSettings": "Theme Settings",
   "currentThemeMode": "Current Theme Mode",
   "switchTheme": "Switch Theme",
@@ -18,7 +18,6 @@
   "settings": "Settings",
   "home": "Home",
   "search": "Search",
-  "library": "Library",
   "profile": "Profile",
   "@title": {
     "description": "App title"
