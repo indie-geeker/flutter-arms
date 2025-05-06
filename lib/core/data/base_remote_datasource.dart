@@ -3,7 +3,7 @@
 // 响应解析的通用逻辑
 // 请求头管理（如认证Token）
 
-import 'package:flutter_arms/core/network/provider/network_provider.dart';
+import 'package:flutter_arms/core/network/providers/network_provider.dart';
 import 'package:retrofit/retrofit.dart';
 
 import '../errors/error_handler.dart';

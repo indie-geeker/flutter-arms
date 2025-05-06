@@ -1,10 +1,12 @@
-import 'dart:isolate';
-
 import 'package:auto_route/annotations.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_arms/app/routes/app_router.dart';
+import 'package:flutter_arms/app/routes/app_routes.dart';
+import 'package:flutter_arms/app/routes/router_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_providers.dart';
+
+import '../providers/auth_provider.dart';
 
 @RoutePage()
 class AuthScreen extends ConsumerStatefulWidget {
@@ -42,7 +44,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final loginState = ref.watch(authStateProvider);
-    
+
     return Scaffold(
       // 设置为false，防止键盘弹出时自动调整布局
       resizeToAvoidBottomInset: false,
@@ -58,7 +60,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             if (result != null && result.isSuccess) {
               // 登录成功后的处理，可以延迟导航到首页
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.router.replaceNamed('/home');
+                // 使用路由扩展方法
+                appRouter.replaceWithHome();
+
+                // 或者使用路径常量
+                // appRouter.replaceNamed(AppRoutes.home);
+
+                // 或者使用全局路由扩展
+                // appRouter.replaceWithHome();
               });
             }
             return _buildLoginForm(context);
@@ -69,7 +78,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  '登录失败: ${error.toString()}', 
+                  '登录失败: ${error.toString()}',
                   style: const TextStyle(color: Colors.red),
                 ),
                 const SizedBox(height: 16),
@@ -91,7 +100,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final appBarHeight = AppBar().preferredSize.height;
     final topPadding = MediaQuery.of(context).padding.top;
-    
+
     return GestureDetector(
       // 点击空白区域收起键盘
       onTap: () => FocusScope.of(context).unfocus(),
@@ -134,9 +143,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 36),
-                
+
                 // 用户名输入框
                 TextFormField(
                   controller: _usernameController,
@@ -161,7 +170,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                
+
                 // 密码输入框
                 TextFormField(
                   controller: _passwordController,
@@ -196,7 +205,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   onEditingComplete: _attemptLogin,
                 ),
                 const SizedBox(height: 8),
-                
+
                 // 记住我选项
                 Row(
                   children: [
@@ -219,7 +228,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
+
                 // 登录按钮
                 ElevatedButton(
                   onPressed: _attemptLogin,
@@ -235,7 +244,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // 注册选项 - 不再使用相对尺寸，避免布局变化
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -249,7 +258,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     ),
                   ],
                 ),
-                
+
                 // 使用Spacer代替固定高度的SizedBox
                 const Spacer(),
               ],
@@ -263,13 +272,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   void _attemptLogin() {
     if (_formKey.currentState?.validate() ?? false) {
       FocusScope.of(context).unfocus(); // 隐藏键盘
-      
+
       // 执行登录操作
       ref.read(authStateProvider.notifier).login(
         _usernameController.text.trim(),
         _passwordController.text,
       );
-      
+
       // 如果选择了记住我，可以在这里保存用户名
       if (_rememberMe) {
         // 实现保存用户名的逻辑

@@ -1,5 +1,5 @@
 import 'package:flutter_arms/core/errors/result.dart';
-import 'package:flutter_arms/core/network/provider/network_provider.dart';
+import 'package:flutter_arms/core/network/providers/network_provider.dart';
 import 'package:flutter_arms/core/presentation/base_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

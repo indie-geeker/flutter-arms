@@ -2,9 +2,9 @@ import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/language/generated/l10n.dart';
-import '../../../app/providers/locale_providers.dart';
-import '../../../app/providers/theme_providers.dart';
+import '../../../../app/language/generated/l10n.dart';
+import '../../../../app/providers/locale_providers.dart';
+import '../../../../app/providers/theme_providers.dart';
 
 @RoutePage()
 class HomeScreen extends ConsumerWidget {

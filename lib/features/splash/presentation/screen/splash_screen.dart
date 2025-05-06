@@ -2,8 +2,9 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/routes/app_router.dart';
-import '../../../core/cache/provider/cache_providers.dart';
+import '../../../../app/routes/app_router.dart';
+import '../../../../app/routes/router_extensions.dart';
+import '../../../../core/cache/provider/cache_providers.dart';
 @RoutePage()
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
@@ -102,13 +103,18 @@ class SplashScreen extends ConsumerWidget {
     final futures = await Future.wait([
       // 等待缓存服务初始化
       ref.read(cacheServiceNotifierProvider.future),
-      
+
       // 确保 Splash 页面至少显示 2 秒
       Future.delayed(const Duration(seconds: 2)),
     ]);
 
-    
-    // 导航到主界面
-    appRouter.replace(const AuthRoute());
+
+    // 导航到认证界面
+    // 使用全局路由扩展方法
+    appRouter.replaceWithAuth();
+
+    // 或者也可以使用以下方式：
+    // context.replaceWithAuth();
+    // context.replaceWithPath(AppRoutes.auth);
   }
 }
