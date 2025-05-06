@@ -8,8 +8,8 @@ import 'providers/locale_providers.dart';
 import 'providers/theme_providers.dart';
 import 'routes/app_router.dart';
 
-class MyApp extends ConsumerWidget {
-  const MyApp({Key? key}) : super(key: key);
+class ArmsApp extends ConsumerWidget {
+  const ArmsApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

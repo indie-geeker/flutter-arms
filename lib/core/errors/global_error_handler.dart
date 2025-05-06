@@ -1,9 +1,8 @@
 // lib/core/errors/global_error_handler.dart
+import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:isolate';
-import 'dart:ui';
 
 import 'failures.dart';
 
@@ -40,6 +39,7 @@ class GlobalErrorHandler {
   void _handleFlutterError(FlutterErrorDetails details) {
     if (kDebugMode) {
       // 在调试模式下，正常打印错误
+      print('_handleFlutterError 捕获到异常: $details');
       FlutterError.dumpErrorToConsole(details);
     } else {
       // 在生产模式下，上报错误
@@ -55,7 +55,7 @@ class GlobalErrorHandler {
 
   void _handleError(Object error, StackTrace stackTrace) {
     // 可以在这里添加日志记录、分析等
-    print('捕获到异常: $error');
+    print('_handleError 捕获到异常: $error');
     print('堆栈: $stackTrace');
 
     if (_onError != null) {
