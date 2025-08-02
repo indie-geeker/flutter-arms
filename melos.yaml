@@ -1,0 +1,4 @@
+name: flutter_arms
+packages:
+  - packages/**
+  - example
