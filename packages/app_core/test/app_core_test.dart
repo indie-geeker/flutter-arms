@@ -1,13 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:app_interfaces/app_interfaces.dart';
-
 import 'package:app_core/app_core.dart';
-import '../lib/src/app_manager.dart';
-import '../lib/src/app_config.dart';
-
 import 'mocks/mock_storage.dart';
-import 'mocks/mock_signature_provider.dart';
 import 'helpers/test_helpers.dart';
 
 void main() {
@@ -61,7 +56,7 @@ void main() {
       
       expect(result, isTrue);
       expect(manager.isInitialized, isTrue);
-      expect(manager.storage, equals(mockStorage));
+      expect(manager.getStorage(), equals(mockStorage));
       expect(manager.appInfo, isNotNull);
       expect(manager.environmentConfig, isNotNull);
       expect(manager.appInitializer, isNotNull);
@@ -201,8 +196,8 @@ void main() {
       expect(manager.appInfo, isNotNull);
       expect(manager.appInitializer, isNotNull);
       expect(manager.environmentConfig, isNotNull);
-      expect(manager.storage, equals(mockStorage));
-      expect(manager.storage.isInitialized, isTrue);
+      expect(manager.getStorage(), equals(mockStorage));
+      expect(manager.getStorage().isInitialized, isTrue);
     });
 
     test('存储模块应该正常工作', () async {
@@ -210,7 +205,7 @@ void main() {
       
       await manager.initialize(testConfig);
       
-      final storage = manager.storage as MockKeyValueStorage;
+      final storage = manager.getStorage() as MockKeyValueStorage;
       
       // 测试存储功能
       await storage.setString('test_key', 'test_value');
@@ -311,7 +306,7 @@ void main() {
       expect(stepResults, isNotEmpty);
       
       // 验证模块可用性
-      expect(manager.storage, equals(mockStorage));
+      expect(manager.getStorage(), equals(mockStorage));
       expect(manager.appInfo, isNotNull);
       expect(manager.environmentConfig, isNotNull);
       

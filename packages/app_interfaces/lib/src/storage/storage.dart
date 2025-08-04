@@ -13,4 +13,3 @@ export 'i_secure_key_value_storage.dart';
 export 'i_object_storage.dart';
 export 'i_secure_object_storage.dart';
 
-export 'model/storage_config.dart';

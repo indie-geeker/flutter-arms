@@ -72,7 +72,14 @@ class AppManager {
   // INetworkClient get networkClient => _networkClient;
 
   /// 存储接口
-  IStorage get storage => _storage!;
+  // IStorage get storage => _storage!;
+  T getStorage<T extends IStorage>() {
+    if (_storage is T) {
+      return _storage as T;
+    }
+    throw StateError('当前存储实现不支持 ${T.toString()} 接口。'
+        '当前实现: ${_storage.runtimeType}');
+  }
 
   // /// 状态管理接口
   // IAppState get stateContainer => _stateContainer;

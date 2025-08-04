@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'package:app_interfaces/app_interfaces.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../model/storage_config.dart';
 import '../utils/storage_utils.dart';
 
 class SharedPrefsStorage implements IKeyValueStorage {

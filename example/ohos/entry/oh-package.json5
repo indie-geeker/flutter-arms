@@ -1,0 +1,14 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "device_info_plus": "file:../har/device_info_plus.har",
+    "package_info_plus": "file:../har/package_info_plus.har",
+    "shared_preferences_ohos": "file:../har/shared_preferences_ohos.har",
+    "flutter_secure_storage_ohos": "file:../har/flutter_secure_storage_ohos.har"
+  }
+}

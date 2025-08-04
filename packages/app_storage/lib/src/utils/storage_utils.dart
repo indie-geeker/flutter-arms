@@ -1,7 +1,5 @@
 import 'dart:convert';
-
-import 'package:app_interfaces/app_interfaces.dart';
-
+import '../model/storage_config.dart';
 import 'encrypt_utils.dart';
 
 /// 存储工具类

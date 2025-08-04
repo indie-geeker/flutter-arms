@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:app_interfaces/app_interfaces.dart';
+import 'package:app_core/src/app_config.dart';
 import '../mocks/mock_storage.dart';
 import '../mocks/mock_signature_provider.dart';
 import '../mocks/mock_app_info.dart';
-import '../../lib/src/app_config.dart';
 
 /// 测试辅助工具类
 class TestHelpers {
