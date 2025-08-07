@@ -3,10 +3,12 @@ import 'package:app_interfaces/app_interfaces.dart';
 /// 网络配置类
 ///
 /// 管理网络请求的各种配置参数
-class NetworkConfig {
+class NetworkConfig implements INetWorkConfig{
   final String baseUrl;
   final Map<String, dynamic> defaultHeaders;
+  @override
   final Duration connectTimeout;
+  @override
   final Duration receiveTimeout;
   final Duration sendTimeout;
   final bool enableLogging;
@@ -35,6 +37,9 @@ class NetworkConfig {
   /// 创建开发环境配置
   factory NetworkConfig.development({
     required String baseUrl,
+    int connectTimeout = 30,
+    int receiveTimeout = 30,
+    int sendTimeout = 30,
     Map<String, dynamic>? defaultHeaders,
   }) {
     return NetworkConfig(
@@ -42,9 +47,9 @@ class NetworkConfig {
       defaultHeaders: defaultHeaders ?? {},
       environment: EnvironmentType.development,
       enableLogging: true,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 30),
+      connectTimeout:  Duration(seconds: connectTimeout),
+      receiveTimeout:  Duration(seconds: receiveTimeout),
+      sendTimeout:  Duration(seconds: sendTimeout),
     );
   }
 

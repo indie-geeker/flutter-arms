@@ -42,7 +42,7 @@ class AppConfig {
   final IAppInfo Function()? appInfoFactory;
 
   /// 网络模块工厂方法
-  // final INetworkClient Function() networkClientFactory;
+  final INetworkClient Function() networkClientFactory;
 
   /// 状态管理模块工厂方法
   // final IAppState Function() appStateFactory;
@@ -58,7 +58,7 @@ class AppConfig {
     required this.defaultLocale,
     required this.supportedLocales,
     required this.storageFactory,
-    // required this.networkClientFactory,
+    required this.networkClientFactory,
     // required this.appStateFactory,
     // required this.routerFactory,
     this.signatureHashProvider,
@@ -71,7 +71,6 @@ class AppConfig {
 
   /// 创建开发环境配置
   factory AppConfig.development({
-    required String apiBaseUrl,
     required String channel,
     Locale? defaultLocale,
     List<Locale>? supportedLocales,
@@ -79,7 +78,7 @@ class AppConfig {
     ThemeData? darkTheme,
     Color defaultPrimaryColor = Colors.blue,
     IStorage Function()? storageFactory,
-    // INetworkClient Function()? networkClientFactory,
+    INetworkClient Function()? networkClientFactory,
     // IAppState Function()? appStateFactory,
     // IRouter Function()? routerFactory,
   }) {
@@ -88,10 +87,8 @@ class AppConfig {
       defaultEnvironment: EnvironmentType.development,
       environmentConfigs: {
         EnvironmentType.development: {
-          'apiBaseUrl': apiBaseUrl,
-          'webSocketUrl': 'ws://${Uri.parse(apiBaseUrl).host}/ws',
+          'channel':channel,
           'enableVerboseLogging': true,
-          'connectionTimeout': 30000,
         },
       },
       defaultLocale: defaultLocale ?? const Locale('zh', 'CN'),
@@ -103,9 +100,9 @@ class AppConfig {
       storageFactory: storageFactory ?? () {
         throw UnimplementedError('存储模块工厂未提供，请在AppConfig中设置storageFactory');
       },
-      // networkClientFactory: networkClientFactory ?? () {
-      //   throw UnimplementedError('网络模块工厂未提供，请在AppConfig中设置networkClientFactory');
-      // },
+      networkClientFactory: networkClientFactory ?? () {
+        throw UnimplementedError('网络模块工厂未提供，请在AppConfig中设置networkClientFactory');
+      },
       // appStateFactory: appStateFactory ?? () {
       //   throw UnimplementedError('状态管理模块工厂未提供，请在AppConfig中设置appStateFactory');
       // },
@@ -117,7 +114,7 @@ class AppConfig {
 
   /// 创建生产环境配置
   factory AppConfig.production({
-    required String apiBaseUrl,
+    // required String apiBaseUrl,
     required String channel,
     Locale? defaultLocale,
     List<Locale>? supportedLocales,
@@ -126,7 +123,7 @@ class AppConfig {
     ThemeData? darkTheme,
     Color defaultPrimaryColor = Colors.blue,
     IStorage Function()? storageFactory,
-    // INetworkClient Function()? networkClientFactory,
+    INetworkClient Function()? networkClientFactory,
     // IAppState Function()? appStateFactory,
     // IRouter Function()? routerFactory,
   }) {
@@ -135,10 +132,7 @@ class AppConfig {
       defaultEnvironment: EnvironmentType.production,
       environmentConfigs: {
         EnvironmentType.production: {
-          'apiBaseUrl': apiBaseUrl,
-          'webSocketUrl': 'wss://${Uri.parse(apiBaseUrl).host}/ws',
-          'enableVerboseLogging': false,
-          'connectionTimeout': 15000,
+          'channel':channel,
           'enableCrashReporting': true,
           'enablePerformanceMonitoring': true,
         },
@@ -153,9 +147,9 @@ class AppConfig {
       storageFactory: storageFactory ?? () {
         throw UnimplementedError('存储模块工厂未提供，请在AppConfig中设置storageFactory');
       },
-      // networkClientFactory: networkClientFactory ?? () {
-      //   throw UnimplementedError('网络模块工厂未提供，请在AppConfig中设置networkClientFactory');
-      // },
+      networkClientFactory: networkClientFactory ?? () {
+        throw UnimplementedError('网络模块工厂未提供，请在AppConfig中设置networkClientFactory');
+      },
       // appStateFactory: appStateFactory ?? () {
       //   throw UnimplementedError('状态管理模块工厂未提供，请在AppConfig中设置appStateFactory');
       // },

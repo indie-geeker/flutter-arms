@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:app_core/app_core.dart';
+import 'package:app_network/app_network.dart';
 import 'package:app_storage/app_storage.dart';
 import 'package:flutter/material.dart';
 import 'initialization_screens.dart';
@@ -14,20 +17,36 @@ class MyApp extends StatelessWidget {
   Future<bool> _initializeApp() async {
     // 添加延迟以便观察加载状态
     debugPrint('开始应用初始化...');
-    
+    var testUrl = "http://www.baidu.com";
     final result = await AppManager.instance.initialize(
       AppConfig.development(
-        apiBaseUrl: "127.0.0.1", 
         channel: "dev",
-        storageFactory: () => SharedPrefsStorage(StorageConfig.defaultConfig())
+        storageFactory: () => SharedPrefsStorage(StorageConfig.defaultConfig()),
+        networkClientFactory: () => NetworkClientFactory.create(config: NetworkConfig.development(baseUrl: testUrl))
       ),
       onProgress: (progress) {
         debugPrint('初始化进度: ${(progress * 100).toStringAsFixed(0)}%');
       },
       onStepCompleted: (stepName, success) {
         debugPrint('模块[$stepName]初始化${success ? '成功' : '失败'}');
+
+        if(stepName == "app_network" && success){
+          AppManager.instance.networkClient.get(testUrl).then((v){
+            debugPrint("network请求成功: ${v.code}  ${v.message}  ${jsonEncode(v.data)}");
+          }).catchError((error) {
+            debugPrint("network请求失败: ${error.toString()}");
+
+          });
+        }
+
       },
     );
+
+    NetworkClient(config: NetworkConfig(baseUrl: testUrl)).get(testUrl).then((v){
+      debugPrint("network: ${v.code}   ${v.message}  ${jsonEncode(v.data)}");
+    });
+
+  
     
     // 添加2秒延迟，让用户能看到加载界面
     debugPrint('初始化完成，等待2秒以显示加载效果...');

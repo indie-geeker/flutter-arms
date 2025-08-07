@@ -1,5 +1,5 @@
 import 'package:app_interfaces/app_interfaces.dart';
-import 'package:app_network/src/api_client.dart';
+import 'package:app_network/src/network_client.dart';
 
 import 'cache/disk_cache_strategy.dart';
 import 'cache/memory_cache_strategy.dart';
@@ -18,18 +18,16 @@ class NetworkClientFactory {
   NetworkClientFactory._();
 
   /// 创建网络客户端
-  static ApiClient create({
+  static NetworkClient create({
     required NetworkConfig config,
     ICacheStrategy? cacheStrategy,
     INetworkErrorHandler? errorHandler,
     List<IRequestInterceptor>? customInterceptors,
   }) {
     // 创建网络客户端
-    final client = ApiClient(
-      baseUrl: config.baseUrl,
+    final client = NetworkClient(
+      config: config,
       defaultHeaders: config.defaultHeaders.map((k, v) => MapEntry(k, v.toString())),
-      connectTimeout: config.connectTimeout.inMilliseconds,
-      receiveTimeout: config.receiveTimeout.inMilliseconds,
     );
 
     // 添加日志拦截器
@@ -62,7 +60,7 @@ class NetworkClientFactory {
   }
 
   /// 创建带认证的网络客户端
-  static ApiClient createWithAuth({
+  static NetworkClient createWithAuth({
     required NetworkConfig config,
     String? token,
     Future<String?> Function()? onTokenRefresh,

@@ -1,13 +1,10 @@
-import 'package:app_interfaces/src/network/models/api_response.dart';
 
 import '../../app_interfaces.dart';
-import 'interceptor/i_request_interceptor.dart';
-import 'models/request_options.dart';
 
 /// 网络客户端接口
 ///
 /// 抽象网络请求客户端的基本功能，屏蔽具体实现细节（如Dio）
-abstract class IApiClient {
+abstract class INetworkClient {
   /// 执行网络请求并返回响应结果
   ///
   /// [options] 请求选项
@@ -166,4 +163,7 @@ abstract class IApiClient {
 
   /// 关闭客户端并释放资源
   void close();
+
+  /// 获取网络配置
+  INetWorkConfig get networkConfig;
 }

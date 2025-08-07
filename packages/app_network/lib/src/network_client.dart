@@ -2,29 +2,29 @@ import 'package:app_interfaces/app_interfaces.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart';
 
-class ApiClient implements IApiClient {
+class NetworkClient implements INetworkClient {
   late final dio.Dio _dio;
   final List<IRequestInterceptor> _interceptors = [];
   final Set<dio.CancelToken> _activeCancelTokens = <dio.CancelToken>{};
 
   dio.LogInterceptor? _logInterceptor;
-  
+
   // 请求去重相关
   final Map<String, Future<ApiResponse>> _pendingRequests = {};
   final Map<String, DateTime> _requestTimestamps = {};
 
+  late INetWorkConfig _config;
 
-  ApiClient({
-    String? baseUrl,
+  NetworkClient({
+    required INetWorkConfig config,
     Map<String, String>? defaultHeaders,
-    int connectTimeout = 30000,
-    int receiveTimeout = 30000,
   }) {
+    _config = config;
     _dio = dio.Dio(dio.BaseOptions(
-      baseUrl: baseUrl ?? '',
+      baseUrl: config.baseUrl ?? '',
       headers: defaultHeaders,
-      connectTimeout: Duration(milliseconds: connectTimeout),
-      receiveTimeout: Duration(milliseconds: receiveTimeout),
+      connectTimeout: config.connectTimeout,
+      receiveTimeout: config.receiveTimeout,
     ));
   }
 
@@ -40,20 +40,20 @@ class ApiClient implements IApiClient {
       {required RequestOptions options, Object? cancelToken}) async {
     // 生成请求键用于去重
     final requestKey = _generateRequestKey(options);
-    
+
     // 检查是否有相同的请求正在进行
     if (_pendingRequests.containsKey(requestKey)) {
       debugPrint('[Network] 请求去重: ${options.method.name} ${options.path}');
       return _pendingRequests[requestKey]! as Future<ApiResponse<T>>;
     }
-    
+
     // 创建请求执行器
     final requestFuture = _executeRequestWithInterceptors<T>(options, cancelToken);
-    
+
     // 缓存正在进行的请求
     _pendingRequests[requestKey] = requestFuture;
     _requestTimestamps[requestKey] = DateTime.now();
-    
+
     try {
       final result = await requestFuture;
       return result;
@@ -63,14 +63,14 @@ class ApiClient implements IApiClient {
       _requestTimestamps.remove(requestKey);
     }
   }
-  
+
   /// 执行带拦截器链的请求
   Future<ApiResponse<T>> _executeRequestWithInterceptors<T>(
-    RequestOptions options, 
-    Object? cancelToken
-  ) async {
+      RequestOptions options,
+      Object? cancelToken
+      ) async {
     var processedOptions = options;
-    
+
     try {
       // 1. 执行请求拦截器链
       for (final interceptor in _getSortedInterceptors()) {
@@ -78,7 +78,7 @@ class ApiClient implements IApiClient {
           processedOptions = await interceptor.onRequest(processedOptions);
         }
       }
-      
+
       // 2. 执行实际的网络请求
       final response = await _dio.request(
         processedOptions.path,
@@ -102,31 +102,31 @@ class ApiClient implements IApiClient {
           '_request_options': processedOptions, // 用于缓存等功能
         },
       );
-      
+
       // 3. 执行响应拦截器链
       for (final interceptor in _getSortedInterceptors()) {
         if (interceptor.enabled) {
           apiResponse = await interceptor.onResponse<T>(apiResponse, processedOptions);
         }
       }
-      
+
       return apiResponse;
-      
+
     } catch (error) {
       var processedError = error;
-      
+
       // 4. 执行错误拦截器链
       for (final interceptor in _getSortedInterceptors()) {
         if (interceptor.enabled) {
           processedError = await interceptor.onError(processedError, processedOptions);
         }
       }
-      
+
       // 5. 处理 Dio 异常
       if (processedError is dio.DioException) {
         throw _mapDioException(processedError);
       }
-      
+
       throw processedError;
     }
   }
@@ -155,8 +155,8 @@ class ApiClient implements IApiClient {
   @override
   Future<ApiResponse<T>> get<T>(String path,
       {Map<String, dynamic>? queryParameters,
-      RequestOptions? options,
-      Object? cancelToken}) {
+        RequestOptions? options,
+        Object? cancelToken}) {
     final requestOptions = _buildRequestOptions(
         method: RequestMethod.get,
         path: path,
@@ -172,9 +172,9 @@ class ApiClient implements IApiClient {
   @override
   Future<ApiResponse<T>> post<T>(String path,
       {data,
-      Map<String, dynamic>? queryParameters,
-      RequestOptions? options,
-      Object? cancelToken}) {
+        Map<String, dynamic>? queryParameters,
+        RequestOptions? options,
+        Object? cancelToken}) {
     final requestOptions = _buildRequestOptions(
         method: RequestMethod.post,
         path: path,
@@ -211,9 +211,9 @@ class ApiClient implements IApiClient {
   @override
   Future<ApiResponse<T>> patch<T>(String path,
       {data,
-      Map<String, dynamic>? queryParameters,
-      RequestOptions? options,
-      Object? cancelToken}) {
+        Map<String, dynamic>? queryParameters,
+        RequestOptions? options,
+        Object? cancelToken}) {
     final requestOptions = _buildRequestOptions(
       method: RequestMethod.patch,
       path: path,
@@ -233,9 +233,9 @@ class ApiClient implements IApiClient {
   @override
   Future<ApiResponse<T>> delete<T>(String path,
       {data,
-      Map<String, dynamic>? queryParameters,
-      RequestOptions? options,
-      Object? cancelToken}) {
+        Map<String, dynamic>? queryParameters,
+        RequestOptions? options,
+        Object? cancelToken}) {
     final requestOptions = _buildRequestOptions(
       method: RequestMethod.delete,
       path: path,
@@ -279,7 +279,7 @@ class ApiClient implements IApiClient {
     if (!_interceptors.contains(interceptor)) {
       _interceptors.add(interceptor);
       _interceptors.sort((a, b) => a.priority.compareTo(b.priority));
-      
+
       // 定期清理过期请求
       _cleanupExpiredRequests();
     }
@@ -323,14 +323,14 @@ class ApiClient implements IApiClient {
   @override
   void close() {
     cancelAllRequests('Client closed');
-    
+
     // 清理请求去重缓存
     _pendingRequests.clear();
     _requestTimestamps.clear();
-    
+
     // 清理拦截器
     _interceptors.clear();
-    
+
     // 关闭 Dio 实例
     _dio.close();
   }
@@ -364,7 +364,7 @@ class ApiClient implements IApiClient {
       _logInterceptor = null;
     }
   }
-  
+
   /// 获取请求去重统计信息
   Map<String, dynamic> getRequestDeduplicationStats() {
     return {
@@ -373,35 +373,35 @@ class ApiClient implements IApiClient {
       'oldest_request_age_minutes': _getOldestRequestAge(),
     };
   }
-  
+
   /// 获取最旧请求的年龄（分钟）
   int _getOldestRequestAge() {
     if (_requestTimestamps.isEmpty) return 0;
-    
+
     final now = DateTime.now();
     final oldestTimestamp = _requestTimestamps.values.reduce(
-      (a, b) => a.isBefore(b) ? a : b
+            (a, b) => a.isBefore(b) ? a : b
     );
-    
+
     return now.difference(oldestTimestamp).inMinutes;
   }
 
   // 私有辅助方法
-  
+
   /// 获取按优先级排序的拦截器列表
   List<IRequestInterceptor> _getSortedInterceptors() {
     final sortedList = List<IRequestInterceptor>.from(_interceptors);
     sortedList.sort((a, b) => a.priority.compareTo(b.priority));
     return sortedList;
   }
-  
+
   /// 生成请求键用于去重
   String _generateRequestKey(RequestOptions options) {
     final buffer = StringBuffer();
     buffer.write(options.method.name);
     buffer.write('|');
     buffer.write(options.path);
-    
+
     // 添加查询参数
     if (options.queryParameters?.isNotEmpty == true) {
       final sortedParams = Map.fromEntries(
@@ -411,45 +411,45 @@ class ApiClient implements IApiClient {
       buffer.write('|');
       buffer.write(Uri(queryParameters: sortedParams.map((k, v) => MapEntry(k, v.toString()))).query);
     }
-    
+
     // 添加请求体（仅对于 POST/PUT/PATCH 请求）
     if (options.data != null && _isModifyingMethod(options.method)) {
       buffer.write('|');
       buffer.write(options.data.toString().hashCode);
     }
-    
+
     return buffer.toString();
   }
-  
+
   /// 检查是否为修改性方法
   bool _isModifyingMethod(RequestMethod method) {
     return method == RequestMethod.post ||
-           method == RequestMethod.put ||
-           method == RequestMethod.delete ||
-           method == RequestMethod.patch;
+        method == RequestMethod.put ||
+        method == RequestMethod.delete ||
+        method == RequestMethod.patch;
   }
-  
+
   /// 清理过期的请求缓存
   void _cleanupExpiredRequests() {
     final now = DateTime.now();
     final expiredKeys = <String>[];
-    
+
     _requestTimestamps.forEach((key, timestamp) {
       if (now.difference(timestamp).inMinutes > 5) { // 5分钟过期
         expiredKeys.add(key);
       }
     });
-    
+
     for (final key in expiredKeys) {
       _pendingRequests.remove(key);
       _requestTimestamps.remove(key);
     }
-    
+
     if (expiredKeys.isNotEmpty) {
       debugPrint('[Network] 清理了 ${expiredKeys.length} 个过期请求缓存');
     }
   }
-  
+
   RequestOptions _buildRequestOptions({
     required RequestMethod method,
     required String path,
@@ -527,4 +527,7 @@ class ApiClient implements IApiClient {
         );
     }
   }
+
+  @override
+  INetWorkConfig get networkConfig => _config;
 }

@@ -30,7 +30,7 @@ class AppManager {
   // late final IRouter _router;
   //
   // /// 网络模块
-  // late final INetworkClient _networkClient;
+  late final INetworkClient _networkClient;
   //
   /// 存储模块
   IStorage? _storage;
@@ -69,7 +69,7 @@ class AppManager {
   // IRouter get router => _router;
   //
   // /// 网络接口
-  // INetworkClient get networkClient => _networkClient;
+  INetworkClient get networkClient => _networkClient;
 
   /// 存储接口
   // IStorage get storage => _storage!;
@@ -180,27 +180,27 @@ class AppManager {
       priority: 30,
     );
 
-    // _appInitializer.registerInitializer(
-    //   name: 'app_network',
-    //   initializer: () async {
-    //     // 构建网络模块，可能需要环境配置信息
-    //     // 使用 config.apiBaseUrl 而非从环境配置获取
-    //     _networkClient = config.networkClientFactory();
-    //
-    //     // 如果网络模块实现了 initialize 方法
-    //     try {
-    //       await (_networkClient as dynamic).initialize();
-    //     } catch (e) {
-    //       debugPrint('网络模块初始化失败: $e');
-    //       return false;
-    //     }
-    //
-    //     return true;
-    //   },
-    //   priority: 40,
-    //   dependsOn: ['environment_config'], // 依赖环境配置
-    // );
-    //
+    _appInitializer!.registerInitializer(
+      name: 'app_network',
+      initializer: () async {
+        // 构建网络模块，可能需要环境配置信息
+        // 使用 config.apiBaseUrl 而非从环境配置获取
+        _networkClient = config.networkClientFactory();
+
+        // // 如果网络模块实现了 initialize 方法
+        // try {
+        //   await (_networkClient as dynamic).initialize();
+        // } catch (e) {
+        //   debugPrint('网络模块初始化失败: $e');
+        //   return false;
+        // }
+
+        return true;
+      },
+      priority: 40,
+      dependsOn: ['environment_config'], // 依赖环境配置
+    );
+
     // _appInitializer.registerInitializer(
     //   name: 'app_state_providers',
     //   initializer: () async {

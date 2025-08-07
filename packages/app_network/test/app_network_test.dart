@@ -1,8 +1,8 @@
 import 'package:app_network/src/interceptors/base_interceptor.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:app_interfaces/app_interfaces.dart';
-import 'package:app_network/src/api_client.dart';
-import 'package:app_network/src/api_client_factory.dart';
+import 'package:app_network/src/network_client.dart';
+import 'package:app_network/src/network_client_factory.dart';
 import 'package:app_network/src/config/network_config.dart';
 import 'package:app_network/src/interceptors/auth_interceptor.dart';
 import 'package:app_network/src/interceptors/log_interceptor.dart';
@@ -16,18 +16,17 @@ void main() {
     // 适用场景：简单项目、快速原型、基础网络需求
     // ==========================================
     group('ApiClient 直接使用测试', () {
-      late ApiClient client;
+      late NetworkClient client;
       
       setUp(() {
         // 直接创建 ApiClient 实例
-        client = ApiClient(
-          baseUrl: 'https://jsonplaceholder.typicode.com',
+        client = NetworkClient(
+         config: NetworkConfig(baseUrl: "https://jsonplaceholder.typicode.com"),
           defaultHeaders: {
             'Content-Type': 'application/json',
             'User-Agent': 'Flutter-Test-App',
           },
-          connectTimeout: 10000,
-          receiveTimeout: 10000,
+      
         );
       });
       
@@ -152,7 +151,7 @@ void main() {
         );
         
         expect(client, isNotNull);
-        expect(client, isA<ApiClient>());
+        expect(client, isA<NetworkClient>());
         
         client.close();
       });
@@ -328,8 +327,8 @@ void main() {
       
       test('简单场景：ApiClient 直接使用', () {
         // 场景：快速原型开发，简单的 REST API 调用
-        final client = ApiClient(
-          baseUrl: 'https://jsonplaceholder.typicode.com',
+        final client = NetworkClient(
+         config: NetworkConfig(baseUrl: 'https://jsonplaceholder.typicode.com')
         );
         
         // 直接使用，配置简单

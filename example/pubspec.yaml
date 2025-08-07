@@ -34,6 +34,8 @@ dependencies:
     path: ../packages/app_core
   app_storage:
     path: ../packages/app_storage
+  app_network:
+    path: ../packages/app_network
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

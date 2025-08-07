@@ -4,6 +4,7 @@ import 'package:app_core/src/app_config.dart';
 import '../mocks/mock_storage.dart';
 import '../mocks/mock_signature_provider.dart';
 import '../mocks/mock_app_info.dart';
+import '../mocks/mock_network_client.dart';
 
 /// 测试辅助工具类
 class TestHelpers {
@@ -45,6 +46,11 @@ class TestHelpers {
         signatureHashProvider: signatureHashProvider,
       ),
       signatureHashProvider: signatureHashProvider,
+      networkClientFactory: () {
+        // 创建测试用的 Mock 网络客户端
+        // 避免 app_core 模块直接依赖 app_network 模块
+        return MockNetworkClient();
+      },
     );
   }
   

@@ -218,7 +218,7 @@ void main() {
   group('AppConfig 配置测试', () {
     test('应该创建有效的开发环境配置', () {
       final config = AppConfig.development(
-        apiBaseUrl: 'https://dev-api.example.com',
+        // apiBaseUrl: 'https://dev-api.example.com',
         channel: 'development',
         storageFactory: () => MockKeyValueStorage(),
       );
@@ -233,7 +233,7 @@ void main() {
 
     test('应该创建有效的生产环境配置', () {
       final config = AppConfig.production(
-        apiBaseUrl: 'https://api.example.com',
+        // apiBaseUrl: 'https://api.example.com',
         channel: 'production',
         storageFactory: () => MockKeyValueStorage(),
         signatureHashProvider: TestHelpers.createSuccessSignatureProvider(),
