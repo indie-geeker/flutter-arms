@@ -17,6 +17,9 @@ export 'error/network_error_type.dart';
 export 'models/request_options.dart';
 export 'models/api_response.dart';
 
+export 'parser/response_parser.dart';
+export 'parser/parsed_result.dart';
+
 export 'interceptor/i_auth_interceptor.dart';
 export 'interceptor/i_log_interceptor.dart';
 export 'interceptor/i_request_interceptor.dart';

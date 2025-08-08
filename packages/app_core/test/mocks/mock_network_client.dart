@@ -282,4 +282,7 @@ class MockNetworkConfig implements INetWorkConfig{
 
   @override
   Duration get receiveTimeout => Duration(seconds: 30);
+
+  @override
+  ResponseParser get responseParser => throw UnimplementedError();
 }

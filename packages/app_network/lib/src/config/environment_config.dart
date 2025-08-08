@@ -78,6 +78,7 @@ class EnvironmentConfig {
   /// 创建默认配置
   factory EnvironmentConfig.createDefault({
     required String developmentBaseUrl,
+    required ResponseParser responseParser,
     required String stagingBaseUrl,
     required String productionBaseUrl,
     Map<String, dynamic>? defaultHeaders,
@@ -85,14 +86,17 @@ class EnvironmentConfig {
     return EnvironmentConfig(
       developmentConfig: NetworkConfig.development(
         baseUrl: developmentBaseUrl,
+        parser: responseParser,
         defaultHeaders: defaultHeaders,
       ),
       stagingConfig: NetworkConfig.staging(
         baseUrl: stagingBaseUrl,
+        parser: responseParser,
         defaultHeaders: defaultHeaders,
       ),
       productionConfig: NetworkConfig.production(
         baseUrl: productionBaseUrl,
+        parser: responseParser,
         defaultHeaders: defaultHeaders,
       ),
     );

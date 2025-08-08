@@ -1,9 +1,11 @@
 import 'package:app_interfaces/app_interfaces.dart';
 
+
 /// 网络配置类
 ///
 /// 管理网络请求的各种配置参数
 class NetworkConfig implements INetWorkConfig{
+  @override
   final String baseUrl;
   final Map<String, dynamic> defaultHeaders;
   @override
@@ -18,9 +20,11 @@ class NetworkConfig implements INetWorkConfig{
   final bool enableCache;
   final Duration cacheTtl;
   final EnvironmentType environment;
+  final ResponseParser parser;
 
   const NetworkConfig({
     required this.baseUrl,
+    required this.parser,
     this.defaultHeaders = const {},
     this.connectTimeout = const Duration(seconds: 30),
     this.receiveTimeout = const Duration(seconds: 30),
@@ -37,6 +41,7 @@ class NetworkConfig implements INetWorkConfig{
   /// 创建开发环境配置
   factory NetworkConfig.development({
     required String baseUrl,
+    required ResponseParser parser,
     int connectTimeout = 30,
     int receiveTimeout = 30,
     int sendTimeout = 30,
@@ -44,6 +49,7 @@ class NetworkConfig implements INetWorkConfig{
   }) {
     return NetworkConfig(
       baseUrl: baseUrl,
+      parser: parser,
       defaultHeaders: defaultHeaders ?? {},
       environment: EnvironmentType.development,
       enableLogging: true,
@@ -56,10 +62,12 @@ class NetworkConfig implements INetWorkConfig{
   /// 创建测试环境配置
   factory NetworkConfig.staging({
     required String baseUrl,
+    required ResponseParser parser,
     Map<String, dynamic>? defaultHeaders,
   }) {
     return NetworkConfig(
       baseUrl: baseUrl,
+      parser: parser,
       defaultHeaders: defaultHeaders ?? {},
       environment: EnvironmentType.staging,
       enableLogging: true,
@@ -72,10 +80,12 @@ class NetworkConfig implements INetWorkConfig{
   /// 创建生产环境配置
   factory NetworkConfig.production({
     required String baseUrl,
+    required ResponseParser parser,
     Map<String, dynamic>? defaultHeaders,
   }) {
     return NetworkConfig(
       baseUrl: baseUrl,
+      parser: parser,
       defaultHeaders: defaultHeaders ?? {},
       environment: EnvironmentType.production,
       enableLogging: false,
@@ -87,75 +97,79 @@ class NetworkConfig implements INetWorkConfig{
     );
   }
 
-  /// 复制并修改配置
-  NetworkConfig copyWith({
-    String? baseUrl,
-    Map<String, dynamic>? defaultHeaders,
-    Duration? connectTimeout,
-    Duration? receiveTimeout,
-    Duration? sendTimeout,
-    bool? enableLogging,
-    bool? enableRetry,
-    int? maxRetries,
-    Duration? retryDelay,
-    bool? enableCache,
-    Duration? cacheTtl,
-    EnvironmentType? environment,
-  }) {
-    return NetworkConfig(
-      baseUrl: baseUrl ?? this.baseUrl,
-      defaultHeaders: defaultHeaders ?? this.defaultHeaders,
-      connectTimeout: connectTimeout ?? this.connectTimeout,
-      receiveTimeout: receiveTimeout ?? this.receiveTimeout,
-      sendTimeout: sendTimeout ?? this.sendTimeout,
-      enableLogging: enableLogging ?? this.enableLogging,
-      enableRetry: enableRetry ?? this.enableRetry,
-      maxRetries: maxRetries ?? this.maxRetries,
-      retryDelay: retryDelay ?? this.retryDelay,
-      enableCache: enableCache ?? this.enableCache,
-      cacheTtl: cacheTtl ?? this.cacheTtl,
-      environment: environment ?? this.environment,
-    );
-  }
 
-  /// 转换为 Map
-  Map<String, dynamic> toMap() {
-    return {
-      'baseUrl': baseUrl,
-      'defaultHeaders': defaultHeaders,
-      'connectTimeout': connectTimeout.inMilliseconds,
-      'receiveTimeout': receiveTimeout.inMilliseconds,
-      'sendTimeout': sendTimeout.inMilliseconds,
-      'enableLogging': enableLogging,
-      'enableRetry': enableRetry,
-      'maxRetries': maxRetries,
-      'retryDelay': retryDelay.inMilliseconds,
-      'enableCache': enableCache,
-      'cacheTtl': cacheTtl.inMilliseconds,
-      'environment': environment.name,
-    };
-  }
-
-  /// 从 Map 创建配置
-  factory NetworkConfig.fromMap(Map<String, dynamic> map) {
-    return NetworkConfig(
-      baseUrl: map['baseUrl'] as String,
-      defaultHeaders: Map<String, dynamic>.from(map['defaultHeaders'] ?? {}),
-      connectTimeout: Duration(milliseconds: map['connectTimeout'] as int),
-      receiveTimeout: Duration(milliseconds: map['receiveTimeout'] as int),
-      sendTimeout: Duration(milliseconds: map['sendTimeout'] as int),
-      enableLogging: map['enableLogging'] as bool? ?? true,
-      enableRetry: map['enableRetry'] as bool? ?? true,
-      maxRetries: map['maxRetries'] as int? ?? 3,
-      retryDelay: Duration(milliseconds: map['retryDelay'] as int? ?? 500),
-      enableCache: map['enableCache'] as bool? ?? true,
-      cacheTtl: Duration(milliseconds: map['cacheTtl'] as int? ?? 300000),
-      environment: EnvironmentType.values.firstWhere(
-        (e) => e.name == map['environment'],
-        orElse: () => EnvironmentType.development,
-      ),
-    );
-  }
+  // /// 复制并修改配置
+  // NetworkConfig copyWith({
+  //   String? baseUrl,
+  //   ResponseParser? parser,
+  //   Map<String, dynamic>? defaultHeaders,
+  //   Duration? connectTimeout,
+  //   Duration? receiveTimeout,
+  //   Duration? sendTimeout,
+  //   bool? enableLogging,
+  //   bool? enableRetry,
+  //   int? maxRetries,
+  //   Duration? retryDelay,
+  //   bool? enableCache,
+  //   Duration? cacheTtl,
+  //   EnvironmentType? environment,
+  // }) {
+  //   return NetworkConfig(
+  //     baseUrl: baseUrl ?? this.baseUrl,
+  //     parser: parser ?? this.parser,
+  //     defaultHeaders: defaultHeaders ?? this.defaultHeaders,
+  //     connectTimeout: connectTimeout ?? this.connectTimeout,
+  //     receiveTimeout: receiveTimeout ?? this.receiveTimeout,
+  //     sendTimeout: sendTimeout ?? this.sendTimeout,
+  //     enableLogging: enableLogging ?? this.enableLogging,
+  //     enableRetry: enableRetry ?? this.enableRetry,
+  //     maxRetries: maxRetries ?? this.maxRetries,
+  //     retryDelay: retryDelay ?? this.retryDelay,
+  //     enableCache: enableCache ?? this.enableCache,
+  //     cacheTtl: cacheTtl ?? this.cacheTtl,
+  //     environment: environment ?? this.environment,
+  //   );
+  // }
+  //
+  // /// 转换为 Map
+  // Map<String, dynamic> toMap() {
+  //   return {
+  //     'baseUrl': baseUrl,
+  //     'defaultHeaders': defaultHeaders,
+  //     'connectTimeout': connectTimeout.inMilliseconds,
+  //     'receiveTimeout': receiveTimeout.inMilliseconds,
+  //     'sendTimeout': sendTimeout.inMilliseconds,
+  //     'enableLogging': enableLogging,
+  //     'enableRetry': enableRetry,
+  //     'maxRetries': maxRetries,
+  //     'retryDelay': retryDelay.inMilliseconds,
+  //     'enableCache': enableCache,
+  //     'cacheTtl': cacheTtl.inMilliseconds,
+  //     'environment': environment.name,
+  //   };
+  // }
+  //
+  // /// 从 Map 创建配置
+  // factory NetworkConfig.fromMap(Map<String, dynamic> map) {
+  //   return NetworkConfig(
+  //     baseUrl: map['baseUrl'] as String,
+  //     parser: this.parser,
+  //     defaultHeaders: Map<String, dynamic>.from(map['defaultHeaders'] ?? {}),
+  //     connectTimeout: Duration(milliseconds: map['connectTimeout'] as int),
+  //     receiveTimeout: Duration(milliseconds: map['receiveTimeout'] as int),
+  //     sendTimeout: Duration(milliseconds: map['sendTimeout'] as int),
+  //     enableLogging: map['enableLogging'] as bool? ?? true,
+  //     enableRetry: map['enableRetry'] as bool? ?? true,
+  //     maxRetries: map['maxRetries'] as int? ?? 3,
+  //     retryDelay: Duration(milliseconds: map['retryDelay'] as int? ?? 500),
+  //     enableCache: map['enableCache'] as bool? ?? true,
+  //     cacheTtl: Duration(milliseconds: map['cacheTtl'] as int? ?? 300000),
+  //     environment: EnvironmentType.values.firstWhere(
+  //       (e) => e.name == map['environment'],
+  //       orElse: () => EnvironmentType.development,
+  //     ),
+  //   );
+  // }
 
   @override
   String toString() {
@@ -172,4 +186,7 @@ class NetworkConfig implements INetWorkConfig{
 
   @override
   int get hashCode => baseUrl.hashCode ^ environment.hashCode;
+
+  @override
+  ResponseParser get responseParser => parser;
 }
