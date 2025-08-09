@@ -18,7 +18,7 @@ class AppInfo implements IAppInfo {
   final String _channel;
   DateTime? _firstInstallTime;
   DateTime? _lastUpdateTime;
-  IKeyValueStorage? _kvStorage;
+  final IKeyValueStorage? _kvStorage;
 
   /// 应用签名哈希，通常需要应用层传入或通过平台通道获取
   final Future<String> Function()? _signatureHashProvider;

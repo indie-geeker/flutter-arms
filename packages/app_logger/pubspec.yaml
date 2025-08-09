@@ -1,4 +1,4 @@
-name: app_utils
+name: app_logger
 description: "A new Flutter package project."
 version: 0.0.1
 homepage:
@@ -10,6 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  app_interfaces:
+    path: ../app_interfaces
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
