@@ -21,10 +21,12 @@ class NetworkConfig implements INetWorkConfig{
   final Duration cacheTtl;
   final EnvironmentType environment;
   final ResponseParser parser;
+  final ILogger? logger;
 
   const NetworkConfig({
     required this.baseUrl,
     required this.parser,
+    this.logger ,
     this.defaultHeaders = const {},
     this.connectTimeout = const Duration(seconds: 30),
     this.receiveTimeout = const Duration(seconds: 30),
@@ -46,6 +48,7 @@ class NetworkConfig implements INetWorkConfig{
     int receiveTimeout = 30,
     int sendTimeout = 30,
     Map<String, dynamic>? defaultHeaders,
+    ILogger? logger,
   }) {
     return NetworkConfig(
       baseUrl: baseUrl,
@@ -56,6 +59,7 @@ class NetworkConfig implements INetWorkConfig{
       connectTimeout:  Duration(seconds: connectTimeout),
       receiveTimeout:  Duration(seconds: receiveTimeout),
       sendTimeout:  Duration(seconds: sendTimeout),
+      logger: logger,
     );
   }
 

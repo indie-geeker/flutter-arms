@@ -32,7 +32,11 @@ class NetworkClientFactory {
 
     // 添加日志拦截器
     if (config.enableLogging) {
+      if (config.logger == null) {
+        throw ArgumentError('Logger must be provided when logging is enabled.');
+      }
       client.addInterceptor(LogInterceptor(
+        logger: config.logger,
         logRequest: true,
         logResponse: true,
         logError: true,

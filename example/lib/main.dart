@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
           config: NetworkConfig.development(
             baseUrl: testUrl,
             parser: TestResponseParser(),
+            logger: Logger(),
           ),
         ),
       ),

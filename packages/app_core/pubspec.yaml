@@ -12,6 +12,16 @@ dependencies:
     sdk: flutter
   app_interfaces:
     path: ../app_interfaces
+  app_storage:
+    path: ../app_storage
+  app_network:
+    path: ../app_network
+  app_logger:
+    path: ../app_logger
+  app_utils:
+    path: ../app_utils
+  app_ui:
+    path: ../app_ui
 
 
   device_info_plus:
