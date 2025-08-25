@@ -1,0 +1,6 @@
+# melos_managed_dependency_overrides: app_network,app_interfaces
+dependency_overrides:
+  app_network:
+    path: ../../packages/app_network
+  app_interfaces:
+    path: ../../packages/app_interfaces
