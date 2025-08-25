@@ -1,7 +1,13 @@
 name: flutter_arms
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.8.0 <4.0.0'
+workspace:
+  - packages/app_interfaces
+  - packages/app_network
+  - packages/app_storage
+  - packages/app_logger
+  - packages/app_utils
 
 dependencies:
   # l10n
@@ -43,7 +49,7 @@ dependencies:
 
 ### dev dependencies overrides ###
 dev_dependencies:
-  melos: ^6.3.2
+  melos: ^7.1.0
   flutter_lints: ^5.0.0
   build_runner: ^2.4.15
   custom_lint: ^0.7.6
