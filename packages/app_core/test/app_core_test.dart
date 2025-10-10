@@ -8,47 +8,38 @@ import 'helpers/test_helpers.dart';
 void main() {
   // 初始化 Flutter 绑定，支持 PackageInfo 等平台相关功能
   TestWidgetsFlutterBinding.ensureInitialized();
-  group('AppManager 单例模式测试', () {
-    tearDown(() {
-      // 每个测试后重置 AppManager
-      AppManager.instance.reset();
-    });
+  group('AppManager 实例化测试', () {
+    test('应该可以创建多个独立实例', () {
+      final instance1 = AppManager();
+      final instance2 = AppManager();
 
-    test('应该返回同一个单例实例', () {
-      final instance1 = AppManager.instance;
-      final instance2 = AppManager.instance;
-      
-      expect(instance1, same(instance2));
+      expect(instance1, isNot(same(instance2)));
       expect(instance1, isA<AppManager>());
+      expect(instance2, isA<AppManager>());
     });
 
-    test('重置后应该可以获取新的实例', () {
-      final instance1 = AppManager.instance;
-      instance1.reset();
-      final instance2 = AppManager.instance;
-      
-      expect(instance2, isA<AppManager>());
-      expect(instance2.isInitialized, isFalse);
+    test('新实例应该处于未初始化状态', () {
+      final instance = AppManager();
+
+      expect(instance, isA<AppManager>());
+      expect(instance.isInitialized, isFalse);
     });
   });
 
   group('AppManager 初始化测试', () {
     late AppConfig testConfig;
     late MockKeyValueStorage mockStorage;
-    
+    late AppManager manager;
+
     setUp(() {
       mockStorage = TestHelpers.createMockKeyValueStorage();
       testConfig = TestHelpers.createTestAppConfig(
         storageFactory: () => mockStorage,
       );
-    });
-    
-    tearDown(() {
-      AppManager.instance.reset();
+      manager = AppManager();
     });
 
     test('应该成功初始化所有模块', () async {
-      final manager = AppManager.instance;
       
       expect(manager.isInitialized, isFalse);
       
@@ -63,7 +54,6 @@ void main() {
     });
 
     test('重复初始化应该返回 true 且不重复执行', () async {
-      final manager = AppManager.instance;
       
       // 第一次初始化
       final result1 = await manager.initialize(testConfig);
@@ -77,7 +67,6 @@ void main() {
     });
 
     test('应该正确调用进度回调', () async {
-      final manager = AppManager.instance;
       final progressValues = <double>[];
       
       await manager.initialize(
@@ -92,7 +81,6 @@ void main() {
     });
 
     test('应该正确调用步骤完成回调', () async {
-      final manager = AppManager.instance;
       final stepResults = <MapEntry<String, bool>>[];
       
       await manager.initialize(
@@ -113,18 +101,18 @@ void main() {
       // 创建一个会失败的存储 Mock
       final failingStorage = MockKeyValueStorage();
       // 重写 init 方法使其失败
-      
+
       final failingConfig = TestHelpers.createTestAppConfig(
         storageFactory: () => failingStorage,
       );
-      
-      final manager = AppManager.instance;
+
+      final failingManager = AppManager();
       
       // 注意：由于当前实现中存储初始化失败会被捕获并打印日志，
       // 但仍然返回 false，我们需要模拟这种情况
       // 这里我们假设存储的 init 方法抛出异常
-      
-      final result = await manager.initialize(failingConfig);
+
+      final result = await failingManager.initialize(failingConfig);
       
       // 根据当前实现，即使存储初始化失败，整体初始化可能仍然成功
       // 这取决于具体的错误处理逻辑
@@ -134,17 +122,14 @@ void main() {
 
   group('AppManager 重置功能测试', () {
     late AppConfig testConfig;
-    
+    late AppManager manager;
+
     setUp(() {
       testConfig = TestHelpers.createTestAppConfig();
-    });
-    
-    tearDown(() {
-      AppManager.instance.reset();
+      manager = AppManager();
     });
 
     test('重置后应该清除初始化状态', () async {
-      final manager = AppManager.instance;
       
       // 先初始化
       await manager.initialize(testConfig);
@@ -156,7 +141,6 @@ void main() {
     });
 
     test('重置后应该可以重新初始化', () async {
-      final manager = AppManager.instance;
       
       // 第一次初始化
       await manager.initialize(testConfig);
@@ -176,20 +160,17 @@ void main() {
   group('AppManager 模块访问测试', () {
     late AppConfig testConfig;
     late MockKeyValueStorage mockStorage;
-    
+    late AppManager manager;
+
     setUp(() {
       mockStorage = TestHelpers.createMockKeyValueStorage();
       testConfig = TestHelpers.createTestAppConfig(
         storageFactory: () => mockStorage,
       );
-    });
-    
-    tearDown(() {
-      AppManager.instance.reset();
+      manager = AppManager();
     });
 
     test('初始化后应该可以访问所有模块', () async {
-      final manager = AppManager.instance;
       
       await manager.initialize(testConfig);
       
@@ -201,7 +182,6 @@ void main() {
     });
 
     test('存储模块应该正常工作', () async {
-      final manager = AppManager.instance;
       
       await manager.initialize(testConfig);
       
@@ -275,10 +255,6 @@ void main() {
   });
 
   group('集成测试', () {
-    tearDown(() {
-      AppManager.instance.reset();
-    });
-
     test('完整的应用初始化流程', () async {
       final mockStorage = TestHelpers.createMockKeyValueStorage();
       final config = TestHelpers.createTestAppConfig(
@@ -286,8 +262,8 @@ void main() {
         storageFactory: () => mockStorage,
         signatureHashProvider: TestHelpers.createSuccessSignatureProvider('integration_hash'),
       );
-      
-      final manager = AppManager.instance;
+
+      final manager = AppManager();
       final progressValues = <double>[];
       final stepResults = <MapEntry<String, bool>>[];
       

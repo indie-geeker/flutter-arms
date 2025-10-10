@@ -1,4 +1,5 @@
 export 'src/app_manager.dart';
+export 'src/app_manager_provider.dart';
 export 'src/app_config.dart';
 /// 通用接口
 export 'package:app_interfaces/app_interfaces.dart' show ResponseParser, ParsedResult, ApiResponse;

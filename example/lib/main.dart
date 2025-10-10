@@ -7,18 +7,23 @@ import 'package:flutter/material.dart';
 import 'initialization_screens.dart';
 
 void main() {
-  runApp(const MyApp());
+  // 创建 AppManager 实例
+  final appManager = AppManager();
+
+  runApp(MyApp(appManager: appManager));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AppManager appManager;
+
+  const MyApp({super.key, required this.appManager});
 
   /// 应用初始化方法
   Future<bool> _initializeApp() async {
     // 添加延迟以便观察加载状态
     debugPrint('开始应用初始化...');
     var testUrl = "http://www.baidu.com";
-    final result = await AppManager.instance.initialize(
+    final result = await appManager.initialize(
       AppConfig.development(
         channel: "dev",
         storageFactory: () => SharedPrefsStorage(StorageConfig.defaultConfig()),
@@ -37,7 +42,7 @@ class MyApp extends StatelessWidget {
         debugPrint('模块[$stepName]初始化${success ? '成功' : '失败'}');
 
         if (stepName == "app_network" && success) {
-          AppManager.instance.networkClient.get(testUrl).then((v) {
+          appManager.networkClient.get(testUrl).then((v) {
             debugPrint(
                 "network请求成功: ${v.code}  ${v.message}  ${jsonEncode(v.data)}");
           }).catchError((error) {
@@ -62,7 +67,7 @@ class MyApp extends StatelessWidget {
     // 初始化完成后进行存储操作
     if (result) {
       try {
-        final storage = AppManager.instance.getStorage<SharedPrefsStorage>();
+        final storage = appManager.getStorage<SharedPrefsStorage>();
         await storage.setString(
             "test", "应用初始化完成 - ${DateTime.now().toIso8601String()}");
         await storage.setString("app_version", "1.0.0");
@@ -78,13 +83,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Arms Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: FutureBuilder<bool>(
+    return AppManagerProvider(
+      appManager: appManager,
+      child: MaterialApp(
+        title: 'Flutter Arms Demo',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: FutureBuilder<bool>(
         future: _initializeApp(),
         builder: (context, snapshot) {
           // 显示加载状态
@@ -106,6 +113,7 @@ class MyApp extends StatelessWidget {
           // 初始化成功，显示主页面
           return const MyHomePage(title: 'Flutter Arms Demo');
         },
+        ),
       ),
     );
   }
@@ -135,16 +143,20 @@ class _MyHomePageState extends State<MyHomePage> {
   String _testValue = '加载中...'; // 添加状态变量存储测试值
 
   @override
-  void initState() {
-    super.initState();
-    _initializeStorage();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // 只在第一次调用时初始化
+    if (_storage == null) {
+      _initializeStorage();
+    }
   }
 
   /// 使用泛型方法初始化存储
   Future<void> _initializeStorage() async {
     try {
-      // 使用泛型方法获取键值存储实例 - 类型安全，无需强制转换
-      _storage = AppManager.instance.getStorage<SharedPrefsStorage>();
+      // 在 didChangeDependencies 中可以安全地访问 InheritedWidget
+      final appManager = AppManagerProvider.of(context);
+      _storage = appManager.getStorage<SharedPrefsStorage>();
 
       // 从存储中加载计数器值
       final savedCounter = await _storage!.getInt('counter', 0);

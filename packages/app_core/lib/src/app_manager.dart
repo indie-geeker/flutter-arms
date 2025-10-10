@@ -32,23 +32,14 @@ class AppManager {
   // /// 网络模块
   late final INetworkClient _networkClient;
   //
-  /// 存储模块
-  IStorage? _storage;
+  /// 存储模块（支持多种存储类型）
+  final Map<Type, IStorage> _storages = {};
   //
   // /// 状态管理模块
   // late final IAppState _stateContainer;
 
-  /// 私有构造函数，避免直接实例化
-  AppManager._();
-
-  /// 单例实例
-  static AppManager? _instance;
-
-  /// 获取单例实例
-  static AppManager get instance {
-    _instance ??= AppManager._();
-    return _instance!;
-  }
+  /// 公共构造函数，支持直接实例化
+  AppManager();
 
   /// 应用信息接口
   IAppInfo get appInfo => _appInfo!;
@@ -71,14 +62,43 @@ class AppManager {
   // /// 网络接口
   INetworkClient get networkClient => _networkClient;
 
-  /// 存储接口
-  // IStorage get storage => _storage!;
+  /// 注册存储实例
+  ///
+  /// 支持注册多个不同类型的存储实例，如 SharedPreferences、SecureStorage 等
+  /// 会同时注册具体类型和其运行时类型
+  void registerStorage<T extends IStorage>(T storage) {
+    // 注册泛型类型
+    _storages[T] = storage;
+    // 同时注册运行时类型，确保可以通过具体类型获取
+    _storages[storage.runtimeType] = storage;
+  }
+
+  /// 获取指定类型的存储实例
+  ///
+  /// 类型安全的存储访问方法，支持同时使用多种存储类型
+  /// 如果未注册指定类型，则抛出 StateError
   T getStorage<T extends IStorage>() {
-    if (_storage is T) {
-      return _storage as T;
+    final storage = _storages[T];
+    if (storage == null) {
+      throw StateError(
+        'Storage type $T not registered. '
+        'Please register it using registerStorage<$T>() before accessing.'
+      );
     }
-    throw StateError('当前存储实现不支持 ${T.toString()} 接口。'
-        '当前实现: ${_storage.runtimeType}');
+    return storage as T;
+  }
+
+  /// 尝试获取指定类型的存储实例
+  ///
+  /// 如果未注册指定类型，返回 null 而不是抛出异常
+  T? tryGetStorage<T extends IStorage>() {
+    final storage = _storages[T];
+    return storage as T?;
+  }
+
+  /// 检查是否已注册指定类型的存储
+  bool hasStorage<T extends IStorage>() {
+    return _storages.containsKey(T);
   }
 
   // /// 状态管理接口
@@ -101,7 +121,8 @@ class AppManager {
     }
 
     // 先创建存储实例，因为其他组件可能依赖存储
-    _storage = config.storageFactory();
+    final storage = config.storageFactory();
+    registerStorage(storage);
     
     // 创建各组件实例
     // 检查是否有自定义的 appInfoFactory，用于测试环境
@@ -111,7 +132,7 @@ class AppManager {
       _appInfo = AppInfo(
         channel: config.channel,
         signatureHashProvider: config.signatureHashProvider,
-        storage: _storage as IKeyValueStorage?,
+        storage: tryGetStorage<IKeyValueStorage>(),
       );
     }
 
@@ -133,16 +154,18 @@ class AppManager {
 
     _appInitializer = AppInitializer();
 
-    // 注册初始化步骤
+    // 注册初始化步骤 - 初始化所有已注册的存储
     _appInitializer!.registerInitializer(
       name: 'app_storage',
       initializer: () async {
-        // 如果存储模块实现了 initialize 方法
-        try {
-          await (_storage! as dynamic).init();
-        } catch (e) {
-          debugPrint('存储模块初始化失败: $e');
-          return false;
+        // 初始化所有已注册的存储模块
+        for (final storage in _storages.values) {
+          try {
+            await storage.init();
+          } catch (e) {
+            debugPrint('存储模块初始化失败 (${storage.runtimeType}): $e');
+            return false;
+          }
         }
         return true;
       },
@@ -152,18 +175,12 @@ class AppManager {
     _appInitializer!.registerInitializer(
       name: 'app_info',
       initializer: () async {
-        // 使用反射检查是否有 initialize 方法
+        // 直接调用接口定义的 initialize 方法
         try {
-          // 尝试调用 initialize 方法
-          final dynamic appInfo = _appInfo;
-          if (appInfo.runtimeType.toString().contains('AppInfo')) {
-            await appInfo.initialize();
-          }
+          await _appInfo!.initialize();
         } catch (e) {
-          // 如果调用失败，记录错误但不阻断初始化
-          if (kDebugMode) {
-            print('AppInfo 初始化警告: $e');
-          }
+          debugPrint('AppInfo 初始化失败: $e');
+          return false;
         }
         return true;
       },
@@ -273,12 +290,11 @@ class AppManager {
       _appInitializer?.reset();
     }
     _isInitialized = false;
-    _instance = null;
-    
+
     // 重置所有字段为 null，以便重新初始化
     _appInfo = null;
     _appInitializer = null;
     _environmentConfig = null;
-    _storage = null;
+    _storages.clear();
   }
 }
