@@ -9,10 +9,6 @@ class NetworkClient implements INetworkClient {
 
   dio.LogInterceptor? _logInterceptor;
 
-  // 请求去重相关
-  final Map<String, Future<ApiResponse>> _pendingRequests = {};
-  final Map<String, DateTime> _requestTimestamps = {};
-
   late INetWorkConfig _config;
 
   NetworkClient({
@@ -38,30 +34,7 @@ class NetworkClient implements INetworkClient {
   @override
   Future<ApiResponse<T>> request<T>(
       {required RequestOptions options, Object? cancelToken}) async {
-    // 生成请求键用于去重
-    final requestKey = _generateRequestKey(options);
-
-    // 检查是否有相同的请求正在进行
-    if (_pendingRequests.containsKey(requestKey)) {
-      debugPrint('[Network] 请求去重: ${options.method.name} ${options.path}');
-      return _pendingRequests[requestKey]! as Future<ApiResponse<T>>;
-    }
-
-    // 创建请求执行器
-    final requestFuture = _executeRequestWithInterceptors<T>(options, cancelToken);
-
-    // 缓存正在进行的请求
-    _pendingRequests[requestKey] = requestFuture;
-    _requestTimestamps[requestKey] = DateTime.now();
-
-    try {
-      final result = await requestFuture;
-      return result;
-    } finally {
-      // 清理已完成的请求
-      _pendingRequests.remove(requestKey);
-      _requestTimestamps.remove(requestKey);
-    }
+    return _executeRequestWithInterceptors<T>(options, cancelToken);
   }
 
   /// 执行带拦截器链的请求
@@ -279,9 +252,6 @@ class NetworkClient implements INetworkClient {
     if (!_interceptors.contains(interceptor)) {
       _interceptors.add(interceptor);
       _interceptors.sort((a, b) => a.priority.compareTo(b.priority));
-
-      // 定期清理过期请求
-      _cleanupExpiredRequests();
     }
   }
 
@@ -324,10 +294,6 @@ class NetworkClient implements INetworkClient {
   void close() {
     cancelAllRequests('Client closed');
 
-    // 清理请求去重缓存
-    _pendingRequests.clear();
-    _requestTimestamps.clear();
-
     // 清理拦截器
     _interceptors.clear();
 
@@ -365,27 +331,6 @@ class NetworkClient implements INetworkClient {
     }
   }
 
-  /// 获取请求去重统计信息
-  Map<String, dynamic> getRequestDeduplicationStats() {
-    return {
-      'pending_requests_count': _pendingRequests.length,
-      'cached_timestamps_count': _requestTimestamps.length,
-      'oldest_request_age_minutes': _getOldestRequestAge(),
-    };
-  }
-
-  /// 获取最旧请求的年龄（分钟）
-  int _getOldestRequestAge() {
-    if (_requestTimestamps.isEmpty) return 0;
-
-    final now = DateTime.now();
-    final oldestTimestamp = _requestTimestamps.values.reduce(
-            (a, b) => a.isBefore(b) ? a : b
-    );
-
-    return now.difference(oldestTimestamp).inMinutes;
-  }
-
   // 私有辅助方法
 
   /// 获取按优先级排序的拦截器列表
@@ -393,61 +338,6 @@ class NetworkClient implements INetworkClient {
     final sortedList = List<IRequestInterceptor>.from(_interceptors);
     sortedList.sort((a, b) => a.priority.compareTo(b.priority));
     return sortedList;
-  }
-
-  /// 生成请求键用于去重
-  String _generateRequestKey(RequestOptions options) {
-    final buffer = StringBuffer();
-    buffer.write(options.method.name);
-    buffer.write('|');
-    buffer.write(options.path);
-
-    // 添加查询参数
-    if (options.queryParameters?.isNotEmpty == true) {
-      final sortedParams = Map.fromEntries(
-        options.queryParameters!.entries.toList()
-          ..sort((a, b) => a.key.compareTo(b.key)),
-      );
-      buffer.write('|');
-      buffer.write(Uri(queryParameters: sortedParams.map((k, v) => MapEntry(k, v.toString()))).query);
-    }
-
-    // 添加请求体（仅对于 POST/PUT/PATCH 请求）
-    if (options.data != null && _isModifyingMethod(options.method)) {
-      buffer.write('|');
-      buffer.write(options.data.toString().hashCode);
-    }
-
-    return buffer.toString();
-  }
-
-  /// 检查是否为修改性方法
-  bool _isModifyingMethod(RequestMethod method) {
-    return method == RequestMethod.post ||
-        method == RequestMethod.put ||
-        method == RequestMethod.delete ||
-        method == RequestMethod.patch;
-  }
-
-  /// 清理过期的请求缓存
-  void _cleanupExpiredRequests() {
-    final now = DateTime.now();
-    final expiredKeys = <String>[];
-
-    _requestTimestamps.forEach((key, timestamp) {
-      if (now.difference(timestamp).inMinutes > 5) { // 5分钟过期
-        expiredKeys.add(key);
-      }
-    });
-
-    for (final key in expiredKeys) {
-      _pendingRequests.remove(key);
-      _requestTimestamps.remove(key);
-    }
-
-    if (expiredKeys.isNotEmpty) {
-      debugPrint('[Network] 清理了 ${expiredKeys.length} 个过期请求缓存');
-    }
   }
 
   RequestOptions _buildRequestOptions({

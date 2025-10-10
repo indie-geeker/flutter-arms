@@ -13,6 +13,8 @@ export 'enums/content_type.dart';
 
 export 'error/i_network_error_handler.dart';
 export 'error/network_error_type.dart';
+export 'error/app_error.dart';
+export 'error/error_recovery_strategy.dart';
 
 export 'models/request_options.dart';
 export 'models/api_response.dart';

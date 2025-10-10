@@ -20,12 +20,10 @@ class NetworkConfig implements INetWorkConfig{
   final bool enableCache;
   final Duration cacheTtl;
   final EnvironmentType environment;
-  final ResponseParser parser;
   final ILogger? logger;
 
   const NetworkConfig({
     required this.baseUrl,
-    required this.parser,
     this.logger ,
     this.defaultHeaders = const {},
     this.connectTimeout = const Duration(seconds: 30),
@@ -43,7 +41,6 @@ class NetworkConfig implements INetWorkConfig{
   /// 创建开发环境配置
   factory NetworkConfig.development({
     required String baseUrl,
-    required ResponseParser parser,
     int connectTimeout = 30,
     int receiveTimeout = 30,
     int sendTimeout = 30,
@@ -52,7 +49,6 @@ class NetworkConfig implements INetWorkConfig{
   }) {
     return NetworkConfig(
       baseUrl: baseUrl,
-      parser: parser,
       defaultHeaders: defaultHeaders ?? {},
       environment: EnvironmentType.development,
       enableLogging: true,
@@ -66,12 +62,10 @@ class NetworkConfig implements INetWorkConfig{
   /// 创建测试环境配置
   factory NetworkConfig.staging({
     required String baseUrl,
-    required ResponseParser parser,
     Map<String, dynamic>? defaultHeaders,
   }) {
     return NetworkConfig(
       baseUrl: baseUrl,
-      parser: parser,
       defaultHeaders: defaultHeaders ?? {},
       environment: EnvironmentType.staging,
       enableLogging: true,
@@ -84,12 +78,10 @@ class NetworkConfig implements INetWorkConfig{
   /// 创建生产环境配置
   factory NetworkConfig.production({
     required String baseUrl,
-    required ResponseParser parser,
     Map<String, dynamic>? defaultHeaders,
   }) {
     return NetworkConfig(
       baseUrl: baseUrl,
-      parser: parser,
       defaultHeaders: defaultHeaders ?? {},
       environment: EnvironmentType.production,
       enableLogging: false,
@@ -192,5 +184,5 @@ class NetworkConfig implements INetWorkConfig{
   int get hashCode => baseUrl.hashCode ^ environment.hashCode;
 
   @override
-  ResponseParser get responseParser => parser;
+  ResponseParser? get responseParser => null;
 }

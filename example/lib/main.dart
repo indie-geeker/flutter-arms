@@ -23,17 +23,33 @@ class MyApp extends StatelessWidget {
     // 添加延迟以便观察加载状态
     debugPrint('开始应用初始化...');
     var testUrl = "http://www.baidu.com";
+
+    // 创建网络配置（不再需要 parser 参数）
+    final networkConfig = NetworkConfig.development(
+      baseUrl: testUrl,
+      logger: Logger(),
+    );
+
+    // 创建网络客户端
+    final networkClient = NetworkClientFactory.create(config: networkConfig);
+
+    // 添加响应解析拦截器
+    networkClient.addInterceptor(
+      ResponseParserInterceptor(TestResponseParser()),
+    );
+
+    // 添加请求去重拦截器
+    networkClient.addInterceptor(
+      DeduplicationInterceptor(
+        expirationDuration: const Duration(minutes: 5),
+      ),
+    );
+
     final result = await appManager.initialize(
       AppConfig.development(
         channel: "dev",
         storageFactory: () => SharedPrefsStorage(StorageConfig.defaultConfig()),
-        networkClientFactory: () => NetworkClientFactory.create(
-          config: NetworkConfig.development(
-            baseUrl: testUrl,
-            parser: TestResponseParser(),
-            logger: Logger(),
-          ),
-        ),
+        networkClientFactory: () => networkClient,
       ),
       onProgress: (progress) {
         debugPrint('初始化进度: ${(progress * 100).toStringAsFixed(0)}%');
@@ -42,6 +58,7 @@ class MyApp extends StatelessWidget {
         debugPrint('模块[$stepName]初始化${success ? '成功' : '失败'}');
 
         if (stepName == "app_network" && success) {
+          // 演示新的错误处理方式
           appManager.networkClient.get(testUrl).then((v) {
             debugPrint(
                 "network请求成功: ${v.code}  ${v.message}  ${jsonEncode(v.data)}");
@@ -51,14 +68,6 @@ class MyApp extends StatelessWidget {
         }
       },
     );
-
-    NetworkClient(
-            config:
-                NetworkConfig(baseUrl: testUrl, parser: TestResponseParser()))
-        .get(testUrl)
-        .then((v) {
-      debugPrint("network: ${v.code}   ${v.message}  ${jsonEncode(v.data)}");
-    });
 
     // 添加2秒延迟，让用户能看到加载界面
     debugPrint('初始化完成，等待2秒以显示加载效果...');
