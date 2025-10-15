@@ -1,9 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/material.dart';
-import 'package:app_interfaces/app_interfaces.dart';
-
-import '../lib/src/app_info.dart';
-import 'mocks/mock_storage.dart';
+import 'package:flutter/foundation.dart';
+import 'package:app_core/src/app_info.dart';
 import 'helpers/test_helpers.dart';
 
 void main() {
@@ -22,17 +19,17 @@ void main() {
       
       try {
         await appInfo.initialize();
-        print('AppInfo 初始化成功');
-        
+        debugPrint('AppInfo 初始化成功');
+
         // 验证基本属性
-        print('App Name: ${appInfo.appName}');
-        print('Package Name: ${appInfo.packageName}');
-        print('Version: ${appInfo.version}');
-        print('Channel: ${appInfo.channel}');
-        
+        debugPrint('App Name: ${appInfo.appName}');
+        debugPrint('Package Name: ${appInfo.packageName}');
+        debugPrint('Version: ${appInfo.version}');
+        debugPrint('Channel: ${appInfo.channel}');
+
       } catch (e, stackTrace) {
-        print('AppInfo 初始化失败: $e');
-        print('Stack trace: $stackTrace');
+        debugPrint('AppInfo 初始化失败: $e');
+        debugPrint('Stack trace: $stackTrace');
         rethrow;
       }
     });
@@ -46,7 +43,7 @@ void main() {
       final value = await mockStorage.getString('test_key');
       
       expect(value, equals('test_value'));
-      print('存储操作正常');
+      debugPrint('存储操作正常');
     });
   });
 }

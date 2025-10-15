@@ -1,9 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/material.dart';
-import 'package:app_interfaces/app_interfaces.dart';
 import 'package:app_core/app_core.dart';
-import 'mocks/mock_storage.dart';
 import 'helpers/test_helpers.dart';
+import 'mocks/mock_storage.dart';
 
 void main() {
   // 初始化 Flutter 绑定，支持 PackageInfo 等平台相关功能
@@ -27,7 +25,7 @@ void main() {
   });
 
   group('AppManager 初始化测试', () {
-    late AppConfig testConfig;
+    late AppInitConfig testConfig;
     late MockKeyValueStorage mockStorage;
     late AppManager manager;
 
@@ -121,7 +119,7 @@ void main() {
   });
 
   group('AppManager 重置功能测试', () {
-    late AppConfig testConfig;
+    late AppInitConfig testConfig;
     late AppManager manager;
 
     setUp(() {
@@ -158,7 +156,7 @@ void main() {
   });
 
   group('AppManager 模块访问测试', () {
-    late AppConfig testConfig;
+    late AppInitConfig testConfig;
     late MockKeyValueStorage mockStorage;
     late AppManager manager;
 
@@ -192,37 +190,6 @@ void main() {
       final value = await storage.getString('test_key');
       
       expect(value, equals('test_value'));
-    });
-  });
-
-  group('AppConfig 配置测试', () {
-    test('应该创建有效的开发环境配置', () {
-      final config = AppConfig.development(
-        // apiBaseUrl: 'https://dev-api.example.com',
-        channel: 'development',
-        storageFactory: () => MockKeyValueStorage(),
-      );
-      
-      expect(config.channel, equals('development'));
-      expect(config.defaultEnvironment, equals(EnvironmentType.development));
-      expect(config.environmentConfigs.containsKey(EnvironmentType.development), isTrue);
-      expect(config.defaultLocale, equals(const Locale('zh', 'CN')));
-      expect(config.supportedLocales, contains(const Locale('zh', 'CN')));
-      expect(config.supportedLocales, contains(const Locale('en', 'US')));
-    });
-
-    test('应该创建有效的生产环境配置', () {
-      final config = AppConfig.production(
-        // apiBaseUrl: 'https://api.example.com',
-        channel: 'production',
-        storageFactory: () => MockKeyValueStorage(),
-        signatureHashProvider: TestHelpers.createSuccessSignatureProvider(),
-      );
-      
-      expect(config.channel, equals('production'));
-      expect(config.defaultEnvironment, equals(EnvironmentType.production));
-      expect(config.environmentConfigs.containsKey(EnvironmentType.production), isTrue);
-      expect(config.signatureHashProvider, isNotNull);
     });
   });
 

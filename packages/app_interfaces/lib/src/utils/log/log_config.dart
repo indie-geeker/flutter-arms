@@ -1,4 +1,3 @@
-import 'package:app_interfaces/src/utils/log/i_log.dart';
 
 import 'model/log_level.dart';
 

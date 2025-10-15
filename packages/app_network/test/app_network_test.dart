@@ -7,6 +7,7 @@ import 'package:app_network/src/config/network_config.dart';
 import 'package:app_network/src/interceptors/auth_interceptor.dart';
 import 'package:app_network/src/interceptors/log_interceptor.dart';
 import 'package:app_network/src/interceptors/retry_interceptor.dart';
+import 'package:app_network/src/interceptors/response_parser_interceptor.dart';
 
 void main() {
   group('App Network Framework Tests', () {

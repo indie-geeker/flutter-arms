@@ -150,9 +150,12 @@ coverage/
 # Markdown文件(除README.md外)
 *.md
 !README.md
+!*/README.md
+
 
 # 其他
 *.log
 *.pyc
 *.swp
 .metadata
+.claude

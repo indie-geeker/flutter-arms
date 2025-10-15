@@ -5,6 +5,7 @@ import 'i_request_interceptor.dart';
 /// 专门处理认证相关的请求拦截，如添加token、处理401错误等
 abstract class IAuthInterceptor extends IRequestInterceptor {
   /// 是否启用认证拦截
+  @override
   bool get enabled;
 
   /// 启用认证拦截

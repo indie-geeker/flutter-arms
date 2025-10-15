@@ -2,7 +2,37 @@ import 'package:app_interfaces/app_interfaces.dart';
 
 /// [EnvironmentConfig] 实现 [IEnvironmentConfig] 接口
 ///
-/// 提供应用运行环境的配置信息，如API基础地址、环境类型等
+/// 提供应用运行环境的配置信息，如API基础地址、环境类型等。
+///
+/// @deprecated This class is deprecated in favor of custom configuration classes
+/// that extend [BaseConfig] and implement [IEnvironmentConfig]. This allows for
+/// type-safe, validated configuration through dependency injection.
+///
+/// Migration example:
+/// ```dart
+/// // Old way (deprecated):
+/// final config = EnvironmentConfig(
+///   defaultEnvironment: EnvironmentType.development,
+///   configs: {...},
+/// );
+///
+/// // New way (recommended):
+/// class MyAppConfig extends BaseConfig implements IEnvironmentConfig {
+///   final String apiBaseUrl;
+///   final EnvironmentType environment;
+///   // ... other fields with proper types
+///
+///   @override
+///   EnvironmentType get environmentType => environment;
+///   // ... implement other IEnvironmentConfig methods
+/// }
+///
+/// final config = MyAppConfig(...);
+/// ```
+@Deprecated(
+  'Use custom configuration classes that extend BaseConfig instead. '
+  'This class will be removed in a future version.',
+)
 class EnvironmentConfig implements IEnvironmentConfig {
   static const String _envTypeKey = 'app_environment_type';
 

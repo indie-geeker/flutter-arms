@@ -38,14 +38,15 @@ class MockAppInfo implements IAppInfo {
        _signatureHashProvider = signatureHashProvider;
 
   /// 初始化 Mock AppInfo
+  @override
   Future<void> initialize() async {
     // 模拟一些初始化延迟
     await Future.delayed(const Duration(milliseconds: 10));
     
     // 如果有存储，保存一些测试数据
     if (_storage != null) {
-      await _storage!.setString('first_install_time', _firstInstallTime.toString());
-      await _storage!.setString('last_update_time', _lastUpdateTime.toString());
+      await _storage.setString('first_install_time', _firstInstallTime.toString());
+      await _storage.setString('last_update_time', _lastUpdateTime.toString());
     }
     
     _isInitialized = true;
@@ -114,7 +115,7 @@ class MockAppInfo implements IAppInfo {
   @override
   Future<String> get signatureHash async {
     if (_signatureHashProvider != null) {
-      return await _signatureHashProvider!();
+      return await _signatureHashProvider();
     }
     return 'mock-signature-hash';
   }

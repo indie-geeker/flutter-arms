@@ -17,7 +17,7 @@ class NetworkClient implements INetworkClient {
   }) {
     _config = config;
     _dio = dio.Dio(dio.BaseOptions(
-      baseUrl: config.baseUrl ?? '',
+      baseUrl: config.baseUrl,
       headers: defaultHeaders,
       connectTimeout: config.connectTimeout,
       receiveTimeout: config.receiveTimeout,

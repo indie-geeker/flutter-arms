@@ -68,7 +68,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
         _logger?.info('SharedPrefsStorage 清除所有数据');
       }
       return result;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 清除数据失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -83,7 +83,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
       _initialized = false;
       _logger?.info('SharedPrefsStorage 关闭成功');
       return true;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 关闭失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -134,7 +134,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
 
       _logger?.info('SharedPrefsStorage 获取所有数据: ${result.length}项');
       return result;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 获取所有数据失败',
           tag: 'SharedPrefsStorage', error: e);
       return result;
@@ -240,7 +240,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
 
       _logger?.info('SharedPrefsStorage 重新加载成功');
       return true;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 重新加载失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -259,7 +259,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
         _logger?.info('SharedPrefsStorage 删除键: $key');
       }
       return success;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 删除键失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -297,7 +297,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
       }
 
       return success;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 批量设置失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -316,7 +316,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
         _logger?.info('SharedPrefsStorage 设置布尔值: $key = $value');
       }
       return success;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 设置布尔值失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -335,7 +335,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
         _logger?.info('SharedPrefsStorage 设置双精度值: $key = $value');
       }
       return success;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 设置双精度值失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -354,7 +354,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
         _logger?.info('SharedPrefsStorage 设置整数值: $key = $value');
       }
       return success;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 设置整数值失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -376,7 +376,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
         _logger?.info('SharedPrefsStorage 设置字符串值: $key');
       }
       return success;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 设置字符串值失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;
@@ -403,7 +403,7 @@ class SharedPrefsStorage implements IKeyValueStorage {
         _logger?.info('设置字符串列表: $key, 大小: ${value.length}');
       }
       return success;
-    } catch (e, stackTrace) {
+    } catch (e) {
       _logger?.error('SharedPrefsStorage 设置字符串列表失败',
           tag: 'SharedPrefsStorage', error: e);
       return false;

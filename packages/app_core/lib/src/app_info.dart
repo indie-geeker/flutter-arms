@@ -32,6 +32,7 @@ class AppInfo implements IAppInfo {
         _kvStorage = storage;
 
   /// 初始化应用信息
+  @override
   Future<void> initialize() async {
     _packageInfo = await PackageInfo.fromPlatform();
 

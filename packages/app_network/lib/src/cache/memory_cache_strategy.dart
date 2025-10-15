@@ -234,9 +234,8 @@ class MemoryCacheStrategy implements ICacheStrategy {
 
   /// 获取缓存统计信息
   Map<String, dynamic> getCacheStats() {
-    final now = DateTime.now();
     int expiredCount = 0;
-    
+
     for (final entry in _cache.values) {
       if (entry.isExpired) {
         expiredCount++;

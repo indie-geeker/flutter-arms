@@ -1,10 +1,11 @@
 import 'package:app_interfaces/app_interfaces.dart';
+import 'package:app_storage/app_storage.dart';
 import 'package:flutter/foundation.dart';
 
-import 'app_config.dart';
 import 'app_info.dart';
+import 'app_init_config.dart';
 import 'app_initializer.dart';
-import 'environment_config.dart';
+import 'builders/network_client_builder.dart';
 
 /// 应用核心实现
 ///
@@ -18,7 +19,7 @@ class AppManager {
   AppInitializer? _appInitializer;
 
   /// 环境配置
-  EnvironmentConfig? _environmentConfig;
+  IEnvironmentConfig? _environmentConfig;
   //
   // /// 应用主题
   // late final AppTheme _appTheme;
@@ -110,9 +111,48 @@ class AppManager {
   /// 获取应用是否已初始化
   bool get isInitialized => _isInitialized;
 
-  /// 使用应用配置初始化核心组件
+  /// Initializes core components using application configuration.
+  ///
+  /// This method simplifies app initialization by automatically configuring
+  /// components from your BaseConfig implementation.
+  ///
+  /// ## Usage Patterns
+  ///
+  /// ### Minimal (Auto-Configuration)
+  /// ```dart
+  /// await appManager.initialize(
+  ///   AppInitConfig(config: myAppConfig),
+  /// );
+  /// ```
+  ///
+  /// ### Standard (Common Customization)
+  /// ```dart
+  /// await appManager.initialize(
+  ///   AppInitConfig(
+  ///     config: myAppConfig,
+  ///     logger: Logger(),
+  ///     networkSetup: (config) => NetworkSetup.standard(
+  ///       parser: MyResponseParser(),
+  ///     ),
+  ///   ),
+  /// );
+  /// ```
+  ///
+  /// ### Advanced (Full Control)
+  /// ```dart
+  /// await appManager.initialize(
+  ///   AppInitConfig(
+  ///     config: myAppConfig,
+  ///     logger: customLogger,
+  ///     storageFactory: () => CustomStorage(),
+  ///     networkSetup: (config) => NetworkSetup()
+  ///       .withResponseParser(MyParser())
+  ///       .addInterceptor(MyInterceptor()),
+  ///   ),
+  /// );
+  /// ```
   Future<bool> initialize(
-    AppConfig config, {
+    AppInitConfig initConfig, {
     ValueChanged<double>? onProgress,
     void Function(String stepName, bool success)? onStepCompleted,
   }) async {
@@ -120,37 +160,29 @@ class AppManager {
       return true;
     }
 
-    // 先创建存储实例，因为其他组件可能依赖存储
-    final storage = config.storageFactory();
+    // 1. Create storage instance (default to SharedPrefsStorage if not provided)
+    final storage = initConfig.storageFactory?.call() ??
+        SharedPrefsStorage(
+          StorageConfig.defaultConfig(),
+          logger: initConfig.logger,
+        );
     registerStorage(storage);
-    
-    // 创建各组件实例
-    // 检查是否有自定义的 appInfoFactory，用于测试环境
-    if (config.appInfoFactory != null) {
-      _appInfo = config.appInfoFactory!();
+
+    // 2. Create app info
+    if (initConfig.appInfoFactory != null) {
+      _appInfo = initConfig.appInfoFactory!();
     } else {
       _appInfo = AppInfo(
-        channel: config.channel,
-        signatureHashProvider: config.signatureHashProvider,
+        channel: initConfig.channel,
+        signatureHashProvider: initConfig.signatureHashProvider,
         storage: tryGetStorage<IKeyValueStorage>(),
       );
     }
 
-    _environmentConfig = EnvironmentConfig(
-      defaultEnvironment: config.defaultEnvironment,
-      configs: config.environmentConfigs,
-    );
-
-    // _appTheme = AppTheme(
-    //   lightTheme: config.lightTheme ?? ThemeData.light(useMaterial3: true),
-    //   darkTheme: config.darkTheme ?? ThemeData.dark(useMaterial3: true),
-    //   initialPrimaryColor: config.defaultPrimaryColor,
-    // );
-    //
-    // _appLocalizations = AppLocalizations(
-    //   defaultLocale: config.defaultLocale,
-    //   supportedLocales: config.supportedLocales,
-    // );
+    // 3. Store environment config reference (if config implements IEnvironmentConfig)
+    if (initConfig.config is IEnvironmentConfig) {
+      _environmentConfig = initConfig.config as IEnvironmentConfig;
+    }
 
     _appInitializer = AppInitializer();
 
@@ -188,29 +220,46 @@ class AppManager {
       dependsOn: ['app_storage'], // 依赖存储
     );
 
-    _appInitializer!.registerInitializer(
-      name: 'environment_config',
-      initializer: () async {
-        await _environmentConfig!.initialize();
-        return true;
-      },
-      priority: 30,
-    );
+    // Only register environment_config initialization if it has an initialize method
+    // (Some configs may not need initialization)
+    if (_environmentConfig != null) {
+      _appInitializer!.registerInitializer(
+        name: 'environment_config',
+        initializer: () async {
+          // Config is already set, no additional initialization needed
+          // unless the config implements a specific initialize method
+          return true;
+        },
+        priority: 30,
+      );
+    }
 
     _appInitializer!.registerInitializer(
       name: 'app_network',
       initializer: () async {
-        // 构建网络模块，可能需要环境配置信息
-        // 使用 config.apiBaseUrl 而非从环境配置获取
-        _networkClient = config.networkClientFactory();
+        // 4. Auto-create network client from config if it implements INetWorkConfig
+        if (initConfig.config is INetWorkConfig) {
+          final networkConfig = initConfig.config as INetWorkConfig;
 
-        // // 如果网络模块实现了 initialize 方法
-        // try {
-        //   await (_networkClient as dynamic).initialize();
-        // } catch (e) {
-        //   debugPrint('网络模块初始化失败: $e');
-        //   return false;
-        // }
+          // Create base network client
+          _networkClient = NetworkClientBuilder.fromConfig(
+            networkConfig,
+            logger: initConfig.logger,
+          );
+
+          // Apply network setup (interceptors) if provided
+          if (initConfig.networkSetup != null) {
+            final setup = initConfig.networkSetup!(networkConfig);
+            for (final interceptor in setup.interceptors) {
+              _networkClient.addInterceptor(interceptor);
+            }
+          }
+        } else {
+          throw StateError(
+            'config must implement INetWorkConfig for automatic network setup. '
+            'Found: ${initConfig.config.runtimeType}',
+          );
+        }
 
         return true;
       },

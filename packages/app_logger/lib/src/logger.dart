@@ -5,9 +5,44 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 
 
-/// 日志实现类
+/// Legacy logger implementation with built-in console and memory output.
 ///
-/// 提供日志记录、过滤、查询和导出功能
+/// This is the original logger implementation that combines console output
+/// and memory storage in a single class. For new code, consider using
+/// [CompositeLogger] with separate output implementations for better
+/// flexibility and testability.
+///
+/// **Deprecation Notice**: While this class is still supported, the
+/// recommended approach is to use [CompositeLogger] with individual
+/// [LogOutput] implementations like [ConsoleLogOutput], [MemoryLogOutput],
+/// [FileLogOutput], and [RemoteLogOutput].
+///
+/// Example usage (legacy pattern):
+/// ```dart
+/// final logger = Logger(minLevel: LogLevel.debug);
+/// logger.info('Application started');
+///
+/// // Retrieve logs
+/// final logs = logger.getLogs(level: LogLevel.error);
+///
+/// // Export logs
+/// final jsonLogs = logger.exportLogs('json');
+/// ```
+///
+/// Example usage (recommended pattern):
+/// ```dart
+/// final consoleOutput = ConsoleLogOutput();
+/// final memoryOutput = MemoryLogOutput();
+/// final logger = CompositeLogger(
+///   outputs: [consoleOutput, memoryOutput],
+///   minLevel: LogLevel.debug,
+/// );
+///
+/// logger.info('Application started');
+///
+/// // Retrieve logs from memory output directly
+/// final logs = memoryOutput.getLogs(level: LogLevel.error);
+/// ```
 class Logger implements ILogger{
   /// ANSI转义序列颜色代码
   static const String _resetColor = '\u001b[0m';
@@ -311,7 +346,7 @@ class Logger implements ILogger{
       } else {
         // 删除最后一个逗号
         buffer.write(buffer.toString().endsWith(',\n')
-            ? buffer.toString().substring(0, buffer.toString().length - 2) + '\n'
+            ? '${buffer.toString().substring(0, buffer.toString().length - 2)}\n'
             : buffer.toString());
       }
       buffer.writeln('  }${i < _logEntries.length - 1 ? ',' : ''}');

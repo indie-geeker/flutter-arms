@@ -188,7 +188,6 @@ class DiskCacheStrategy implements ICacheStrategy {
     return _generateMd5Hash(keyBytes);
   }
 
-  @override
   Future<void> clearCache([RequestOptions? options]) async {
     await _ensureInitialized();
 
@@ -213,7 +212,6 @@ class DiskCacheStrategy implements ICacheStrategy {
     }
   }
 
-  @override
   Future<void> clearExpiredCache() async {
     await _ensureInitialized();
 
