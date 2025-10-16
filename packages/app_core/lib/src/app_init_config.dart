@@ -89,6 +89,10 @@ class AppInitConfig {
   /// Mainly used for testing. Leave null for default implementation.
   final IAppInfo Function()? appInfoFactory;
 
+
+  final IThemeManager Function()? themeFactory;
+
+
   /// Creates an application initialization configuration.
   ///
   /// Only [config] is required. All other parameters have sensible defaults.
@@ -104,6 +108,7 @@ class AppInitConfig {
     this.networkSetup,
     this.signatureHashProvider,
     this.appInfoFactory,
+    this.themeFactory
   });
 
   /// Creates a quick configuration with just the app config.

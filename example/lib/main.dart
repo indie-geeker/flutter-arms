@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:app_core/app_core.dart';
+import 'package:example/theme/my_theme_manager.dart';
 import 'package:flutter/material.dart';
-
+import 'package:app_interfaces/app_interfaces.dart';
 import 'config/base_app_config.dart';
 import 'config/config_factory.dart';
 import 'initialization_screens.dart';
@@ -142,6 +143,12 @@ class MyApp extends StatelessWidget {
           parser: TestResponseParser(),
           deduplicationWindow: const Duration(minutes: 5),
         ),
+        // ✨ 添加主题和国际化工厂
+        themeFactory: () => MyThemeManager(
+          config: appConfig,
+          storage: appManager.tryGetStorage<IKeyValueStorage>(),
+        ),
+
       ),
       onProgress: (progress) {
         debugPrint('Progress: ${(progress * 100).toStringAsFixed(0)}%');
@@ -270,38 +277,74 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppManagerProvider(
       appManager: appManager,
-      child: MaterialApp(
-        title: appConfig.appName,
-        debugShowCheckedModeBanner: !appConfig.isProduction,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        showPerformanceOverlay: appConfig.showPerformanceOverlay,
-        home: FutureBuilder<bool>(
-          future: _initializeApp(),
-          builder: (context, snapshot) {
-            // Show loading state
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const InitializationScreen();
-            }
+      child: FutureBuilder<bool>(
+        future: _initializeApp(),
+        builder: (context, snapshot) {
+          // Show loading state
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return MaterialApp(
+              title: appConfig.appName,
+              debugShowCheckedModeBanner: !appConfig.isProduction,
+              home: const InitializationScreen(),
+            );
+          }
 
-            // Show error state
-            if (snapshot.hasError || snapshot.data != true) {
-              return InitializationErrorScreen(
+          // Show error state
+          if (snapshot.hasError || snapshot.data != true) {
+            return MaterialApp(
+              title: appConfig.appName,
+              debugShowCheckedModeBanner: !appConfig.isProduction,
+              home: InitializationErrorScreen(
                 error: snapshot.error?.toString() ?? 'Initialization failed',
                 onRetry: () {
                   (context as Element).markNeedsBuild();
                 },
-              );
-            }
-
-            // Show success - main app screen
-            return MyHomePage(
-              title: '${appConfig.appName} - ${appConfig.environment.name}',
+              ),
             );
-          },
-        ),
+          }
+
+          // Initialization successful - build app with theme management
+          final themeManager = appManager.themeManager;
+
+          if (themeManager == null) {
+            // Fallback: theme manager not initialized, use default theme
+            return MaterialApp(
+              title: appConfig.appName,
+              debugShowCheckedModeBanner: !appConfig.isProduction,
+              theme: ThemeData(
+                colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                useMaterial3: true,
+              ),
+              showPerformanceOverlay: appConfig.showPerformanceOverlay,
+              home: MyHomePage(
+                title: '${appConfig.appName} - ${appConfig.environment.name}',
+              ),
+            );
+          }
+
+          // Build app with theme management
+          return ValueListenableBuilder<ThemeMode>(
+            valueListenable: themeManager.themeModeNotifier,
+            builder: (context, themeMode, _) {
+              return ValueListenableBuilder<Color?>(
+                valueListenable: themeManager.themeColorNotifier!,
+                builder: (context, themeColor, _) {
+                  return MaterialApp(
+                    title: appConfig.appName,
+                    debugShowCheckedModeBanner: !appConfig.isProduction,
+                    themeMode: themeMode,
+                    theme: themeManager.lightTheme,
+                    darkTheme: themeManager.darkTheme,
+                    showPerformanceOverlay: appConfig.showPerformanceOverlay,
+                    home: MyHomePage(
+                      title: '${appConfig.appName} - ${appConfig.environment.name}',
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
       ),
     );
   }

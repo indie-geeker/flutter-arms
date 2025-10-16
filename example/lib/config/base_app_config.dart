@@ -1,5 +1,10 @@
+import 'dart:ui';
+
 import 'package:app_core/app_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/material/app.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:app_interfaces/app_interfaces.dart';
 
 /// Base application configuration that extends BaseConfig and implements IEnvironmentConfig.
 ///
@@ -12,7 +17,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 /// await dotenv.load(fileName: '.env.development');
 /// final config = DevelopmentConfig();
 /// ```
-class BaseAppConfig extends BaseConfig implements IEnvironmentConfig, INetWorkConfig {
+class BaseAppConfig extends BaseConfig implements IEnvironmentConfig, INetWorkConfig, IThemeConfig {
   /// Application name
   final String appName;
 
@@ -296,4 +301,35 @@ class BaseAppConfig extends BaseConfig implements IEnvironmentConfig, INetWorkCo
   static bool _parseBool(String value) {
     return value.toLowerCase() == 'true' || value == '1';
   }
+
+  @override
+  Color get defaultSeedColor => Colors.blue; // 可自定义默认主题色;
+
+  @override
+  ThemeMode get defaultThemeMode => ThemeMode.system;
+
+  @override
+  bool get enableCustomThemeColor => true;
+
+  @override
+  bool get enableThemeAnimation => true;
+
+  @override
+  List<Color>? get presetThemeColors => [
+    Colors.blue,
+    Colors.purple,
+    Colors.green,
+    Colors.orange,
+    Colors.red,
+    Colors.teal,
+  ]; // 预设主题色方案
+
+  @override
+  Duration get themeAnimationDuration => Duration(milliseconds: 2000);
+
+  @override
+  String get themeColorStorageKey => "color";
+
+  @override
+  String get themeModeStorageKey => "mode";
 }

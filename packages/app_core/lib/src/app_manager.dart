@@ -20,9 +20,13 @@ class AppManager {
 
   /// 环境配置
   IEnvironmentConfig? _environmentConfig;
-  //
-  // /// 应用主题
-  // late final AppTheme _appTheme;
+
+  /// 应用主题
+  IThemeManager? _themeManager;
+
+  /// 尝试获取主题管理器（可能为 null）
+  IThemeManager? get themeManager => _themeManager;
+
   //
   // /// 应用国际化
   // late final AppLocalizations _appLocalizations;
@@ -50,9 +54,7 @@ class AppManager {
 
   /// 环境配置接口
   IEnvironmentConfig get environmentConfig => _environmentConfig!;
-  //
-  // /// 应用主题
-  // AppTheme get appTheme => _appTheme;
+
   //
   // /// 应用国际化
   // AppLocalizations get appLocalizations => _appLocalizations;
@@ -184,6 +186,10 @@ class AppManager {
       _environmentConfig = initConfig.config as IEnvironmentConfig;
     }
 
+
+
+
+
     _appInitializer = AppInitializer();
 
     // 注册初始化步骤 - 初始化所有已注册的存储
@@ -267,6 +273,7 @@ class AppManager {
       dependsOn: ['environment_config'], // 依赖环境配置
     );
 
+
     // _appInitializer.registerInitializer(
     //   name: 'app_state_providers',
     //   initializer: () async {
@@ -286,14 +293,20 @@ class AppManager {
     //   dependsOn: ['app_storage'], // 状态管理可能依赖存储以持久化状态
     // );
     //
-    // _appInitializer.registerInitializer(
-    //   name: 'app_theme',
-    //   initializer: () async {
-    //     await _appTheme.initialize();
-    //     return true;
-    //   },
-    //   priority: 60,
-    // );
+    if(initConfig.themeFactory != null) {
+      _appInitializer!.registerInitializer(
+        name: 'app_theme',
+        initializer: () async {
+          _themeManager = initConfig.themeFactory!();
+          await _themeManager!.initialize();
+          return true;
+        },
+        priority: 60,
+        dependsOn: ['app_storage'], // 需要存储来保存主题偏好
+      );
+    }
+
+
     //
     // _appInitializer.registerInitializer(
     //   name: 'app_localizations',
