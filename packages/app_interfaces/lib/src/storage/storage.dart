@@ -14,3 +14,6 @@ export 'i_secure_key_value_storage.dart';
 export 'i_object_storage.dart';
 export 'i_secure_object_storage.dart';
 
+// 存储工厂接口
+export 'i_storage_factory.dart';
+

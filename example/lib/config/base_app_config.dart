@@ -1,8 +1,4 @@
-import 'dart:ui';
-
-import 'package:app_core/app_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/material/app.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app_interfaces/app_interfaces.dart';
 
@@ -332,4 +328,12 @@ class BaseAppConfig extends BaseConfig implements IEnvironmentConfig, INetWorkCo
 
   @override
   String get themeModeStorageKey => "mode";
+
+  // INetWorkConfig - Cache and retry configurations
+
+  @override
+  CachePolicyConfig get cachePolicyConfig => const CachePolicyConfig();
+
+  @override
+  RetryConfig get retryConfig => const RetryConfig();
 }

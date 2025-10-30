@@ -46,6 +46,30 @@ class NetworkException extends AppException {
   final int? statusCode;
 }
 
+/// RetryableNetworkException
+///
+/// 表示可重试的网络异常,包含重试相关信息
+class RetryableNetworkException extends AppException {
+  /// 原始错误
+  final Object? originalError;
+
+  /// 重试选项
+  final Object? retryOptions;
+
+  /// 当前重试次数
+  final int retryCount;
+
+  RetryableNetworkException({
+    required super.message,
+    this.originalError,
+    this.retryOptions,
+    this.retryCount = 0,
+    super.code = 'retryable_network_error',
+    super.details,
+    super.stackTrace,
+  });
+}
+
 /// 认证异常
 ///
 /// 表示认证相关的异常，如登录失败、token过期等

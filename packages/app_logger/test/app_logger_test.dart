@@ -278,19 +278,6 @@ void main() {
     });
   });
 
-  group('Logger (legacy)', () {
-    test('should maintain backward compatibility', () {
-      // Arrange
-      final logger = Logger(minLevel: LogLevel.debug, enabled: true);
-
-      // Act & Assert
-      expect(() => logger.info('Test'), returnsNormally);
-      expect(() => logger.debug('Test'), returnsNormally);
-      expect(() => logger.warning('Test'), returnsNormally);
-      expect(() => logger.error('Test'), returnsNormally);
-      expect(() => logger.fatal('Test'), returnsNormally);
-    });
-  });
 }
 
 /// Test output that throws exceptions

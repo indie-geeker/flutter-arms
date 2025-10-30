@@ -92,16 +92,15 @@ class MockAppConfig extends BaseConfig implements IEnvironmentConfig, INetWorkCo
   String get baseUrl => _apiBaseUrl;
 
   @override
-  String get webSocketUrl => _webSocketUrl;
-
-  @override
   Duration get connectTimeout => _connectTimeout;
 
   @override
   Duration get receiveTimeout => _receiveTimeout;
 
+  // IEnvironmentConfig implementation (additional properties)
+
   @override
-  ResponseParser? get responseParser => null;
+  String get webSocketUrl => _webSocketUrl;
 
   // BaseConfig implementation
 
@@ -150,4 +149,17 @@ class MockAppConfig extends BaseConfig implements IEnvironmentConfig, INetWorkCo
 
   // Additional getter for channel
   String get channel => _channel;
+
+  @override
+  CachePolicyConfig get cachePolicyConfig => const CachePolicyConfig(
+        defaultPolicy: CachePolicy.networkFirst,
+        defaultMaxAge: Duration(minutes: 5),
+        enableDiskCache: false,
+      );
+
+  @override
+  RetryConfig get retryConfig => const RetryConfig(
+        maxRetries: 3,
+        initialDelay: Duration(milliseconds: 500),
+      );
 }

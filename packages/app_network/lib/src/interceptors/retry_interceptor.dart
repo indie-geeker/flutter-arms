@@ -1,123 +1,109 @@
 import 'dart:math';
+
 import 'package:app_interfaces/app_interfaces.dart';
+
 import 'base_interceptor.dart';
 
-/// 重试拦截器
-///
-/// 负责在网络请求失败时自动重试，支持指数退避策略
+/// Enhanced retry interceptor with configuration support
 class RetryInterceptor extends BaseInterceptor {
-  final int maxRetries;
-  final Duration initialDelay;
-  final double backoffMultiplier;
-  final Duration maxDelay;
-  final Set<NetworkErrorType> retryableErrors;
+  final RetryConfig _config;
+  final ILogger? _logger;
 
   RetryInterceptor({
-    this.maxRetries = 3,
-    this.initialDelay = const Duration(milliseconds: 500),
-    this.backoffMultiplier = 2.0,
-    this.maxDelay = const Duration(seconds: 10),
-    Set<NetworkErrorType>? retryableErrors,
-  }) : retryableErrors = retryableErrors ?? _defaultRetryableErrors;
-
-  static const Set<NetworkErrorType> _defaultRetryableErrors = {
-    NetworkErrorType.connectionTimeout,
-    NetworkErrorType.receiveTimeout,
-    NetworkErrorType.sendTimeout,
-    NetworkErrorType.connectionError,
-    NetworkErrorType.serverError,
-  };
+    RetryConfig? config,
+    ILogger? logger,
+  })  : _config = config ?? const RetryConfig(),
+        _logger = logger;
 
   @override
-  int get priority => 50; // 中等优先级
+  int get priority => 50;
 
   @override
   Future<Object> onError(Object error, RequestOptions options) async {
-    // 检查是否应该重试
+    // Check if retry is disabled
+    if (_config.maxRetries == 0) {
+      return error;
+    }
+
+    // Check if this error should be retried
     if (!_shouldRetry(error, options)) {
       return error;
     }
 
     final retryCount = _getRetryCount(options);
-    if (retryCount >= maxRetries) {
+    if (retryCount >= _config.maxRetries) {
+      _logger?.warning(
+        'Max retries (${_config.maxRetries}) reached for ${options.path}',
+      );
       return error;
     }
 
-    // 计算延迟时间
+    // Calculate delay with exponential backoff
     final delay = _calculateDelay(retryCount);
+    _logger?.info(
+      'Retrying request (${retryCount + 1}/${_config.maxRetries}) '
+          'after ${delay.inMilliseconds}ms: ${options.path}',
+    );
+
     await Future.delayed(delay);
 
-    // 更新重试次数
     final newOptions = _incrementRetryCount(options);
 
-    // 返回特殊标记，表示需要重试
-    // 注意：由于接口限制，这里只能返回错误，实际的重试逻辑需要在更高层实现
     return RetryableNetworkException(
+      message: 'Retrying request (${retryCount + 1}/${_config.maxRetries})',
       originalError: error,
       retryOptions: newOptions,
       retryCount: retryCount + 1,
     );
   }
 
-  /// 检查是否应该重试
   bool _shouldRetry(Object error, RequestOptions options) {
-    // 检查错误类型是否可重试
-    if (error is NetworkException) {
-      // 将 error.code 字符串转换为 NetworkErrorType 进行比较
-      for (final errorType in retryableErrors) {
-        if (errorType.name == error.code) {
-          return true;
-        }
-      }
-      return false;
+    // Custom evaluator takes precedence
+    if (_config.retryEvaluator != null) {
+      final retryCount = _getRetryCount(options);
+      return _config.retryEvaluator!(error, retryCount);
     }
-    
-    // 其他类型的错误默认不重试
+
+    // Check HTTP status codes for server errors
+    if (error is NetworkException && error.statusCode != null) {
+      return _config.retryableStatusCodes.contains(error.statusCode);
+    }
+
+    // Check error types
+    if (error is NetworkException) {
+      final errorType = NetworkErrorType.values.firstWhere(
+            (type) => type.name == error.code,
+        orElse: () => NetworkErrorType.unknown,
+      );
+
+      const retryableTypes = {
+        NetworkErrorType.connectionTimeout,
+        NetworkErrorType.receiveTimeout,
+        NetworkErrorType.sendTimeout,
+        NetworkErrorType.connectionError,
+      };
+
+      return retryableTypes.contains(errorType);
+    }
+
     return false;
   }
 
-  /// 获取当前重试次数
+  Duration _calculateDelay(int retryCount) {
+    final delayMs = _config.initialDelay.inMilliseconds *
+        pow(_config.backoffMultiplier, retryCount);
+    final delay = Duration(milliseconds: delayMs.round());
+    return delay > _config.maxDelay ? _config.maxDelay : delay;
+  }
+
   int _getRetryCount(RequestOptions options) {
     return options.extra['_retry_count'] as int? ?? 0;
   }
 
-  /// 增加重试次数
   RequestOptions _incrementRetryCount(RequestOptions options) {
     final extra = Map<String, dynamic>.from(options.extra);
     extra['_retry_count'] = _getRetryCount(options) + 1;
-
-    return options.copyWith(
-      extra: extra,
-    );
-  }
-
-  /// 计算延迟时间（指数退避）
-  Duration _calculateDelay(int retryCount) {
-    final delayMs = initialDelay.inMilliseconds * 
-                   pow(backoffMultiplier, retryCount);
-    final delay = Duration(milliseconds: delayMs.round());
-    
-    // 限制最大延迟时间
-    return delay > maxDelay ? maxDelay : delay;
+    return options.copyWith(extra: extra);
   }
 }
 
-/// 可重试的网络异常
-///
-/// 用于标记需要重试的网络异常
-class RetryableNetworkException implements Exception {
-  final Object originalError;
-  final RequestOptions retryOptions;
-  final int retryCount;
-
-  const RetryableNetworkException({
-    required this.originalError,
-    required this.retryOptions,
-    required this.retryCount,
-  });
-
-  @override
-  String toString() {
-    return 'RetryableNetworkException: $originalError (retry: $retryCount)';
-  }
-}

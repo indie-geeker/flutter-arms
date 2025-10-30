@@ -4,9 +4,16 @@ export 'src/app_init_config.dart';
 
 /// Builders
 export 'src/builders/network_client_builder.dart';
+export 'src/config/app_init_config_builder.dart';
 
 /// Setup DSLs
 export 'src/setup/network_setup.dart';
+
+/// Constants
+export 'src/constants/init_priorities.dart';
+
+/// i18n
+export 'src/i18n/app_i18n_delegate.dart';
 
 /// Extensions
 export 'src/extensions/config_extensions.dart';
@@ -28,7 +35,10 @@ export 'package:app_interfaces/app_interfaces.dart'
         INetWorkConfig,
         LogLevel,
         ILogger,
-        LogEntry;
+        LogEntry,
+        II18nDelegate,
+        SimpleI18nDelegate,
+        I18nConfig;
 
 /// 存储
 export 'package:app_storage/app_storage.dart' show SharedPrefsStorage, StorageConfig;
@@ -42,5 +52,5 @@ export 'package:app_network/app_network.dart'
         ResponseParserInterceptor,
         DeduplicationInterceptor;
 
-
-export 'package:app_logger/app_logger.dart' show Logger;
+/// 日志
+export 'package:app_logger/app_logger.dart' show CompositeLogger, ConsoleLogOutput, MemoryLogOutput;

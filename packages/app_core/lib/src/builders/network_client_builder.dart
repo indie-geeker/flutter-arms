@@ -1,67 +1,54 @@
 import 'package:app_interfaces/app_interfaces.dart';
 import 'package:app_network/app_network.dart';
 
-/// Builder for creating NetworkClient from configuration.
-///
-/// This builder simplifies network client creation by automatically
-/// extracting configuration from INetWorkConfig implementations.
-///
-/// Example:
-/// ```dart
-/// final client = NetworkClientBuilder.fromConfig(
-///   myAppConfig,
-///   logger: Logger(),
-/// );
-/// ```
+import '../../app_core.dart';
+
 class NetworkClientBuilder {
-  /// Creates a NetworkClient from INetWorkConfig.
-  ///
-  /// This method automatically extracts network configuration from the
-  /// provided config and creates a properly configured NetworkClient.
-  ///
-  /// Parameters:
-  /// - [config]: Configuration implementing INetWorkConfig (e.g., BaseAppConfig)
-  /// - [logger]: Optional logger for network operations
-  /// - [interceptors]: Optional list of interceptors to add
-  /// - [defaultHeaders]: Optional default headers for all requests
-  ///
-  /// Returns a fully configured NetworkClient instance.
-  static NetworkClient fromConfig(
-    INetWorkConfig config, {
-    ILogger? logger,
-    List<IRequestInterceptor>? interceptors,
-    Map<String, String>? defaultHeaders,
-  }) {
-    // Create NetworkConfig from INetWorkConfig
-    final networkConfig = NetworkConfig(
-      baseUrl: config.baseUrl,
-      connectTimeout: config.connectTimeout,
-      receiveTimeout: config.receiveTimeout,
-      logger: logger,
-      enableLogging: _shouldEnableLogging(config),
-      defaultHeaders: defaultHeaders ?? {},
+  static INetworkClient fromConfig(
+      INetWorkConfig config, {
+        ILogger? logger,
+        NetworkSetup? setup,
+        IHttpClient? httpClient,
+      }) {
+    // Create base client
+    final client = NetworkClient(
+      config: config,
+      httpClient: httpClient,
+      defaultHeaders: {},
     );
 
-    // Create the network client
-    final client = NetworkClientFactory.create(
-      config: networkConfig,
-      customInterceptors: interceptors,
-    );
+    // Apply retry config
+    final retryConfig = setup?.retryConfig ?? config.retryConfig;
+    if (retryConfig.maxRetries > 0) {
+      client.addInterceptor(RetryInterceptor(
+        config: retryConfig,
+        logger: logger,
+      ));
+    }
 
-    // Enable logging if configured
-    if (_shouldEnableLogging(config)) {
-      client.enableLogging();
+    // Apply cache configuration
+    final cacheConfig = setup?.cachePolicyConfig ?? config.cachePolicyConfig;
+    if (cacheConfig.defaultPolicy != CachePolicy.networkOnly) {
+      // Create memory cache strategy
+      final memoryCache = MemoryCacheStrategy(
+        defaultTtl: cacheConfig.defaultMaxAge,
+        maxCacheSize: cacheConfig.memoryCacheMaxEntries,
+      );
+
+      // Add cache interceptor with memory cache strategy
+      client.addInterceptor(CacheInterceptor(
+        strategy: memoryCache,
+        logger: logger,
+      ));
+    }
+
+    // Apply other interceptors from setup
+    if (setup != null) {
+      for (final interceptor in setup.interceptors) {
+        client.addInterceptor(interceptor);
+      }
     }
 
     return client;
-  }
-
-  /// Determines if logging should be enabled based on config.
-  static bool _shouldEnableLogging(INetWorkConfig config) {
-    // Try to get enableVerboseLogging if config also implements IEnvironmentConfig
-    if (config is IEnvironmentConfig) {
-      return (config as IEnvironmentConfig).enableVerboseLogging;
-    }
-    return false;
   }
 }

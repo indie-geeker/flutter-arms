@@ -2,10 +2,19 @@ export 'cache/i_cache_strategy.dart';
 export 'cache/i_cached_network_decorator.dart';
 export 'cache/cache_statistics.dart';
 export 'cache/cache_strategy_type.dart';
+export 'cache/i_cache_policy_resolver.dart';
+export 'cache/cache_decision.dart';
+export 'cache/i_cache_backend_factory.dart';
+
+export 'http/i_http_client.dart';
+export 'http/http_request.dart';
+export 'http/http_response.dart';
 
 export 'configs/cache_config.dart';
 export 'configs/retry_config.dart';
 export 'configs/i_network_config.dart';
+export 'configs/cache_policy.dart';
+export 'configs/cache_policy_config.dart';
 
 export 'enums/request_method.dart';
 export 'enums/response_type.dart';
@@ -15,6 +24,8 @@ export 'error/i_network_error_handler.dart';
 export 'error/network_error_type.dart';
 export 'error/app_error.dart';
 export 'error/error_recovery_strategy.dart';
+
+export 'recovery/i_error_recovery_strategy.dart';
 
 export 'models/request_options.dart';
 export 'models/api_response.dart';

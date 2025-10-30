@@ -48,8 +48,7 @@ class NetworkClientFactory {
     // 添加重试拦截器
     if (config.enableRetry) {
       client.addInterceptor(RetryInterceptor(
-        maxRetries: config.maxRetries,
-        initialDelay: config.retryDelay,
+
       ));
     }
 

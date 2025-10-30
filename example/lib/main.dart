@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:app_core/app_core.dart';
 import 'package:example/theme/my_theme_manager.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +5,7 @@ import 'package:app_interfaces/app_interfaces.dart';
 import 'config/base_app_config.dart';
 import 'config/config_factory.dart';
 import 'initialization_screens.dart';
+import 'package:app_logger/app_logger.dart';
 
 /// Main entry point for the application.
 ///
@@ -133,58 +132,40 @@ class MyApp extends StatelessWidget {
     debugPrint('Environment: ${appConfig.environment.name}');
     debugPrint('API Base URL: ${appConfig.apiBaseUrl}');
 
-    const testUrl = "http://www.baidu.com";
+    // Create logger with console and memory outputs
+    final logger = CompositeLogger(
+      outputs: [
+        ConsoleLogOutput(),
+        MemoryLogOutput(maxEntries: 500),
+      ],
+      minLevel: LogLevel.debug,
+    );
 
     final result = await appManager.initialize(
       AppInitConfig(
         config: appConfig,
-        logger: Logger(),
+        logger: logger,
         networkSetup: (config) => NetworkSetup.standard(
           parser: TestResponseParser(),
           deduplicationWindow: const Duration(minutes: 5),
         ),
-        // ✨ 添加主题和国际化工厂
+        // ✨ Theme and i18n support
         themeFactory: () => MyThemeManager(
           config: appConfig,
           storage: appManager.tryGetStorage<IKeyValueStorage>(),
         ),
-
+        i18nDelegate: AppI18nDelegate(
+          config: I18nConfig.defaults(), // zh_CN + en_US
+          logger: logger,
+        ),
       ),
       onProgress: (progress) {
         debugPrint('Progress: ${(progress * 100).toStringAsFixed(0)}%');
       },
       onStepCompleted: (stepName, success) {
         debugPrint('Module [$stepName] ${success ? '✓' : '✗'}');
-
-        // Test network request after network module is initialized
-        if (stepName == "app_network" && success) {
-          appManager.networkClient.get(testUrl).then((response) {
-            debugPrint(
-                "✓ Network test: ${response.code} ${response.message} ${jsonEncode(response.data)}");
-          }).catchError((error) {
-            debugPrint("✗ Network test failed: ${error.toString()}");
-          });
-        }
       },
     );
-
-    // Test storage after initialization
-    if (result) {
-      try {
-        final storage = appManager.getStorage<SharedPrefsStorage>();
-        await storage.setString(
-            "test", "App initialized - ${DateTime.now().toIso8601String()}");
-        await storage.setString("app_version", "2.0.0");
-        await storage.setInt("launch_count", 1);
-        debugPrint('✓ Storage test successful');
-      } catch (e) {
-        debugPrint('✗ Storage test failed: $e');
-      }
-    }
-
-    // Add delay to show loading screen
-    debugPrint('Waiting 2 seconds to display loading effect...');
-    await Future.delayed(const Duration(seconds: 2));
 
     debugPrint('Initialization complete: ${result ? '✓' : '✗'}');
     return result;
@@ -207,12 +188,16 @@ class MyApp extends StatelessWidget {
     debugPrint('Environment: ${appConfig.environment.name}');
     debugPrint('API Base URL: ${appConfig.apiBaseUrl}');
 
-    const testUrl = "http://www.baidu.com";
-
     final result = await appManager.initialize(
       AppInitConfig(
         config: appConfig,
-        logger: Logger(minLevel: LogLevel.debug),
+        logger: CompositeLogger(
+          outputs: [
+            ConsoleLogOutput(),
+            MemoryLogOutput(maxEntries: 1000),
+          ],
+          minLevel: LogLevel.debug,
+        ),
         // Custom storage with encryption
         storageFactory: () => SharedPrefsStorage(
           StorageConfig(
@@ -220,7 +205,9 @@ class MyApp extends StatelessWidget {
             enableEncryption: appConfig.enableEncryption,
             encryptionKey: 'my-secret-key-32-chars-long!!!',
           ),
-          logger: Logger(),
+          logger: CompositeLogger(
+            outputs: [ConsoleLogOutput()],
+          ),
         ),
         // Custom network setup with multiple interceptors
         networkSetup: (config) => NetworkSetup.minimal()
@@ -244,30 +231,8 @@ class MyApp extends StatelessWidget {
       },
       onStepCompleted: (stepName, success) {
         debugPrint('Module [$stepName] ${success ? '✓' : '✗'}');
-
-        if (stepName == "app_network" && success) {
-          appManager.networkClient.get(testUrl).then((response) {
-            debugPrint(
-                "✓ Network test: ${response.code} ${response.message}");
-          }).catchError((error) {
-            debugPrint("✗ Network test failed: ${error.toString()}");
-          });
-        }
       },
     );
-
-    if (result) {
-      try {
-        final storage = appManager.getStorage<SharedPrefsStorage>();
-        await storage.setString(
-            "test", "Advanced init - ${DateTime.now().toIso8601String()}");
-        debugPrint('✓ Encrypted storage test successful');
-      } catch (e) {
-        debugPrint('✗ Storage test failed: $e');
-      }
-    }
-
-    await Future.delayed(const Duration(seconds: 2));
 
     debugPrint('Initialization complete: ${result ? '✓' : '✗'}');
     return result;
@@ -363,12 +328,33 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   SharedPrefsStorage? _storage;
   String _testValue = 'Loading...';
+  Locale _currentLocale = const Locale('zh', 'CN');
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_storage == null) {
       _initializeStorage();
+    }
+    _listenToLocaleChanges();
+  }
+
+  void _listenToLocaleChanges() {
+    final appManager = AppManagerProvider.of(context);
+    final i18n = appManager.i18n;
+
+    if (i18n != null) {
+      setState(() {
+        _currentLocale = i18n.currentLocale;
+      });
+
+      i18n.localeChanges.listen((locale) {
+        if (mounted) {
+          setState(() {
+            _currentLocale = locale;
+          });
+        }
+      });
     }
   }
 
@@ -410,35 +396,119 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> _switchLanguage() async {
+    final appManager = AppManagerProvider.of(context);
+    final i18n = appManager.i18n;
+
+    if (i18n != null) {
+      // Toggle between Chinese and English
+      final newLocale = _currentLocale.languageCode == 'zh'
+          ? const Locale('en', 'US')
+          : const Locale('zh', 'CN');
+
+      final success = await i18n.switchLocale(newLocale);
+      if (success) {
+        debugPrint('Locale switched to: $newLocale');
+      } else {
+        debugPrint('Failed to switch locale to: $newLocale');
+      }
+    }
+  }
+
+  String _t(String key, {Map<String, dynamic>? args}) {
+    final appManager = AppManagerProvider.of(context);
+    final i18n = appManager.i18n;
+    return i18n?.translate(key, args: args) ?? key;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final appManager = AppManagerProvider.of(context);
+    final themeManager = appManager.themeManager;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text(_t('app_name')),
+        actions: [
+          // Theme switcher
+          if (themeManager != null)
+            IconButton(
+              icon: Icon(
+                themeManager.themeModeNotifier.value == ThemeMode.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+              ),
+              onPressed: () {
+                final isDark = themeManager.themeModeNotifier.value == ThemeMode.dark;
+                themeManager.setThemeMode(isDark ? ThemeMode.light : ThemeMode.dark);
+              },
+              tooltip: _t('switch_theme'),
+            ),
+          // Language switcher
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: _switchLanguage,
+            tooltip: _t('switch_language'),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Text(
+              _t('welcome', args: {'name': 'Flutter ARMS'}),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              _t('current_environment', args: {'env': widget.title}),
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 20),
             const Text(
-              'You have pushed the button this many times:',
+              'Counter:',
+              style: TextStyle(fontSize: 16),
             ),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Stored test data:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              _t('storage_test'),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
               _testValue,
               style: const TextStyle(fontSize: 14, color: Colors.blue),
             ),
-            const SizedBox(height: 20),
-
+            const SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _switchLanguage,
+                  icon: const Icon(Icons.translate),
+                  label: Text('${_currentLocale.languageCode.toUpperCase()} → ${_currentLocale.languageCode == 'zh' ? 'EN' : 'ZH'}'),
+                ),
+                const SizedBox(width: 16),
+                if (themeManager != null)
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      final isDark = themeManager.themeModeNotifier.value == ThemeMode.dark;
+                      themeManager.setThemeMode(isDark ? ThemeMode.light : ThemeMode.dark);
+                    },
+                    icon: Icon(
+                      themeManager.themeModeNotifier.value == ThemeMode.dark
+                          ? Icons.light_mode
+                          : Icons.dark_mode,
+                    ),
+                    label: Text(_t('switch_theme')),
+                  ),
+              ],
+            ),
           ],
         ),
       ),

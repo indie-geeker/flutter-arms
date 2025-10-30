@@ -1,0 +1,95 @@
+{
+  "@@locale": "en",
+  "app_name": "Flutter ARMS Example",
+  "@app_name": {
+    "description": "Application name"
+  },
+  "welcome": "Welcome, {name}!",
+  "@welcome": {
+    "description": "Welcome message with username placeholder",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "John"
+      }
+    }
+  },
+  "minimal_pattern": "Minimal Pattern",
+  "@minimal_pattern": {
+    "description": "Minimal initialization pattern title"
+  },
+  "standard_pattern": "Standard Pattern",
+  "@standard_pattern": {
+    "description": "Standard initialization pattern title"
+  },
+  "advanced_pattern": "Advanced Pattern",
+  "@advanced_pattern": {
+    "description": "Advanced initialization pattern title"
+  },
+  "initialization_progress": "Initialization Progress: {progress}%",
+  "@initialization_progress": {
+    "description": "Initialization progress message",
+    "placeholders": {
+      "progress": {
+        "type": "int",
+        "example": "75"
+      }
+    }
+  },
+  "initialization_complete": "Initialization Complete",
+  "@initialization_complete": {
+    "description": "Initialization complete message"
+  },
+  "initialization_failed": "Initialization Failed: {error}",
+  "@initialization_failed": {
+    "description": "Initialization failed message",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Network connection failed"
+      }
+    }
+  },
+  "switch_theme": "Switch Theme",
+  "@switch_theme": {
+    "description": "Switch theme button"
+  },
+  "switch_language": "Switch Language",
+  "@switch_language": {
+    "description": "Switch language button"
+  },
+  "network_request": "Network Request",
+  "@network_request": {
+    "description": "Network request button"
+  },
+  "storage_test": "Storage Test",
+  "@storage_test": {
+    "description": "Storage test button"
+  },
+  "logger_test": "Logger Test",
+  "@logger_test": {
+    "description": "Logger test button"
+  },
+  "current_environment": "Current Environment: {env}",
+  "@current_environment": {
+    "description": "Current environment display",
+    "placeholders": {
+      "env": {
+        "type": "String",
+        "example": "Development"
+      }
+    }
+  },
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading indicator"
+  },
+  "error_occurred": "Error Occurred",
+  "@error_occurred": {
+    "description": "Error message"
+  },
+  "success": "Success",
+  "@success": {
+    "description": "Success message"
+  }
+}

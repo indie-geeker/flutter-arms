@@ -1,0 +1,95 @@
+{
+  "@@locale": "zh",
+  "app_name": "Flutter ARMS示例",
+  "@app_name": {
+    "description": "应用名称"
+  },
+  "welcome": "欢迎, {name}!",
+  "@welcome": {
+    "description": "欢迎消息，包含用户名占位符",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "张三"
+      }
+    }
+  },
+  "minimal_pattern": "最小模式",
+  "@minimal_pattern": {
+    "description": "最小初始化模式标题"
+  },
+  "standard_pattern": "标准模式",
+  "@standard_pattern": {
+    "description": "标准初始化模式标题"
+  },
+  "advanced_pattern": "高级模式",
+  "@advanced_pattern": {
+    "description": "高级初始化模式标题"
+  },
+  "initialization_progress": "初始化进度: {progress}%",
+  "@initialization_progress": {
+    "description": "初始化进度消息",
+    "placeholders": {
+      "progress": {
+        "type": "int",
+        "example": "75"
+      }
+    }
+  },
+  "initialization_complete": "初始化完成",
+  "@initialization_complete": {
+    "description": "初始化完成消息"
+  },
+  "initialization_failed": "初始化失败: {error}",
+  "@initialization_failed": {
+    "description": "初始化失败消息",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "网络连接失败"
+      }
+    }
+  },
+  "switch_theme": "切换主题",
+  "@switch_theme": {
+    "description": "切换主题按钮"
+  },
+  "switch_language": "切换语言",
+  "@switch_language": {
+    "description": "切换语言按钮"
+  },
+  "network_request": "网络请求",
+  "@network_request": {
+    "description": "网络请求按钮"
+  },
+  "storage_test": "存储测试",
+  "@storage_test": {
+    "description": "存储测试按钮"
+  },
+  "logger_test": "日志测试",
+  "@logger_test": {
+    "description": "日志测试按钮"
+  },
+  "current_environment": "当前环境: {env}",
+  "@current_environment": {
+    "description": "当前环境显示",
+    "placeholders": {
+      "env": {
+        "type": "String",
+        "example": "开发环境"
+      }
+    }
+  },
+  "loading": "加载中...",
+  "@loading": {
+    "description": "加载提示"
+  },
+  "error_occurred": "发生错误",
+  "@error_occurred": {
+    "description": "错误提示"
+  },
+  "success": "成功",
+  "@success": {
+    "description": "成功提示"
+  }
+}

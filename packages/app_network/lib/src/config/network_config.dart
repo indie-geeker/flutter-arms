@@ -1,6 +1,5 @@
 import 'package:app_interfaces/app_interfaces.dart';
 
-
 /// 网络配置类
 ///
 /// 管理网络请求的各种配置参数
@@ -184,5 +183,20 @@ class NetworkConfig implements INetWorkConfig{
   int get hashCode => baseUrl.hashCode ^ environment.hashCode;
 
   @override
-  ResponseParser? get responseParser => null;
+  CachePolicyConfig get cachePolicyConfig {
+    return CachePolicyConfig(
+      defaultPolicy: enableCache ? CachePolicy.cacheFirst : CachePolicy.networkOnly,
+      defaultMaxAge: cacheTtl,
+      enableDiskCache: enableCache,
+    );
+  }
+
+  @override
+  RetryConfig get retryConfig {
+    return RetryConfig(
+      maxRetries: maxRetries,
+      initialDelay: retryDelay,
+    );
+  }
+
 }

@@ -1,11 +1,16 @@
-import 'package:app_interfaces/src/network/parser/response_parser.dart';
+
+import '../../../app_interfaces.dart';
+import 'cache_policy_config.dart';
 
 abstract class INetWorkConfig{
   String get baseUrl;
   Duration get receiveTimeout;
   Duration get connectTimeout;
 
-  /// 响应解析器（已弃用，请使用 ResponseParserInterceptor）
-  @Deprecated('Use ResponseParserInterceptor instead')
-  ResponseParser? get responseParser;
+  RetryConfig get retryConfig => const RetryConfig();
+
+  CachePolicyConfig get cachePolicyConfig => const CachePolicyConfig();
+
+
+
 }

@@ -1,4 +1,5 @@
 import 'package:app_interfaces/app_interfaces.dart';
+import 'package:app_network/app_network.dart';
 import 'package:app_storage/app_storage.dart';
 import 'package:flutter/foundation.dart';
 
@@ -6,6 +7,7 @@ import 'app_info.dart';
 import 'app_init_config.dart';
 import 'app_initializer.dart';
 import 'builders/network_client_builder.dart';
+import 'constants/init_priorities.dart';
 
 /// 应用核心实现
 ///
@@ -27,9 +29,11 @@ class AppManager {
   /// 尝试获取主题管理器（可能为 null）
   IThemeManager? get themeManager => _themeManager;
 
-  //
-  // /// 应用国际化
-  // late final AppLocalizations _appLocalizations;
+  /// 应用国际化
+  II18nDelegate? _i18n;
+
+  /// 尝试获取国际化代理（可能为 null）
+  II18nDelegate? get i18n => _i18n;
   //
   // /// 路由模块
   // late final IRouter _router;
@@ -207,7 +211,7 @@ class AppManager {
         }
         return true;
       },
-      priority: 10, // 存储优先级最高，其他模块依赖存储功能
+      priority: InitPriorities.storage,
     );
     
     _appInitializer!.registerInitializer(
@@ -222,8 +226,8 @@ class AppManager {
         }
         return true;
       },
-      priority: 20,
-      dependsOn: ['app_storage'], // 依赖存储
+      priority: InitPriorities.appInfo,
+      dependsOn: ['app_storage'],
     );
 
     // Only register environment_config initialization if it has an initialize method
@@ -236,41 +240,49 @@ class AppManager {
           // unless the config implements a specific initialize method
           return true;
         },
-        priority: 30,
+        priority: InitPriorities.environmentConfig,
       );
     }
 
     _appInitializer!.registerInitializer(
       name: 'app_network',
       initializer: () async {
-        // 4. Auto-create network client from config if it implements INetWorkConfig
-        if (initConfig.config is INetWorkConfig) {
-          final networkConfig = initConfig.config as INetWorkConfig;
+        try {
+          // 4. Auto-create network client from config if it implements INetWorkConfig
+          if (initConfig.config is INetWorkConfig) {
+            final networkConfig = initConfig.config as INetWorkConfig;
 
-          // Create base network client
-          _networkClient = NetworkClientBuilder.fromConfig(
-            networkConfig,
-            logger: initConfig.logger,
-          );
+            // Create base network client
+            _networkClient = NetworkClientBuilder.fromConfig(
+              networkConfig,
+              logger: initConfig.logger,
+            );
 
-          // Apply network setup (interceptors) if provided
-          if (initConfig.networkSetup != null) {
-            final setup = initConfig.networkSetup!(networkConfig);
-            for (final interceptor in setup.interceptors) {
-              _networkClient.addInterceptor(interceptor);
+            // Apply network setup (interceptors) if provided
+            if (initConfig.networkSetup != null) {
+              final setup = initConfig.networkSetup!(networkConfig);
+              for (final interceptor in setup.interceptors) {
+                _networkClient.addInterceptor(interceptor);
+              }
             }
+          } else {
+            // Network is optional - use no-op client if config doesn't implement INetWorkConfig
+            debugPrint(
+              'Network not configured: ${initConfig.config.runtimeType} does not implement INetWorkConfig. '
+              'Using NoOpNetworkClient. Network calls will throw UnsupportedError.',
+            );
+            _networkClient = NoOpNetworkClient();
           }
-        } else {
-          throw StateError(
-            'config must implement INetWorkConfig for automatic network setup. '
-            'Found: ${initConfig.config.runtimeType}',
-          );
-        }
 
-        return true;
+          return true;
+        } catch (e, stackTrace) {
+          debugPrint('Network client initialization failed: $e');
+          debugPrint('Stack trace: $stackTrace');
+          return false;
+        }
       },
-      priority: 40,
-      dependsOn: ['environment_config'], // 依赖环境配置
+      priority: InitPriorities.network,
+      dependsOn: _environmentConfig != null ? ['environment_config'] : [],
     );
 
 
@@ -301,21 +313,37 @@ class AppManager {
           await _themeManager!.initialize();
           return true;
         },
-        priority: 60,
-        dependsOn: ['app_storage'], // 需要存储来保存主题偏好
+        priority: InitPriorities.theme,
+        dependsOn: ['app_storage'],
       );
     }
 
+    // Register i18n initialization if provided
+    if (initConfig.i18nDelegate != null) {
+      _appInitializer!.registerInitializer(
+        name: 'app_i18n',
+        initializer: () async {
+          _i18n = initConfig.i18nDelegate;
 
-    //
-    // _appInitializer.registerInitializer(
-    //   name: 'app_localizations',
-    //   initializer: () async {
-    //     await _appLocalizations.initialize();
-    //     return true;
-    //   },
-    //   priority: 60,
-    // );
+          try {
+            // Load initial locale
+            final success = await _i18n!.load(initConfig.defaultLocale);
+            if (!success) {
+              debugPrint('Failed to load initial locale: ${initConfig.defaultLocale}');
+              // Try fallback locale
+              final fallbackSuccess = await _i18n!.load(_i18n!.fallbackLocale);
+              return fallbackSuccess;
+            }
+            return true;
+          } catch (e) {
+            debugPrint('i18n initialization failed: $e');
+            return false;
+          }
+        },
+        priority: InitPriorities.theme + 5, // After theme, before router
+        dependsOn: [],
+      );
+    }
     //
     // _appInitializer.registerInitializer(
     //   name: 'app_router',

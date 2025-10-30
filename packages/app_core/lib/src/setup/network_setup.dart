@@ -14,6 +14,10 @@ import 'package:app_network/app_network.dart';
 ///   .addInterceptor(MyCustomInterceptor());
 /// ```
 class NetworkSetup {
+
+  RetryConfig? _retryConfig;
+  CachePolicyConfig? _cachePolicyConfig;
+
   final List<IRequestInterceptor> _interceptors = [];
 
   /// Default constructor for NetworkSetup.
@@ -21,6 +25,33 @@ class NetworkSetup {
 
   /// Gets the configured interceptors.
   List<IRequestInterceptor> get interceptors => List.unmodifiable(_interceptors);
+
+
+  /// Configure retry behavior
+  NetworkSetup withRetry({
+    RetryConfig? config,
+  }) {
+    _retryConfig = config ?? const RetryConfig();
+    return this;
+  }
+
+  /// Configure cache policy
+  NetworkSetup withCachePolicy({
+    CachePolicyConfig? config,
+  }) {
+    _cachePolicyConfig = config ?? const CachePolicyConfig();
+    return this;
+  }
+
+  /// Disable retry (for requests that should not be retried)
+  NetworkSetup withoutRetry() {
+    _retryConfig = RetryConfig.disabled;
+    return this;
+  }
+
+  RetryConfig? get retryConfig => _retryConfig;
+  CachePolicyConfig? get cachePolicyConfig => _cachePolicyConfig;
+
 
   /// Adds a response parser interceptor.
   ///
@@ -82,10 +113,14 @@ class NetworkSetup {
   factory NetworkSetup.standard({
     required ResponseParser parser,
     Duration deduplicationWindow = const Duration(minutes: 5),
+    RetryConfig? retryConfig,
+    CachePolicyConfig? cachePolicyConfig,
   }) {
     return NetworkSetup()
         .withResponseParser(parser)
-        .withDeduplication(expiration: deduplicationWindow);
+        .withDeduplication(expiration: deduplicationWindow)
+        .withRetry(config: retryConfig ?? const RetryConfig())
+        .withCachePolicy(config: cachePolicyConfig ?? const CachePolicyConfig());
   }
 
   /// Creates a minimal network setup with no interceptors.

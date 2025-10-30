@@ -10,6 +10,16 @@ import '../enums/response_type.dart';
 ///
 /// 封装网络请求的配置信息，如请求方法、URL、请求头等
 class RequestOptions {
+
+  /// Custom content type string (for ContentType.custom)
+  final String? contentTypeString;
+
+  /// Expected charset (default: utf-8)
+  final String charset;
+
+  /// Validate response content type against expected type
+  final bool validateResponseContentType;
+
   /// 创建请求选项
   const RequestOptions({
     required this.path,
@@ -27,6 +37,9 @@ class RequestOptions {
     this.extra = const {},
     this.cacheConfig,
     this.retryConfig,
+    this.contentTypeString,
+    this.charset = 'utf-8',
+    this.validateResponseContentType = false,
   });
 
   /// 请求路径
@@ -88,6 +101,18 @@ class RequestOptions {
         return 'multipart/form-data';
       case ContentType.text:
         return 'text/plain; charset=utf-8';
+      case ContentType.html:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case ContentType.xml:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case ContentType.binary:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case ContentType.custom:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 

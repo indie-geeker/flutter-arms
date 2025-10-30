@@ -284,5 +284,15 @@ class MockNetworkConfig implements INetWorkConfig{
   Duration get receiveTimeout => Duration(seconds: 30);
 
   @override
-  ResponseParser get responseParser => throw UnimplementedError();
+  CachePolicyConfig get cachePolicyConfig => const CachePolicyConfig(
+        defaultPolicy: CachePolicy.networkFirst,
+        defaultMaxAge: Duration(minutes: 5),
+        enableDiskCache: false,
+      );
+
+  @override
+  RetryConfig get retryConfig => const RetryConfig(
+        maxRetries: 3,
+        initialDelay: Duration(milliseconds: 500),
+      );
 }

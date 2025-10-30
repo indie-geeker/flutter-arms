@@ -1,19 +1,32 @@
 
-/// 重试配置
 class RetryConfig {
-  /// 创建重试配置
   const RetryConfig({
     this.maxRetries = 3,
-    this.retryInterval = const Duration(seconds: 3),
+    this.initialDelay = const Duration(milliseconds: 500),
+    this.backoffMultiplier = 2.0,
+    this.maxDelay = const Duration(seconds: 10),
+    this.retryableStatusCodes = const {408, 429, 500, 502, 503, 504},
     this.retryEvaluator,
   });
 
-  /// 最大重试次数
+  /// Maximum number of retry attempts
   final int maxRetries;
 
-  /// 重试间隔时间
-  final Duration retryInterval;
+  /// Initial delay before first retry
+  final Duration initialDelay;
 
-  /// 重试评估函数，返回true表示需要重试
+  /// Multiplier for exponential backoff
+  final double backoffMultiplier;
+
+  /// Maximum delay between retries
+  final Duration maxDelay;
+
+  /// HTTP status codes that trigger retry
+  final Set<int> retryableStatusCodes;
+
+  /// Custom function to evaluate if error should be retried
   final bool Function(Object error, int retryCount)? retryEvaluator;
+
+  /// Disabled retry configuration
+  static const RetryConfig disabled = RetryConfig(maxRetries: 0);
 }

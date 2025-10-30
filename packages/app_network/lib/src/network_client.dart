@@ -1,9 +1,11 @@
 import 'package:app_interfaces/app_interfaces.dart';
+import 'package:app_network/src/utils/response_validator.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart';
 
 class NetworkClient implements INetworkClient {
-  late final dio.Dio _dio;
+  dio.Dio? _dio;
+  final IHttpClient? _httpClient;
   final List<IRequestInterceptor> _interceptors = [];
   final Set<dio.CancelToken> _activeCancelTokens = <dio.CancelToken>{};
 
@@ -11,17 +13,29 @@ class NetworkClient implements INetworkClient {
 
   late INetWorkConfig _config;
 
+  /// Creates a NetworkClient with optional custom HTTP client
+  ///
+  /// If [httpClient] is provided, it will be used for all HTTP requests.
+  /// Otherwise, a default Dio client will be created from [config].
+  ///
+  /// **Note**: When using a custom [httpClient], the Dio-specific methods
+  /// like [enableLogging], [disableLogging] may not work as expected.
   NetworkClient({
     required INetWorkConfig config,
+    IHttpClient? httpClient,
     Map<String, String>? defaultHeaders,
-  }) {
+  }) : _httpClient = httpClient {
     _config = config;
-    _dio = dio.Dio(dio.BaseOptions(
-      baseUrl: config.baseUrl,
-      headers: defaultHeaders,
-      connectTimeout: config.connectTimeout,
-      receiveTimeout: config.receiveTimeout,
-    ));
+
+    // Only create Dio if no custom HTTP client is provided
+    if (_httpClient == null) {
+      _dio = dio.Dio(dio.BaseOptions(
+        baseUrl: config.baseUrl,
+        headers: defaultHeaders,
+        connectTimeout: config.connectTimeout,
+        receiveTimeout: config.receiveTimeout,
+      ));
+    }
   }
 
   @override
@@ -45,26 +59,86 @@ class NetworkClient implements INetworkClient {
     var processedOptions = options;
 
     try {
-      // 1. 执行请求拦截器链
+      // 1. Execute request interceptor chain
       for (final interceptor in _getSortedInterceptors()) {
         if (interceptor.enabled) {
           processedOptions = await interceptor.onRequest(processedOptions);
         }
       }
 
-      // 2. 执行实际的网络请求
-      final response = await _dio.request(
-        processedOptions.path,
-        data: processedOptions.data,
-        queryParameters: processedOptions.queryParameters,
-        options: dio.Options(
-          method: processedOptions.method.name.toUpperCase(),
-          headers: processedOptions.headers,
-          responseType: _mapResponseType(processedOptions.responseType),
-          contentType: _getContentTypeValue(processedOptions.contentType),
-        ),
-        cancelToken: cancelToken as dio.CancelToken?,
+      // Get content type from options
+      final contentType = processedOptions.contentType;
+
+      // Build content type string with charset
+      final contentTypeString = contentType == ContentType.custom
+          ? processedOptions.contentTypeString
+          : contentType.toMimeType(
+        charset: processedOptions.charset,
       );
+
+
+      // 2. Execute actual network request
+      final dio.Response response;
+
+      final httpClient = _httpClient;
+      if (httpClient != null) {
+        // Use custom HTTP client
+        final httpRequest = HttpRequest(
+          url: '${_config.baseUrl}${processedOptions.path}',
+          method: processedOptions.method,
+          headers: {
+            ...processedOptions.headers,
+            if (contentTypeString != null) 'content-type': contentTypeString,
+          },
+          queryParameters: processedOptions.queryParameters,
+          data: processedOptions.data,
+          responseType: processedOptions.responseType,
+          connectTimeout: _config.connectTimeout,
+          receiveTimeout: _config.receiveTimeout,
+          cancelTag: cancelToken,
+          extra: processedOptions.extra,
+        );
+
+        final httpResponse = await httpClient.execute(httpRequest);
+
+        // Convert HttpResponse to Dio Response format
+        response = dio.Response(
+          data: httpResponse.data,
+          statusCode: httpResponse.statusCode,
+          statusMessage: httpResponse.statusMessage,
+          headers: dio.Headers.fromMap(httpResponse.headers),
+          requestOptions: dio.RequestOptions(
+            path: processedOptions.path,
+            method: processedOptions.method.name.toUpperCase(),
+          ),
+          extra: httpResponse.extra ?? {},
+        );
+      } else {
+        // Use default Dio client
+        response = await _dio!.request(
+          processedOptions.path,
+          data: processedOptions.data,
+          queryParameters: processedOptions.queryParameters,
+          options: dio.Options(
+            method: processedOptions.method.name.toUpperCase(),
+            headers: processedOptions.headers,
+            responseType: _mapResponseType(processedOptions.responseType),
+            contentType: contentTypeString,
+
+          ),
+          cancelToken: cancelToken as dio.CancelToken?,
+        );
+      }
+
+      // Validate response content type if requested
+      if (processedOptions.validateResponseContentType) {
+        ResponseValidator.validateContentType(
+          response,
+          processedOptions.responseType,
+          strict: true,
+        );
+      }
+
 
       var apiResponse = ApiResponse<T>(
         code: response.statusCode,
@@ -72,14 +146,18 @@ class NetworkClient implements INetworkClient {
         message: response.statusMessage,
         extra: {
           ...response.extra,
-          '_request_options': processedOptions, // 用于缓存等功能
+          '_request_options': processedOptions,
+          '_cache_time': DateTime.now(),
         },
       );
 
-      // 3. 执行响应拦截器链
+      // 3. Execute response interceptor chain
       for (final interceptor in _getSortedInterceptors()) {
         if (interceptor.enabled) {
-          apiResponse = await interceptor.onResponse<T>(apiResponse, processedOptions);
+          apiResponse = await interceptor.onResponse<T>(
+            apiResponse,
+            processedOptions,
+          );
         }
       }
 
@@ -106,22 +184,34 @@ class NetworkClient implements INetworkClient {
 
   @override
   void setBaseUrl(String baseUrl) {
-    _dio.options.baseUrl = baseUrl;
+    if (_dio == null) {
+      debugPrint('[NetworkClient] setBaseUrl is not supported when using custom IHttpClient');
+      return;
+    }
+    _dio!.options.baseUrl = baseUrl;
   }
 
   @override
   void setDefaultHeaders(Map<String, String> headers) {
-    _dio.options.headers.clear();
-    _dio.options.headers.addAll(headers);
+    if (_dio == null) {
+      debugPrint('[NetworkClient] setDefaultHeaders is not supported when using custom IHttpClient');
+      return;
+    }
+    _dio!.options.headers.clear();
+    _dio!.options.headers.addAll(headers);
   }
 
   @override
   void setTimeout({int? connectTimeout, int? receiveTimeout}) {
+    if (_dio == null) {
+      debugPrint('[NetworkClient] setTimeout is not supported when using custom IHttpClient');
+      return;
+    }
     if (connectTimeout != null) {
-      _dio.options.connectTimeout = Duration(milliseconds: connectTimeout);
+      _dio!.options.connectTimeout = Duration(milliseconds: connectTimeout);
     }
     if (receiveTimeout != null) {
-      _dio.options.receiveTimeout = Duration(milliseconds: receiveTimeout);
+      _dio!.options.receiveTimeout = Duration(milliseconds: receiveTimeout);
     }
   }
 
@@ -227,8 +317,15 @@ class NetworkClient implements INetworkClient {
   Future<ApiResponse<String>> download(String url, String savePath,
       {void Function(int received, int total)? onReceiveProgress,
         Object? cancelToken}) async {
+    if (_dio == null) {
+      throw UnsupportedError(
+        '[NetworkClient] download is not supported when using custom IHttpClient. '
+        'Please implement download functionality in your custom HTTP client.',
+      );
+    }
+
     try {
-      final response = await _dio.download(
+      final response = await _dio!.download(
         url,
         savePath,
         onReceiveProgress: onReceiveProgress,
@@ -297,17 +394,34 @@ class NetworkClient implements INetworkClient {
     // 清理拦截器
     _interceptors.clear();
 
-    // 关闭 Dio 实例
-    _dio.close();
+    // 关闭 Dio 实例 (如果存在)
+    final dio = _dio;
+    if (dio != null) {
+      dio.close();
+    }
+
+    // 关闭自定义 HTTP 客户端 (如果存在)
+    final httpClient = _httpClient;
+    if (httpClient != null) {
+      httpClient.close();
+    }
   }
 
   @override
   Map<String, String> get defaultHeaders {
-    return Map<String, String>.from(_dio.options.headers);
+    if (_dio == null) {
+      debugPrint('[NetworkClient] defaultHeaders is not available when using custom IHttpClient');
+      return {};
+    }
+    return Map<String, String>.from(_dio!.options.headers);
   }
 
   @override
   void enableLogging() {
+    if (_dio == null) {
+      debugPrint('[NetworkClient] enableLogging is not supported when using custom IHttpClient');
+      return;
+    }
     if (_logInterceptor == null) {
       _logInterceptor = dio.LogInterceptor(
         requestHeader: true,
@@ -319,14 +433,18 @@ class NetworkClient implements INetworkClient {
           debugPrint('[Network] $obj');
         },
       );
-      _dio.interceptors.add(_logInterceptor!);
+      _dio!.interceptors.add(_logInterceptor!);
     }
   }
 
   @override
   void disableLogging() {
+    if (_dio == null) {
+      debugPrint('[NetworkClient] disableLogging is not supported when using custom IHttpClient');
+      return;
+    }
     if (_logInterceptor != null) {
-      _dio.interceptors.remove(_logInterceptor);
+      _dio!.interceptors.remove(_logInterceptor);
       _logInterceptor = null;
     }
   }
@@ -370,18 +488,7 @@ class NetworkClient implements INetworkClient {
     }
   }
 
-  String? _getContentTypeValue(ContentType? contentType) {
-    switch (contentType) {
-      case ContentType.json:
-        return 'application/json; charset=utf-8';
-      case ContentType.formUrlEncoded:
-        return 'application/x-www-form-urlencoded; charset=utf-8';
-      case ContentType.multipart:
-        return 'multipart/form-data; charset=utf-8';
-      default:
-        return null;
-    }
-  }
+
 
   NetworkException _mapDioException(dio.DioException e) {
     switch (e.type) {

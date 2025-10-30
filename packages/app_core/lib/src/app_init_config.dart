@@ -92,6 +92,19 @@ class AppInitConfig {
 
   final IThemeManager Function()? themeFactory;
 
+  /// i18n delegate for internationalization support.
+  ///
+  /// If not provided, i18n features will be disabled.
+  /// Use AppI18nDelegate for framework-provided .arb file loading.
+  ///
+  /// Example:
+  /// ```dart
+  /// i18nDelegate: AppI18nDelegate(
+  ///   config: I18nConfig.defaults(),
+  ///   logger: logger,
+  /// )
+  /// ```
+  final II18nDelegate? i18nDelegate;
 
   /// Creates an application initialization configuration.
   ///
@@ -108,7 +121,8 @@ class AppInitConfig {
     this.networkSetup,
     this.signatureHashProvider,
     this.appInfoFactory,
-    this.themeFactory
+    this.themeFactory,
+    this.i18nDelegate,
   });
 
   /// Creates a quick configuration with just the app config.
