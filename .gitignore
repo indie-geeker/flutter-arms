@@ -26,9 +26,10 @@ pubspec.lock
 **/android/local.properties
 **/android/key.properties
 **/android/*.iml
-**/android/gradlew
-**/android/gradlew.bat
-**/android/gradle/
+# Gradle Wrapper 应保留在版本控制中以确保构建环境一致性
+# **/android/gradlew
+# **/android/gradlew.bat
+# **/android/gradle/
 **/android/app/debug
 **/android/app/profile
 **/android/app/release
@@ -144,6 +145,9 @@ coverage/
 *.env
 *.env.local
 *.properties
+# 但保留 Gradle 相关的 properties（构建配置）
+!**/android/gradle.properties
+!**/android/gradle/wrapper/gradle-wrapper.properties
 .last_build_id
 .fvm/
 

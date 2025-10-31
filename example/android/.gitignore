@@ -1,8 +1,9 @@
-gradle-wrapper.jar
+# Gradle Wrapper 应保留在版本控制中
+# gradle-wrapper.jar
 /.gradle
 /captures/
-/gradlew
-/gradlew.bat
+# /gradlew
+# /gradlew.bat
 /local.properties
 GeneratedPluginRegistrant.java
 
