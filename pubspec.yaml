@@ -1,0 +1,54 @@
+name: flutter_arms
+
+environment:
+  sdk: '>=3.8.0 <4.0.0'
+  flutter: ">=1.17.0"
+
+workspace:
+  - packages/core
+  - packages/interfaces
+#  - packages/modules/network
+#  - packages/modules/storage
+  - packages/modules/module_logger
+#  - packages/modules/utils
+#  - app/example
+
+
+dependencies:
+  # l10n
+  intl: ^0.20.2
+  flutter_localization: ^0.3.3
+  # state management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  # router
+  auto_route: ^10.1.0+1
+  # network
+  dio: ^5.9.0
+  retrofit: ^4.6.0
+  # log
+  logger: ^2.6.0
+  # json
+  json_annotation: ^4.9.0
+  # toast
+  overlay_support: ^2.1.0
+  # extend models
+  freezed_annotation: ^3.1.0
+  # desktop support
+  window_manager: ^0.5.1
+  # extra tools
+  crypto: ^3.0.6
+  encrypt: ^5.0.3
+  mockito: ^5.4.2
+
+dev_dependencies:
+  melos: ^7.1.0
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.15
+  custom_lint: ^0.7.6
+  riverpod_lint: ^2.6.5
+  riverpod_generator: ^2.6.5
+  auto_route_generator: ^10.0.1
+  retrofit_generator: ^9.6.0
+  json_serializable: ^6.9.5
+  freezed: ^3.0.6

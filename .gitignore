@@ -1,3 +1,4 @@
+# Flutter/Dart
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -8,7 +9,8 @@
 build/
 coverage/
 lib/generated_plugin_registrant.dart
-# For library packages, don’t commit the pubspec.lock file.
+
+# For library packages, don't commit the pubspec.lock file.
 # Regenerating the pubspec.lock file lets you test your package against the latest compatible versions of its dependencies.
 # See https://dart.dev/guides/libraries/private-files#pubspeclock
 #pubspec.lock
@@ -58,4 +60,94 @@ lib/generated_plugin_registrant.dart
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+
+# IDEs and Editors
+## IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+## VS Code
+.vscode/
+*.code-workspace
+
+## Emacs
+*~
+\#*\#
+.\#*
+
+## Vim
+*.swp
+*.swo
+*.swn
+.*.sw?
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# Melos
+.melos_tool/
+melos_*.iml
+
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# AI-generated documentation
+docs/ai/
+
+# Personal notes and TODOs
+TODO.md
+NOTES.md
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
 
