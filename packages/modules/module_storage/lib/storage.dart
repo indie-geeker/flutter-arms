@@ -1,8 +1,8 @@
 /// Storage module for FlutterArms
 ///
-/// Provides various storage implementations including:
-/// - Key-Value storage (Hive)
-/// - Secure storage
+/// Provides various module_storage implementations including:
+/// - Key-Value module_storage (Hive)
+/// - Secure module_storage
 /// - Utilities for serialization and migration
 library storage;
 

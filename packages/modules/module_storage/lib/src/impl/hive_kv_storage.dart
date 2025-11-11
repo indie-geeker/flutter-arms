@@ -24,9 +24,9 @@ class HiveKeyValueStorage implements IKeyValueStorage {
       var path = await getApplicationCacheDirectory();
        Hive.init(path.path);
       _box = await Hive.openBox(boxName);
-      _logger.info('Hive KV storage initialized');
+      _logger.info('Hive KV module_storage initialized');
     } catch (e, stackTrace) {
-      _logger.error('Failed to initialize Hive storage',
+      _logger.error('Failed to initialize Hive module_storage',
           error: e, stackTrace: stackTrace);
       rethrow;
     }

@@ -7,10 +7,11 @@ environment:
 workspace:
   - packages/core
   - packages/interfaces
-#  - packages/modules/network
-  - packages/modules/storage
   - packages/modules/module_logger
+  - packages/modules/module_storage
+  - packages/modules/module_cache
 #  - packages/modules/utils
+#  - packages/modules/network
 #  - app/example
 
 

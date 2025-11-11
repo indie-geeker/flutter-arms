@@ -15,7 +15,7 @@ abstract class IMigrationScript {
 
   /// 执行迁移
   ///
-  /// [storage] 存储数据的访问接口
+  /// [module_storage] 存储数据的访问接口
   /// 返回是否迁移成功
   Future<bool> migrate(StorageMigrationContext context);
 
