@@ -8,7 +8,7 @@ workspace:
   - packages/core
   - packages/interfaces
 #  - packages/modules/network
-#  - packages/modules/storage
+  - packages/modules/storage
   - packages/modules/module_logger
 #  - packages/modules/utils
 #  - app/example
@@ -40,6 +40,8 @@ dependencies:
   crypto: ^3.0.6
   encrypt: ^5.0.3
   mockito: ^5.4.2
+  hive: ^2.2.3
+  path_provider: ^2.1.5
 
 dev_dependencies:
   melos: ^7.1.0
