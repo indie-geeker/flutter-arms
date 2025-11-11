@@ -3,3 +3,5 @@ export 'core/export.dart';
 
 export 'storage/export.dart';
 export 'cache/export.dart';
+
+export 'network/export.dart';

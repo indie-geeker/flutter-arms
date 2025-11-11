@@ -10,8 +10,8 @@ workspace:
   - packages/modules/module_logger
   - packages/modules/module_storage
   - packages/modules/module_cache
+  - packages/modules/module_network
 #  - packages/modules/utils
-#  - packages/modules/network
 #  - app/example
 
 
