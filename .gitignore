@@ -134,6 +134,7 @@ melos_*.iml
 
 # AI-generated documentation
 docs/ai/
+CLAUDE.md
 
 # Personal notes and TODOs
 TODO.md
