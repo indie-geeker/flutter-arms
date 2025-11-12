@@ -45,4 +45,9 @@ class MockServiceLocator implements IServiceLocator {
   Future<void> reset() async {
     _services.clear();
   }
+
+  @override
+  bool isRegisteredByType(Type type) {
+    return _services.containsKey(type);
+  }
 }

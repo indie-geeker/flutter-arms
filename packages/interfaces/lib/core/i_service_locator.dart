@@ -25,6 +25,11 @@ abstract class IServiceLocator {
   /// 检查服务是否已注册
   bool isRegistered<T extends Object>();
 
+  /// 检查服务是否已注册（通过运行时 Type）
+  ///
+  /// 用于在无法使用泛型类型参数的场景，如模块依赖验证
+  bool isRegisteredByType(Type type);
+
   /// 注销服务
   Future<void> unregister<T extends Object>();
 

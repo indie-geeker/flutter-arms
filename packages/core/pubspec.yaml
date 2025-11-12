@@ -12,6 +12,9 @@ resolution: workspace
 dependencies:
   flutter:
     sdk: flutter
+  interfaces:
+    path: ../interfaces
+  get_it: any
 
 dev_dependencies:
   flutter_test:

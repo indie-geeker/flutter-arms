@@ -741,4 +741,11 @@ class MockServiceLocator implements IServiceLocator {
     lazySingletons.clear();
     lazySingletonInstances.clear();
   }
+
+  @override
+  bool isRegisteredByType(Type type) {
+    return registeredServices.containsKey(type) ||
+        factories.containsKey(type) ||
+        lazySingletons.containsKey(type);
+  }
 }

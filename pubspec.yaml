@@ -12,7 +12,7 @@ workspace:
   - packages/modules/module_cache
   - packages/modules/module_network
 #  - packages/modules/utils
-#  - app/example
+  - app/example
 
 
 dependencies:
@@ -43,6 +43,7 @@ dependencies:
   mockito: ^5.4.2
   hive: ^2.2.3
   path_provider: ^2.1.5
+  get_it: ^9.0.5
 
 dev_dependencies:
   melos: ^7.1.0
