@@ -1,85 +1,398 @@
-项目目标
+# flutter-arms
 
-构建一个 Flutter 多平台基础框架（monorepo 结构），主要用于 快速搭建应用项目的底层基础设施，并支持业务模块的灵活替换和扩展。
-框架应具备高内聚、低耦合的特性，符合 Clean Architecture 和 插件化原则。
+> A modular, extensible Flutter framework for rapid multi-platform application development
 
-⸻
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.35.6-02569B?logo=flutter)](https://flutter.dev)
+[![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+flutter-arms is a production-ready Flutter monorepo framework designed to accelerate application development through clean architecture principles and modular design. Built for developers who need a solid foundation with pluggable infrastructure components.
 
-架构层次
+## Table of Contents
 
-1. interfaces —— 抽象定义层
-   •	定义各类功能模块的接口（例如：网络、缓存、日志、存储等）。
-   •	不包含任何实现逻辑。
-   •	仅描述契约（interface / abstract class）。
-   •	为业务层和基础设施层提供稳定依赖。
+- [Features](#features)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Running the Example App](#running-the-example-app)
+- [Usage](#usage)
+- [Available Modules](#available-modules)
+- [Development](#development)
+  - [Adding New Modules](#adding-new-modules)
+  - [Running Tests](#running-tests)
+  - [Code Generation](#code-generation)
+- [Tech Stack](#tech-stack)
+- [Contributing](#contributing)
+- [License](#license)
 
-2. modules —— 基础设施实现层
-   •	提供对接口的具体实现，如：
-   •	网络模块：dio 或 http 实现。
-   •	缓存模块：hive、shared_preferences 实现。
-   •	日志模块：logger 或自定义实现。
-   •	不包含任何业务逻辑。
-   •	通过依赖注入（DI）或插件注册方式接入 core。
+## Features
 
-3. core —— 聚合与协调层
-   •	管理各模块实例的依赖注册与初始化。
-   •	对外暴露统一接口，用于 app 层调用。
-   •	通过配置（或注解机制）选择不同实现。
+- **Clean Architecture** - Separation of concerns with interface-driven design
+- **Modular Infrastructure** - Pluggable modules for network, storage, cache, and logging
+- **Dependency Injection** - Built-in DI using GetIt for flexible configuration
+- **Monorepo Structure** - Dart workspace with Melos for efficient multi-package development
+- **Type Safety** - Full Dart 3+ support with sound null safety
+- **Extensible** - Easy to add, replace, or remove infrastructure modules
+- **Production Ready** - Example app demonstrating best practices
 
-4. app —— 应用层
-   •	包含业务逻辑与 UI。
-   •	依赖 core 提供的能力（网络、存储、日志等）。
-   •	可根据不同产品或平台定制模块实现。
+## Architecture
 
-目录结构示例
-packages/
-├── core/
+flutter-arms follows a layered architecture with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────┐
+│           Application Layer             │
+│         (Business Logic & UI)           │
+│              app/example                │
+└─────────────────┬───────────────────────┘
+                  │ depends on
+┌─────────────────▼───────────────────────┐
+│          Aggregation Layer              │
+│     (DI Container & Coordination)       │
+│           packages/core                 │
+└─────────────────┬───────────────────────┘
+                  │ depends on
+┌─────────────────▼───────────────────────┐
+│         Interface Layer                 │
+│      (Abstract Contracts Only)          │
+│        packages/interfaces              │
+└─────────────────▲───────────────────────┘
+                  │ implements
+┌─────────────────┴───────────────────────┐
+│       Infrastructure Layer              │
+│    (Concrete Implementations)           │
+│       packages/modules/*                │
+└─────────────────────────────────────────┘
+```
+
+### Layer Responsibilities
+
+1. **interfaces** - Abstract definitions
+   - Defines contracts for all infrastructure services
+   - No implementation details
+   - Stable API for business logic
+
+2. **modules** - Infrastructure implementations
+   - Concrete implementations of interfaces
+   - Module implementations: network, cache, logger, storage
+   - Swappable based on requirements
+
+3. **core** - Aggregation & coordination
+   - Dependency injection setup
+   - Module registration and initialization
+   - Unified API facade for application layer
+
+4. **app** - Application layer
+   - Business logic and UI
+   - Depends only on core and interfaces
+   - Platform-specific implementations
+
+## Project Structure
+
+```
+flutter-arms/
+├── packages/
+│   ├── interfaces/          # Abstract interface definitions
+│   │   └── lib/
+│   │       ├── network/     # Network service contracts
+│   │       ├── cache/       # Cache service contracts
+│   │       ├── logger/      # Logger service contracts
+│   │       └── storage/     # Storage service contracts
+│   │
+│   ├── core/                # Core aggregation layer
+│   │   └── lib/
+│   │       └── di/          # Dependency injection setup
+│   │
+│   └── modules/             # Infrastructure implementations
+│       ├── module_network/  # Network module (Dio, HTTP)
+│       ├── module_cache/    # Cache module (Hive, SharedPreferences)
+│       ├── module_logger/   # Logger module
+│       └── module_storage/  # Storage module
 │
-├── interfaces/
-│   ├── lib/
-│   │   ├── network/
-│   │   ├── cache/
-│   │   ├── logger/
-│   │   └── storage/
+├── app/
+│   └── example/             # Example Flutter application
+│       ├── lib/
+│       ├── test/
+│       └── pubspec.yaml
 │
-├── modules/
-│   ├── module_network/
-│   ├── module_cache/
-│   ├── module_logger/
-│
-└── app
+├── melos.yaml               # Melos workspace configuration
+└── README.md
+```
 
+## Getting Started
 
-关键设计特点
-1. 接口隔离原则
+### Prerequisites
 
-每个基础设施功能都有独立的接口定义
-应用层只依赖接口，不关心具体实现
-便于单元测试和Mock
+- [Flutter 3.35.6](https://flutter.dev/docs/get-started/install) or higher
+- Dart SDK ^3.9.2 (included with Flutter)
 
-2. 依赖注入配置
+### Installation
 
-在聚合层统一配置所有依赖
-使用Riverpod进行依赖管理
-支持不同环境的配置切换
+1. **Clone the repository**
 
-3. 模块化设计
+```bash
+git clone https://github.com/indie-geeker/flutter-arms
+cd flutter-arms
+```
 
-基础设施可独立开发和测试
-支持按需引入功能模块
-便于团队协作（虽然你是独立开发）
+2. **Bootstrap the workspace**
 
-4. 扩展性设计
+```bash
+dart pub global activate melos
+melos bootstrap
+```
 
-新增基础设施：
+This will:
+- Install all package dependencies
+- Link local packages together
+- Generate necessary files
 
-在interfaces中定义接口
-在modules下实现
-在core中注册
-应用层即可使用
+### Running the Example App
 
+```bash
+cd app/example
+flutter run
+```
 
-替换实现：
-创建新的modules/implementation
-在应用层初始化时注册模块
+Select your target device when prompted.
+
+## Usage
+
+### Integrating flutter-arms in Your Project
+
+1. **Add dependencies to your `pubspec.yaml`**
+
+```yaml
+dependencies:
+  core:
+    path: ../../packages/core
+
+```
+
+2. **Initialize the core in your app**
+
+```dart
+import 'package:core/core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:interfaces/logger/log_level.dart';
+import 'package:module_logger/module_logger.dart';
+import 'package:module_storage/module_storage.dart';
+import 'package:module_cache/module_cache.dart';
+import 'package:module_network/module_network.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return AppInitializerWidget(
+      modules: [
+        // Logger Module - initialize first
+        LoggerModule(initialLevel: LogLevel.debug),
+        // Storage Module - for persistence
+        StorageModule(),
+        // Cache Module - for caching
+        CacheModule(),
+        // Network Module - for HTTP requests
+        NetworkModule(
+          baseUrl: 'https://api.example.com',
+          connectTimeout: Duration(seconds: 30),
+        ),
+      ],
+
+      // Custom loading screen (optional)
+      loadingBuilder: (context, progress) {
+        return MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 24),
+                  Text(progress.message),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+
+      // Main app (shown after modules initialize)
+      child: const ProviderScope(child: MainApp()),
+    );
+  }
+}
+```
+
+3. **Use infrastructure services via Riverpod providers**
+
+```dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:core/core.dart';
+
+// Create a provider that uses infrastructure services
+@riverpod
+MyDataSource myDataSource(Ref ref) {
+  final storage = ref.watch(kvStorageProvider);
+  final logger = ref.watch(loggerProvider);
+  return MyDataSource(storage, logger);
+}
+
+// Use in widgets with ConsumerWidget
+class MyWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dataSource = ref.watch(myDataSourceProvider);
+    // Use dataSource...
+  }
+}
+```
+
+## Available Modules
+
+| Module | Status | Description |
+|--------|--------|-------------|
+| `module_logger` | ✅ Available | Logging infrastructure |
+| `module_storage` | ✅ Available | Persistent storage |
+| `module_cache` | ✅ Available | In-memory and persistent caching |
+| `module_network` | ✅ Available | HTTP client and networking |
+
+## Development
+
+### Adding New Modules
+
+1. **Define the interface** in `packages/interfaces/lib/`
+
+```dart
+// packages/interfaces/lib/analytics/i_analytics.dart
+abstract class IAnalytics {
+  Future<void> logEvent(String name, Map<String, dynamic> params);
+  Future<void> setUserId(String userId);
+}
+```
+
+2. **Create the implementation** in `packages/modules/`
+
+```bash
+cd packages/modules
+flutter create --template=package module_analytics
+```
+
+3. **Implement the interface**
+
+```dart
+// packages/modules/module_analytics/lib/analytics_impl.dart
+import 'package:interfaces/analytics/i_analytics.dart';
+
+class AnalyticsImpl implements IAnalytics {
+  @override
+  Future<void> logEvent(String name, Map<String, dynamic> params) async {
+    // Implementation using Firebase Analytics, Mixpanel, etc.
+  }
+
+  @override
+  Future<void> setUserId(String userId) async {
+    // Implementation
+  }
+}
+```
+
+4. **Register in core** DI container
+
+```dart
+// In core/lib/di/service_locator.dart
+getIt.registerLazySingleton<IAnalytics>(() => AnalyticsImpl());
+```
+
+5. **Bootstrap and use**
+
+```bash
+melos bootstrap
+```
+
+### Running Tests
+
+```bash
+# Run tests for all packages
+melos exec -- flutter test
+
+# Run tests for specific package
+cd packages/core
+flutter test
+
+# Run with coverage
+flutter test --coverage
+```
+
+### Code Generation
+
+The example app uses code generation for routing, state management, and serialization:
+
+```bash
+cd app/example
+
+# Run code generation once
+dart run build_runner build --delete-conflicting-outputs
+
+# Watch for changes
+dart run build_runner watch --delete-conflicting-outputs
+
+# Clean generated files
+dart run build_runner clean
+```
+
+## Tech Stack
+
+### Core Framework
+- **Flutter** 3.35.6 - UI framework
+- **Dart** 3.9.2+ - Programming language
+
+### State Management & Architecture
+- **Riverpod** - State management and dependency injection
+- **GetIt** - Service locator for core DI
+
+### Routing
+- **AutoRoute** - Type-safe navigation
+
+### Code Generation
+- **Freezed** - Immutable data classes
+- **json_serializable** - JSON serialization
+
+### Functional Programming
+- **Dartz** - Functional programming utilities
+
+### Development Tools
+- **Melos** - Monorepo management
+- **build_runner** - Code generation
+
+## Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Commit Convention
+
+Follow [Conventional Commits](https://www.conventionalcommits.org/):
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `refactor:` - Code refactoring
+- `test:` - Test additions or changes
+- `chore:` - Build process or tooling changes
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Built with ❤️ using Flutter**

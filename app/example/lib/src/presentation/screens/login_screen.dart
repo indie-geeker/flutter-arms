@@ -36,8 +36,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _handleLogin() {
-    final formNotifier = ref.read(loginFormNotifierProvider.notifier);
-    final loginNotifier = ref.read(loginNotifierProvider.notifier);
+    final formNotifier = ref.read(loginFormProvider.notifier);
+    final loginNotifier = ref.read(loginProvider.notifier);
 
     // 清除之前的错误
     formNotifier.clearErrors();
@@ -62,7 +62,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     // 监听登录状态
-    ref.listen<LoginState>(loginNotifierProvider, (previous, next) {
+    ref.listen<LoginState>(loginProvider, (previous, next) {
       next.when(
         initial: () {},
         loading: () {},
@@ -88,8 +88,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     });
 
-    final loginState = ref.watch(loginNotifierProvider);
-    final formState = ref.watch(loginFormNotifierProvider);
+    final loginState = ref.watch(loginProvider);
+    final formState = ref.watch(loginFormProvider);
     final isLoading = loginState.maybeWhen(
       loading: () => true,
       orElse: () => false,
@@ -109,17 +109,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 isLoading: isLoading,
                 onUsernameChanged: (value) {
                   ref
-                      .read(loginFormNotifierProvider.notifier)
+                      .read(loginFormProvider.notifier)
                       .updateUsername(value);
                 },
                 onPasswordChanged: (value) {
                   ref
-                      .read(loginFormNotifierProvider.notifier)
+                      .read(loginFormProvider.notifier)
                       .updatePassword(value);
                 },
                 onTogglePasswordVisibility: () {
                   ref
-                      .read(loginFormNotifierProvider.notifier)
+                      .read(loginFormProvider.notifier)
                       .togglePasswordVisibility();
                 },
                 onLogin: _handleLogin,
