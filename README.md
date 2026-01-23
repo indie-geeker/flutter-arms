@@ -32,9 +32,8 @@ flutter-arms is a production-ready Flutter monorepo framework designed to accele
 - **Clean Architecture** - Separation of concerns with interface-driven design
 - **Modular Infrastructure** - Pluggable modules for network, storage, cache, and logging
 - **Dependency Injection** - Built-in DI using GetIt for flexible configuration
-- **Monorepo Structure** - Managed by Melos for efficient multi-package development
+- **Monorepo Structure** - Dart workspace with Melos for efficient multi-package development
 - **Type Safety** - Full Dart 3+ support with sound null safety
-- **Version Control** - Reproducible builds with mise tool management
 - **Extensible** - Easy to add, replace, or remove infrastructure modules
 - **Production Ready** - Example app demonstrating best practices
 
@@ -119,7 +118,6 @@ flutter-arms/
 │       └── pubspec.yaml
 │
 ├── melos.yaml               # Melos workspace configuration
-├── mise.toml                # Tool version management
 └── README.md
 ```
 
@@ -127,8 +125,7 @@ flutter-arms/
 
 ### Prerequisites
 
-- [mise](https://mise.jdx.dev/) - Tool version manager (recommended)
-- OR manually install [Flutter 3.35.6](https://flutter.dev/docs/get-started/install)
+- [Flutter 3.35.6](https://flutter.dev/docs/get-started/install) or higher
 - Dart SDK ^3.9.2 (included with Flutter)
 
 ### Installation
@@ -140,21 +137,9 @@ git clone https://github.com/indie-geeker/flutter-arms
 cd flutter-arms
 ```
 
-2. **Install Flutter with mise** (recommended)
+2. **Bootstrap the workspace**
 
 ```bash
-# mise will automatically install Flutter 3.35.6
-# when entering the directory
-mise install
-```
-
-3. **Bootstrap the workspace**
-
-```bash
-# Using mise
-mise run melos:bootstrap
-
-# OR directly with Melos
 dart pub global activate melos
 melos bootstrap
 ```
@@ -190,72 +175,79 @@ dependencies:
 
 ```dart
 import 'package:core/core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:interfaces/logger/log_level.dart';
 import 'package:module_logger/module_logger.dart';
 import 'package:module_storage/module_storage.dart';
+import 'package:module_cache/module_cache.dart';
+import 'package:module_network/module_network.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-  // Register modules
-  // await AppInitializer.initialize(
-  //   modules: [
-  //     LoggerModule(),
-  //     StorageModule(),
-  //   ],
-  // );
- 
-  runApp(
-    // Register modules(✅Recommend)
-    AppInitializerWidget(
+  @override
+  Widget build(BuildContext context) {
+    return AppInitializerWidget(
       modules: [
-        LoggerModule(
-          initialLevel: kDebugMode ? LogLevel.debug : LogLevel.info,
-          outputs: [ConsoleOutput()],
-        ),
+        // Logger Module - initialize first
+        LoggerModule(initialLevel: LogLevel.debug),
+        // Storage Module - for persistence
         StorageModule(),
+        // Cache Module - for caching
         CacheModule(),
+        // Network Module - for HTTP requests
         NetworkModule(
           baseUrl: 'https://api.example.com',
           connectTimeout: Duration(seconds: 30),
         ),
       ],
 
-      // 自定义加载界面（可选）
+      // Custom loading screen (optional)
       loadingBuilder: (context, progress) {
-        return SplashScreen(
-          progress: progress.percentage,
-          message: progress.message,
+        return MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 24),
+                  Text(progress.message),
+                ],
+              ),
+            ),
+          ),
         );
       },
 
-      // 自定义错误界面（可选）
-      errorBuilder: (context, error) {
-        return ErrorScreen(error: error);
-      },
-
-      // 应用主体
-      child: ProviderScope(
-        child: MyApp(),
-      ),
-    ),
-  );
+      // Main app (shown after modules initialize)
+      child: const ProviderScope(child: MainApp()),
+    );
+  }
 }
-
-
 ```
 
-3. **Use infrastructure services**
+3. **Use infrastructure services via Riverpod providers**
 
 ```dart
-import 'package:interfaces/logger/i_logger.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:core/core.dart';
 
-class MyService {
-  final ILogger _logger = getIt<ILogger>();
+// Create a provider that uses infrastructure services
+@riverpod
+MyDataSource myDataSource(Ref ref) {
+  final storage = ref.watch(kvStorageProvider);
+  final logger = ref.watch(loggerProvider);
+  return MyDataSource(storage, logger);
+}
 
-  void doSomething() {
-    _logger.info('Operation started');
-    // Your business logic
+// Use in widgets with ConsumerWidget
+class MyWidget extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final dataSource = ref.watch(myDataSourceProvider);
+    // Use dataSource...
   }
 }
 ```
@@ -344,13 +336,13 @@ The example app uses code generation for routing, state management, and serializ
 cd app/example
 
 # Run code generation once
-flutter pub run build_runner build --delete-conflicting-outputs
+dart run build_runner build --delete-conflicting-outputs
 
 # Watch for changes
-flutter pub run build_runner watch --delete-conflicting-outputs
+dart run build_runner watch --delete-conflicting-outputs
 
 # Clean generated files
-flutter pub run build_runner clean
+dart run build_runner clean
 ```
 
 ## Tech Stack
@@ -375,7 +367,6 @@ flutter pub run build_runner clean
 
 ### Development Tools
 - **Melos** - Monorepo management
-- **mise** - Tool version management
 - **build_runner** - Code generation
 
 ## Contributing

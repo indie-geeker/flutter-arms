@@ -27,7 +27,7 @@ AuthLocalDataSource authLocalDataSource(Ref ref) {
 
 /// 认证仓储 Provider
 @riverpod
-IAuthRepository authRepository(AuthRepositoryRef ref) {
+IAuthRepository authRepository(Ref ref) {
   final localDataSource = ref.watch(authLocalDataSourceProvider);
   return AuthRepositoryImpl(localDataSource);
 }
@@ -38,21 +38,21 @@ IAuthRepository authRepository(AuthRepositoryRef ref) {
 
 /// 登录用例 Provider
 @riverpod
-LoginUseCase loginUseCase(LoginUseCaseRef ref) {
+LoginUseCase loginUseCase(Ref ref) {
   final repository = ref.watch(authRepositoryProvider);
   return LoginUseCase(repository);
 }
 
 /// 登出用例 Provider
 @riverpod
-LogoutUseCase logoutUseCase(LogoutUseCaseRef ref) {
+LogoutUseCase logoutUseCase(Ref ref) {
   final repository = ref.watch(authRepositoryProvider);
   return LogoutUseCase(repository);
 }
 
 /// 获取当前用户用例 Provider
 @riverpod
-GetCurrentUserUseCase getCurrentUserUseCase(GetCurrentUserUseCaseRef ref) {
+GetCurrentUserUseCase getCurrentUserUseCase(Ref ref) {
   final repository = ref.watch(authRepositoryProvider);
   return GetCurrentUserUseCase(repository);
 }

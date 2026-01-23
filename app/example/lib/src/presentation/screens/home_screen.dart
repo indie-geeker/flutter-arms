@@ -12,16 +12,16 @@ class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   void _handleLogout(BuildContext context, WidgetRef ref) {
-    ref.read(homeNotifierProvider.notifier).logout();
+    ref.read(homeProvider.notifier).logout();
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final userState = ref.watch(homeNotifierProvider);
+    final userState = ref.watch(homeProvider);
 
     // 监听登出状态
-    ref.listen(homeNotifierProvider, (previous, next) {
+    ref.listen(homeProvider, (previous, next) {
       next.whenOrNull(
         loggedOut: () {
           // 登出成功，返回登录页
