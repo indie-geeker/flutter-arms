@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../router/app_router.dart';
 import '../notifiers/home_notifier.dart';
@@ -17,7 +18,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final userState = ref.watch(homeProvider);
 
     // 监听登出状态
@@ -32,12 +33,17 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: Text(l10n.home),
         centerTitle: true,
         actions: [
           IconButton(
+            icon: const Icon(Icons.settings),
+            tooltip: l10n.settings,
+            onPressed: () => context.router.push(const SettingsRoute()),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
+            tooltip: l10n.logout,
             onPressed: () => _handleLogout(context, ref),
           ),
         ],
@@ -96,6 +102,7 @@ class UserInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Card(
       margin: const EdgeInsets.all(24),
@@ -120,7 +127,7 @@ class UserInfoCard extends StatelessWidget {
 
             // 欢迎文字
             Text(
-              'Welcome!',
+              l10n.welcome,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -154,7 +161,7 @@ class UserInfoCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Logged in at ${_formatTime(loginTime)}',
+                    l10n.loggedInAt(_formatTime(loginTime)),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -168,7 +175,7 @@ class UserInfoCard extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onLogout,
               icon: const Icon(Icons.logout),
-              label: const Text('Logout'),
+              label: Text(l10n.logout),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
@@ -197,6 +204,7 @@ class ErrorDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -204,7 +212,7 @@ class ErrorDisplay extends StatelessWidget {
         Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
         const SizedBox(height: 16),
         Text(
-          'Error',
+          l10n.error,
           style: theme.textTheme.titleLarge?.copyWith(
             color: theme.colorScheme.error,
           ),

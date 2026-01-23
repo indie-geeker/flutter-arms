@@ -1,0 +1,204 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "FlutterArms Example",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+
+  "welcomeBack": "Welcome Back",
+  "@welcomeBack": {
+    "description": "Welcome message on login screen"
+  },
+
+  "signInToContinue": "Sign in to continue",
+  "@signInToContinue": {
+    "description": "Subtitle on login screen"
+  },
+
+  "username": "Username",
+  "@username": {
+    "description": "Username field label"
+  },
+
+  "enterYourUsername": "Enter your username",
+  "@enterYourUsername": {
+    "description": "Username field hint"
+  },
+
+  "password": "Password",
+  "@password": {
+    "description": "Password field label"
+  },
+
+  "enterYourPassword": "Enter your password",
+  "@enterYourPassword": {
+    "description": "Password field hint"
+  },
+
+  "login": "Login",
+  "@login": {
+    "description": "Login button text"
+  },
+
+  "logout": "Logout",
+  "@logout": {
+    "description": "Logout button text"
+  },
+
+  "home": "Home",
+  "@home": {
+    "description": "Home screen title"
+  },
+
+  "welcome": "Welcome!",
+  "@welcome": {
+    "description": "Welcome message on home screen"
+  },
+
+  "loggedInAt": "Logged in at {time}",
+  "@loggedInAt": {
+    "description": "Login time display",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "14:30"
+      }
+    }
+  },
+
+  "settings": "Settings",
+  "@settings": {
+    "description": "Settings screen title"
+  },
+
+  "theme": "Theme",
+  "@theme": {
+    "description": "Theme section title"
+  },
+
+  "themeMode": "Theme Mode",
+  "@themeMode": {
+    "description": "Theme mode selection title"
+  },
+
+  "lightMode": "Light",
+  "@lightMode": {
+    "description": "Light theme option"
+  },
+
+  "darkMode": "Dark",
+  "@darkMode": {
+    "description": "Dark theme option"
+  },
+
+  "systemMode": "System",
+  "@systemMode": {
+    "description": "System theme option"
+  },
+
+  "colorScheme": "Color Scheme",
+  "@colorScheme": {
+    "description": "Color scheme selection title"
+  },
+
+  "blue": "Blue",
+  "@blue": {
+    "description": "Blue color option"
+  },
+
+  "green": "Green",
+  "@green": {
+    "description": "Green color option"
+  },
+
+  "purple": "Purple",
+  "@purple": {
+    "description": "Purple color option"
+  },
+
+  "orange": "Orange",
+  "@orange": {
+    "description": "Orange color option"
+  },
+
+  "teal": "Teal",
+  "@teal": {
+    "description": "Teal color option"
+  },
+
+  "language": "Language",
+  "@language": {
+    "description": "Language section title"
+  },
+
+  "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
+
+  "chinese": "Chinese",
+  "@chinese": {
+    "description": "Chinese language option"
+  },
+
+  "usernameRequired": "Username is required",
+  "@usernameRequired": {
+    "description": "Username validation error"
+  },
+
+  "passwordRequired": "Password is required",
+  "@passwordRequired": {
+    "description": "Password validation error"
+  },
+
+  "invalidCredentials": "Invalid username or password",
+  "@invalidCredentials": {
+    "description": "Invalid credentials error"
+  },
+
+  "userNotFound": "User not found",
+  "@userNotFound": {
+    "description": "User not found error"
+  },
+
+  "storageError": "Storage error: {message}",
+  "@storageError": {
+    "description": "Storage error message",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+
+  "networkError": "Network error: {message}",
+  "@networkError": {
+    "description": "Network error message",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+
+  "unexpectedError": "Unexpected error: {message}",
+  "@unexpectedError": {
+    "description": "Unexpected error message",
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+
+  "error": "Error",
+  "@error": {
+    "description": "Error title"
+  },
+
+  "noUserFound": "No user found",
+  "@noUserFound": {
+    "description": "No user found error"
+  }
+}

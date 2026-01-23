@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:example/src/domain/failures/auth_failure.dart';
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../router/app_router.dart';
 import '../notifiers/login_notifier.dart';
@@ -61,6 +62,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     // 监听登录状态
     ref.listen<LoginState>(loginProvider, (previous, next) {
       next.when(
@@ -73,15 +76,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         failure: (failure) {
           // 显示错误信息
           final message = failure.when(
-            emptyUsername: () => 'Username is required',
-            emptyPassword: () => 'Password is required',
+            emptyUsername: () => l10n.usernameRequired,
+            emptyPassword: () => l10n.passwordRequired,
             invalidUsername: (msg) => msg,
             invalidPassword: (msg) => msg,
-            invalidCredentials: () => 'Invalid username or password',
-            userNotFound: () => 'User not found',
-            storageError: (msg) => 'Storage error: $msg',
-            networkError: (msg) => 'Network error: $msg',
-            unexpected: (msg) => 'Unexpected error: $msg',
+            invalidCredentials: () => l10n.invalidCredentials,
+            userNotFound: () => l10n.userNotFound,
+            storageError: (msg) => l10n.storageError(msg),
+            networkError: (msg) => l10n.networkError(msg),
+            unexpected: (msg) => l10n.unexpectedError(msg),
           );
           _showErrorSnackBar(message);
         },
@@ -159,7 +162,7 @@ class LoginFormContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -172,8 +175,8 @@ class LoginFormContent extends StatelessWidget {
         // 用户名输入框
         CustomTextField(
           controller: usernameController,
-          label: 'Username',
-          hint: 'Enter your username',
+          label: l10n.username,
+          hint: l10n.enterYourUsername,
           prefixIcon: Icons.person_outline,
           errorText: formState.usernameError,
           onChanged: onUsernameChanged,
@@ -185,8 +188,8 @@ class LoginFormContent extends StatelessWidget {
         // 密码输入框
         CustomTextField(
           controller: passwordController,
-          label: 'Password',
-          hint: 'Enter your password',
+          label: l10n.password,
+          hint: l10n.enterYourPassword,
           obscureText: !formState.obscurePassword,
           prefixIcon: Icons.lock_outline,
           suffixIcon: formState.obscurePassword
@@ -203,7 +206,7 @@ class LoginFormContent extends StatelessWidget {
 
         // 登录按钮
         CustomButton(
-          text: 'Login',
+          text: l10n.login,
           onPressed: formState.isValid && !isLoading ? onLogin : null,
           isLoading: isLoading,
           icon: Icons.login,
@@ -222,6 +225,7 @@ class LoginHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       children: [
@@ -243,7 +247,7 @@ class LoginHeader extends StatelessWidget {
 
         // 标题
         Text(
-          'Welcome Back',
+          l10n.welcomeBack,
           style: theme.textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
             color: theme.colorScheme.onSurface,
@@ -253,7 +257,7 @@ class LoginHeader extends StatelessWidget {
 
         // 副标题
         Text(
-          'Sign in to continue',
+          l10n.signInToContinue,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
