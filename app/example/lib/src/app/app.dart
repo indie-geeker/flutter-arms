@@ -1,10 +1,24 @@
 import 'package:core/core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:interfaces/logger/log_level.dart';
 import 'package:module_logger/src/logger_module.dart';
 import 'package:module_storage/src/storage_module.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../l10n/app_localizations.dart';
+import '../presentation/notifiers/locale_notifier.dart';
+import '../presentation/notifiers/theme_notifier.dart';
+import '../presentation/state/locale_state.dart';
 import '../router/app_router.dart';
+
+part 'app.g.dart';
+
+/// 应用路由 Provider
+///
+/// 确保整个应用生命周期内只有一个 AppRouter 实例
+@Riverpod(keepAlive: true)
+AppRouter appRouter(Ref ref) => AppRouter();
 
 /// FlutterArms 示例应用
 ///
@@ -53,29 +67,48 @@ class ArmsApp extends StatelessWidget {
 }
 
 /// 应用主体（在模块初始化后显示）
-class _ArmsMainApp extends StatelessWidget {
+class _ArmsMainApp extends ConsumerWidget {
   const _ArmsMainApp();
 
   @override
-  Widget build(BuildContext context) {
-    final appRouter = AppRouter();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appRouter = ref.watch(appRouterProvider);
+    final themeState = ref.watch(themeProvider);
+    final localeState = ref.watch(localeProvider);
+
+    // 加载中时显示简单的加载界面
+    if (themeState.isLoading || localeState.isLoading) {
+      return const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
 
     return MaterialApp.router(
       title: 'FlutterArms Example',
       debugShowCheckedModeBanner: false,
-      theme: _buildLightTheme(),
-      darkTheme: _buildDarkTheme(),
-      themeMode: ThemeMode.system,
+      theme: _buildLightTheme(themeState.colorScheme.color),
+      darkTheme: _buildDarkTheme(themeState.colorScheme.color),
+      themeMode: themeState.themeMode,
+      locale: localeState.appLocale.locale,
+      supportedLocales: AppLocale.values.map((e) => e.locale),
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routerConfig: appRouter.config(),
     );
   }
 
   /// 浅色主题
-  ThemeData _buildLightTheme() {
+  ThemeData _buildLightTheme(Color seedColor) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
+        seedColor: seedColor,
         brightness: Brightness.light,
       ),
       cardTheme: CardThemeData(
@@ -86,11 +119,11 @@ class _ArmsMainApp extends StatelessWidget {
   }
 
   /// 深色主题
-  ThemeData _buildDarkTheme() {
+  ThemeData _buildDarkTheme(Color seedColor) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
+        seedColor: seedColor,
         brightness: Brightness.dark,
       ),
       cardTheme: CardThemeData(
