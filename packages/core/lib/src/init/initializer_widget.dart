@@ -65,34 +65,19 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
 
   Future<void> _initialize() async {
     try {
-      // 1. 注册所有模块
-      _updateProgress('Registering modules...', 0, widget.modules.length);
+      // 注册所有模块到 Registry
       _registry.registerModules(widget.modules);
 
-      // 2. 按优先级排序
-      final sortedModules = widget.modules.toList()
-        ..sort((a, b) => a.priority.compareTo(b.priority));
+      // 使用统一的初始化逻辑（包含依赖验证）
+      await _registry.initializeAllWithProgress((module, current, total) {
+        _updateProgress('Initializing ${module.name}...', current, total);
+      });
 
-      // 3. 依次初始化每个模块
-      for (int i = 0; i < sortedModules.length; i++) {
-        final module = sortedModules[i];
-        _updateProgress(
-          'Initializing ${module.name}...',
-          i + 1,
-          sortedModules.length,
-        );
-
-        // 注册模块服务
-        await module.register(ServiceLocator());
-
-        // 初始化模块
-        await module.init();
-
-        // 模拟短暂延迟以显示进度
-        await Future.delayed(Duration(milliseconds: 100));
-      }
-
-      _updateProgress('Initialization completed', sortedModules.length, sortedModules.length);
+      _updateProgress(
+        'Initialization completed', 
+        widget.modules.length, 
+        widget.modules.length,
+      );
     } catch (e, stackTrace) {
       // 记录错误（如果日志模块已初始化）
       if (ServiceLocator().isRegistered<ILogger>()) {

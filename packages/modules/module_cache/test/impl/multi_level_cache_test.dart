@@ -395,6 +395,89 @@ void main() {
         final key0Exists = await cacheManager.get<String>('key0');
         expect(key0Exists, 'value0');
       });
+
+      group('boundary conditions (maxMemoryItems < 10)', () {
+        late MultiLevelCacheManager smallCache;
+        late MockKeyValueStorage smallStorage;
+        late MockLogger smallLogger;
+
+        setUp(() async {
+          smallStorage = MockKeyValueStorage();
+          smallLogger = MockLogger();
+          // 使用小于10的 maxMemoryItems 来测试边界条件
+          smallCache = MultiLevelCacheManager(
+            storage: smallStorage,
+            logger: smallLogger,
+            maxMemoryItems: 5,
+          );
+          await smallCache.init();
+        });
+
+        tearDown(() async {
+          await smallCache.clear();
+        });
+
+        test('should evict at least 1 item when maxMemoryItems is 5', () async {
+          // 填满缓存 + 1 触发淘汰
+          for (int i = 0; i < 6; i++) {
+            await smallCache.put('small_key$i', 'value$i');
+            await Future.delayed(Duration(milliseconds: 1));
+          }
+
+          final stats = await smallCache.getStats();
+          // 应该触发淘汰，内存缓存不应超过 maxMemoryItems
+          expect(stats.memoryKeys <= 5, true);
+        });
+
+        test('should evict at least 1 item when maxMemoryItems is 3', () async {
+          // 创建更小的缓存
+          final tinyStorage = MockKeyValueStorage();
+          final tinyLogger = MockLogger();
+          final tinyCache = MultiLevelCacheManager(
+            storage: tinyStorage,
+            logger: tinyLogger,
+            maxMemoryItems: 3,
+          );
+          await tinyCache.init();
+
+          // 添加超过限制的项目
+          for (int i = 0; i < 5; i++) {
+            await tinyCache.put('tiny_key$i', 'value$i');
+            await Future.delayed(Duration(milliseconds: 1));
+          }
+
+          final stats = await tinyCache.getStats();
+          // 确保淘汰生效
+          expect(stats.memoryKeys <= 3, true);
+
+          await tinyCache.clear();
+        });
+
+        test('should handle maxMemoryItems = 1 edge case', () async {
+          final singleStorage = MockKeyValueStorage();
+          final singleLogger = MockLogger();
+          final singleCache = MultiLevelCacheManager(
+            storage: singleStorage,
+            logger: singleLogger,
+            maxMemoryItems: 1,
+          );
+          await singleCache.init();
+
+          // 添加2个项目
+          await singleCache.put('single_key0', 'value0');
+          await Future.delayed(Duration(milliseconds: 1));
+          await singleCache.put('single_key1', 'value1');
+
+          final stats = await singleCache.getStats();
+          // 应该只保留1个
+          expect(stats.memoryKeys <= 1, true);
+          // 最新的应该存在
+          final result = await singleCache.get<String>('single_key1');
+          expect(result, 'value1');
+
+          await singleCache.clear();
+        });
+      });
     });
 
     group('ClearExpired Operations', () {

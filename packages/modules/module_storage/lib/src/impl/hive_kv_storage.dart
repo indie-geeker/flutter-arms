@@ -21,12 +21,21 @@ class HiveKeyValueStorage implements IKeyValueStorage {
   @override
   Future<void> init() async {
     try {
-      var path = await getApplicationCacheDirectory();
-       Hive.init(path.path);
+      // 使用文档目录而非缓存目录，避免系统清理导致数据丢失
+      var appDir = await getApplicationDocumentsDirectory();
+      final storagePath = '${appDir.path}/flutter_arms_storage';
+      
+      // 确保目录存在
+      final dir = Directory(storagePath);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      
+      Hive.init(storagePath);
       _box = await Hive.openBox(boxName);
-      _logger.info('Hive KV module_storage initialized');
+      _logger.info('Hive KV storage initialized at: $storagePath');
     } catch (e, stackTrace) {
-      _logger.error('Failed to initialize Hive module_storage',
+      _logger.error('Failed to initialize Hive storage',
           error: e, stackTrace: stackTrace);
       rethrow;
     }
