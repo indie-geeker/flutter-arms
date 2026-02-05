@@ -1,4 +1,6 @@
 
+import 'dart:math' show max;
+
 import 'package:interfaces/cache/cache_policy.dart';
 import 'package:interfaces/cache/cache_stats.dart';
 import 'package:interfaces/cache/i_cache_manager.dart';
@@ -199,9 +201,9 @@ class MultiLevelCacheManager implements ICacheManager {
       final sortedEntries = _memoryCache.entries.toList()
         ..sort((a, b) => a.value.lastAccessedAt.compareTo(b.value.lastAccessedAt));
 
-      // 删除最久未使用的 10%
-      final toRemove = (_maxMemoryItems * 0.1).toInt();
-      for (int i = 0; i < toRemove; i++) {
+      // 删除最久未使用的 10%，至少删除 1 项 (修复 maxMemoryItems < 10 时的边界条件)
+      final toRemove = max(1, (_maxMemoryItems * 0.1).toInt());
+      for (int i = 0; i < toRemove && i < sortedEntries.length; i++) {
         _memoryCache.remove(sortedEntries[i].key);
       }
     }

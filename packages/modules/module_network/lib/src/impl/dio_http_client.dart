@@ -14,6 +14,9 @@ class DioHttpClient implements IHttpClient {
   late final dio.Dio _dio;
   final ILogger _logger;
   final ICacheManager _cacheManager;
+  
+  /// 活跃的 CancelToken 集合，用于批量取消请求
+  final Set<dio.CancelToken> _activeTokens = {};
 
   DioHttpClient({
     required String baseUrl,
@@ -46,8 +49,8 @@ class DioHttpClient implements IHttpClient {
     // 2. 缓存拦截器
     _dio.interceptors.add(CacheInterceptor(_cacheManager, _logger));
 
-    // 3. 重试拦截器
-    _dio.interceptors.add(RetryInterceptor(_logger));
+    // 3. 重试拦截器 (传入原始 Dio 实例以保留配置)
+    _dio.interceptors.add(RetryInterceptor(_logger, _dio));
   }
 
   @override
@@ -230,8 +233,13 @@ class DioHttpClient implements IHttpClient {
 
   @override
   void cancelAllRequests() {
-    // 取消所有正在进行的请求
-    _logger.info('Cancelling all network requests');
+    _logger.info('Cancelling ${_activeTokens.length} active network requests');
+    for (final token in _activeTokens.toList()) {
+      if (!token.isCancelled) {
+        token.cancel('Cancelled by cancelAllRequests()');
+      }
+    }
+    _activeTokens.clear();
   }
 
   /// 处理成功响应
@@ -258,20 +266,31 @@ class DioHttpClient implements IHttpClient {
     );
   }
 
-  /// 转换 CancelToken
+  /// 转换 CancelToken 并将其加入活跃追踪
   dio.CancelToken? _convertCancelToken(CancelToken? token) {
-    if (token == null) return null;
-
-    if (token is DioCancelTokenAdapter) {
-      return token.dioToken;
+    dio.CancelToken dioToken;
+    
+    if (token == null) {
+      // 无 token 时创建新 token 用于追踪
+      dioToken = dio.CancelToken();
+    } else if (token is DioCancelTokenAdapter) {
+      dioToken = token.dioToken;
+    } else {
+      // 如果是其他实现，创建一个新的 Dio CancelToken
+      dioToken = dio.CancelToken();
     }
-
-    // 如果是其他实现，创建一个新的 Dio CancelToken
-    // 并监听原 token 的取消事件
-    final dioToken = dio.CancelToken();
-    // 注意：这里需要实现 token 的监听机制
-    // 这是一个简化版本，实际可能需要更复杂的同步逻辑
+    
+    // 添加到活跃 token 集合
+    _activeTokens.add(dioToken);
+    
     return dioToken;
+  }
+  
+  /// 从活跃追踪中移除 token（请求完成后调用）
+  void _removeActiveToken(dio.CancelToken? token) {
+    if (token != null) {
+      _activeTokens.remove(token);
+    }
   }
 }
 
