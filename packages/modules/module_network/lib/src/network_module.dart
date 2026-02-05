@@ -1,4 +1,6 @@
 
+import 'package:interfaces/cache/cache_policy.dart';
+import 'package:interfaces/cache/cache_stats.dart';
 import 'package:interfaces/cache/i_cache_manager.dart';
 import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
@@ -12,11 +14,13 @@ class NetworkModule implements IModule {
   final String baseUrl;
   final Duration? connectTimeout;
   final Duration? receiveTimeout;
+  final bool enableCache;
 
   NetworkModule({
     required this.baseUrl,
     this.connectTimeout,
     this.receiveTimeout,
+    this.enableCache = true,
   });
 
   @override
@@ -26,7 +30,10 @@ class NetworkModule implements IModule {
   int get priority => InitPriorities.network; // 在日志、存储、缓存之后初始化
 
   @override
-  List<Type> get dependencies => [ILogger, ICacheManager];
+  List<Type> get dependencies => enableCache ? [ILogger, ICacheManager] : [ILogger];
+
+  @override
+  List<Type> get provides => [IHttpClient];
 
   // 保存 locator 引用以便在 init 中使用
   late IServiceLocator _locator;
@@ -36,7 +43,9 @@ class NetworkModule implements IModule {
     _locator = locator;
 
     final logger = locator.get<ILogger>();
-    final cacheManager = locator.get<ICacheManager>();
+    final cacheManager = enableCache
+        ? locator.get<ICacheManager>()
+        : _NoopCacheManager();
 
     final httpClient = DioHttpClient(
       baseUrl: baseUrl,
@@ -59,4 +68,48 @@ class NetworkModule implements IModule {
     final httpClient = _locator.get<IHttpClient>();
     httpClient.cancelAllRequests();
   }
+}
+
+class _NoopCacheManager implements ICacheManager {
+  @override
+  Future<void> clear() async {}
+
+  @override
+  Future<void> clearExpired() async {}
+
+  @override
+  Future<bool> containsKey(String key) async => false;
+
+  @override
+  Future<T?> get<T>(String key) async => null;
+
+  @override
+  Future<int> getCacheSize() async => 0;
+
+  @override
+  Future<T> getOrDefault<T>(String key, T defaultValue) async => defaultValue;
+
+  @override
+  Future<CacheStats> getStats() async => CacheStats(
+        totalKeys: 0,
+        memoryKeys: 0,
+        diskKeys: 0,
+        totalSize: 0,
+        hitCount: 0,
+        missCount: 0,
+      );
+
+  @override
+  Future<void> init() async {}
+
+  @override
+  Future<void> put<T>(
+    String key,
+    T value, {
+    Duration? duration,
+    CachePolicy policy = CachePolicy.normal,
+  }) async {}
+
+  @override
+  Future<void> remove(String key) async {}
 }

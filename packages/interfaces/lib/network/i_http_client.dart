@@ -10,6 +10,9 @@ abstract class IHttpClient {
       String path, {
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       });
 
@@ -19,6 +22,9 @@ abstract class IHttpClient {
         dynamic data,
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       });
 
@@ -28,6 +34,9 @@ abstract class IHttpClient {
         dynamic data,
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       });
 
@@ -37,6 +46,9 @@ abstract class IHttpClient {
         dynamic data,
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       });
 
@@ -45,6 +57,9 @@ abstract class IHttpClient {
       String path,
       FormData formData, {
         ProgressCallback? onSendProgress,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       });
 
@@ -53,6 +68,9 @@ abstract class IHttpClient {
       String urlPath,
       String savePath, {
         ProgressCallback? onReceiveProgress,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       });
 

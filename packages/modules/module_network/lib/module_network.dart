@@ -1,7 +1,6 @@
-/// Flutter-Arms Network Module
-/// 
-/// Provides HTTP client implementation using Dio with caching, retry, and logging support.
-library module_network;
+// Flutter-Arms Network Module
+// 
+// Provides HTTP client implementation using Dio with caching, retry, and logging support.
 
 export 'src/network_module.dart';
 export 'src/impl/dio_http_client.dart';

@@ -1,11 +1,11 @@
 
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
-import 'package:path_provider/path_provider.dart';
+
+import '../utils/storage_file_utils.dart';
 
 /// 基于 Hive 的 KV 存储实现
 class HiveKeyValueStorage implements IKeyValueStorage {
@@ -21,19 +21,10 @@ class HiveKeyValueStorage implements IKeyValueStorage {
   @override
   Future<void> init() async {
     try {
-      // 使用文档目录而非缓存目录，避免系统清理导致数据丢失
-      var appDir = await getApplicationDocumentsDirectory();
-      final storagePath = '${appDir.path}/flutter_arms_storage';
-      
-      // 确保目录存在
-      final dir = Directory(storagePath);
-      if (!await dir.exists()) {
-        await dir.create(recursive: true);
-      }
-      
-      Hive.init(storagePath);
+      // 使用 HiveFlutter 自动处理平台路径，确保多平台兼容
+      await Hive.initFlutter('flutter_arms_storage');
       _box = await Hive.openBox(boxName);
-      _logger.info('Hive KV storage initialized at: $storagePath');
+      _logger.info('Hive KV storage initialized');
     } catch (e, stackTrace) {
       _logger.error('Failed to initialize Hive storage',
           error: e, stackTrace: stackTrace);
@@ -90,15 +81,7 @@ class HiveKeyValueStorage implements IKeyValueStorage {
 
   @override
   Future<int> getSize() async {
-    try {
-      final file = File(_box.path!);
-      if (await file.exists()) {
-        return await file.length();
-      }
-      return 0;
-    } catch (e) {
-      return 0;
-    }
+    return await getFileSize(_box.path);
   }
 
   @override

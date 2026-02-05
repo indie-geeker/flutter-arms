@@ -2,6 +2,7 @@ name: module_storage
 description: "A new Flutter package project."
 version: 0.0.1
 homepage:
+publish_to: none
 
 environment:
   sdk: ^3.9.2
@@ -15,11 +16,13 @@ dependencies:
   interfaces:
     path: ../../interfaces
   hive: any
-  path_provider: any
+  hive_flutter: any
+  flutter_secure_storage: any
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  test: any
   flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the

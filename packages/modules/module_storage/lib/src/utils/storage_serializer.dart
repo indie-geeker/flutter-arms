@@ -162,7 +162,7 @@ class StorageSerializer {
 
   /// 批量序列化
   ///
-  /// 将多个键值对序列化为 Map<String, String>
+  /// 将多个键值对序列化为 `Map<String, String>`
   Map<String, String> serializeBatch(Map<String, dynamic> data) {
     final result = <String, String>{};
     for (final entry in data.entries) {
@@ -179,7 +179,7 @@ class StorageSerializer {
 
   /// 批量反序列化
   ///
-  /// 将 Map<String, String> 反序列化为 Map<String, dynamic>
+  /// 将 `Map<String, String>` 反序列化为 `Map<String, dynamic>`
   Map<String, dynamic> deserializeBatch(Map<String, String> data) {
     final result = <String, dynamic>{};
     for (final entry in data.entries) {

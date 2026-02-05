@@ -2,7 +2,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
-import 'package:interfaces/storage/i_relational_storage.dart';
 import 'package:interfaces/storage/i_secure_storage.dart';
 import 'package:interfaces/cache/i_cache_manager.dart';
 import 'package:interfaces/network/i_http_client.dart';
@@ -23,10 +22,10 @@ final kvStorageProvider = Provider<IKeyValueStorage>((ref) {
 //   return ServiceLocator().get<IRelationalStorage>();
 // });
 //
-// /// 安全存储服务 Provider
-// final secureStorageProvider = Provider<ISecureStorage>((ref) {
-//   return ServiceLocator().get<ISecureStorage>();
-// });
+/// 安全存储服务 Provider
+final secureStorageProvider = Provider<ISecureStorage>((ref) {
+  return ServiceLocator().get<ISecureStorage>();
+});
 
 /// 缓存服务 Provider
 final cacheManagerProvider = Provider<ICacheManager>((ref) {

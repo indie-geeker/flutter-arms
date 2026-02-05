@@ -40,9 +40,9 @@ class NetworkErrorHandler {
         break;
 
       case DioExceptionType.unknown:
-      default:
         type = NetworkExceptionType.unknown;
         message = error.message ?? 'Unknown error occurred';
+        break;
     }
 
     return NetworkException(

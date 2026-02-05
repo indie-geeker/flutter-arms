@@ -15,6 +15,9 @@ class MockLoggerModule implements IModule {
   @override
   List<Type> get dependencies => [];
 
+  @override
+  List<Type> get provides => [MockLoggerModule];
+
   bool registered = false;
   bool initialized = false;
 
@@ -43,6 +46,9 @@ class MockNetworkModule implements IModule {
 
   @override
   List<Type> get dependencies => [MockLoggerModule];
+
+  @override
+  List<Type> get provides => [MockNetworkModule];
 
   bool registered = false;
   bool initialized = false;
@@ -99,6 +105,19 @@ void main() {
         expect(logger.registered, true);
         expect(logger.initialized, true);
       });
+
+      test('should respect dependency order over priority', () async {
+        final List<String> initOrder = [];
+
+        final provider = _ProviderModule(initOrder);
+        final consumer = _ConsumerModule(initOrder);
+
+        // Consumer has higher priority (lower number) but depends on Provider
+        registry.registerModules([consumer, provider]);
+        await registry.initializeAll();
+
+        expect(initOrder, ['Provider', 'Consumer']);
+      });
     });
 
     group('dependency validation', () {
@@ -126,7 +145,7 @@ void main() {
           throwsA(isA<StateError>().having(
             (e) => e.message,
             'message',
-            contains('MockNetwork depends on MockLoggerModule'),
+            contains('No module provides MockLoggerModule'),
           )),
         );
       });
@@ -205,6 +224,9 @@ class _OrderTrackingModule implements IModule {
   List<Type> get dependencies => [];
 
   @override
+  List<Type> get provides => [];
+
+  @override
   Future<void> register(IServiceLocator locator) async {}
 
   @override
@@ -216,4 +238,66 @@ class _OrderTrackingModule implements IModule {
   Future<void> dispose() async {
     _disposeOrder?.add(_name);
   }
+}
+
+class _ProviderModule implements IModule {
+  final List<String> _initOrder;
+
+  _ProviderModule(this._initOrder);
+
+  @override
+  String get name => 'Provider';
+
+  @override
+  int get priority => 100;
+
+  @override
+  List<Type> get dependencies => [];
+
+  @override
+  List<Type> get provides => [_ProviderModule];
+
+  @override
+  Future<void> register(IServiceLocator locator) async {
+    locator.registerSingleton<_ProviderModule>(this);
+  }
+
+  @override
+  Future<void> init() async {
+    _initOrder.add(name);
+  }
+
+  @override
+  Future<void> dispose() async {}
+}
+
+class _ConsumerModule implements IModule {
+  final List<String> _initOrder;
+
+  _ConsumerModule(this._initOrder);
+
+  @override
+  String get name => 'Consumer';
+
+  @override
+  int get priority => 0;
+
+  @override
+  List<Type> get dependencies => [_ProviderModule];
+
+  @override
+  List<Type> get provides => [_ConsumerModule];
+
+  @override
+  Future<void> register(IServiceLocator locator) async {
+    locator.registerSingleton<_ConsumerModule>(this);
+  }
+
+  @override
+  Future<void> init() async {
+    _initOrder.add(name);
+  }
+
+  @override
+  Future<void> dispose() async {}
 }
