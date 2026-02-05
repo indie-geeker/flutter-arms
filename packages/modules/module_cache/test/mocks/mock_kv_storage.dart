@@ -3,7 +3,6 @@ import 'package:interfaces/storage/i_kv_storage.dart';
 /// Mock implementation of IKeyValueStorage for testing
 class MockKeyValueStorage implements IKeyValueStorage {
   final Map<String, dynamic> _storage = {};
-  bool _initialized = false;
   bool _shouldThrowError = false;
 
   void enableErrorMode() => _shouldThrowError = true;
@@ -17,7 +16,6 @@ class MockKeyValueStorage implements IKeyValueStorage {
 
   @override
   Future<void> init() async {
-    _initialized = true;
   }
 
   @override

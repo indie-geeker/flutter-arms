@@ -29,6 +29,9 @@ class LoggerModule implements IModule {
   @override
   List<Type> get dependencies => []; // 无依赖
 
+  @override
+  List<Type> get provides => [ILogger];
+
   // 保存 locator 引用以便在 init 中使用
   late IServiceLocator _locator;
 

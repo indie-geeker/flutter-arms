@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import '../../lib/src/utils/storage_migration.dart';
+import 'package:module_storage/src/utils/storage_migration.dart';
 
 void main() {
   group('StorageMigration', () {

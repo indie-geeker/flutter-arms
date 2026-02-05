@@ -308,11 +308,23 @@ class AnalyticsImpl implements IAnalytics {
 getIt.registerLazySingleton<IAnalytics>(() => AnalyticsImpl());
 ```
 
+> When implementing `IModule`, make sure to declare both `dependencies` and `provides`
+> so the module registry can order initialization correctly.
+
 5. **Bootstrap and use**
 
 ```bash
 melos bootstrap
 ```
+
+### Advanced Options
+
+- **Disable network cache dependency**
+  - `NetworkModule(baseUrl: '...', enableCache: false)`
+- **Per-request cache control**
+  - `httpClient.get('/users', extra: {'cache_enabled': true, 'cache_duration': Duration(minutes: 5)})`
+- **Enable secure storage**
+  - `StorageModule(config: StorageConfig(enableSecureStorage: true))`
 
 ### Running Tests
 

@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:interfaces/logger/log_output.dart';
 import 'package:interfaces/logger/log_entity.dart';
 import 'package:interfaces/logger/log_level.dart';
@@ -16,7 +17,7 @@ class ConsoleOutput implements LogOutput {
   void write(LogEntry entry) {
     final formatted = _formatter.format(entry);
     final output = useColors ? _colorize(formatted, entry.level) : formatted;
-    print(output);
+    debugPrint(output);
   }
 
   String _colorize(String text, LogLevel level) {

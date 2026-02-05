@@ -24,6 +24,12 @@ abstract class IModule {
   /// Core 层会在初始化前验证依赖关系，确保依赖的服务已注册。
   List<Type> get dependencies;
 
+  /// 模块提供的服务类型列表
+  ///
+  /// 用于依赖图解析与初始化排序，确保依赖模块先于使用模块初始化。
+  /// 例如 LoggerModule 提供 ILogger，StorageModule 提供 IKeyValueStorage。
+  List<Type> get provides;
+
   /// 注册模块服务
   ///
   /// 将模块提供的服务注册到服务定位器中。

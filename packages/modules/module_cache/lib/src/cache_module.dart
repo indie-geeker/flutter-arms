@@ -22,6 +22,9 @@ class CacheModule implements IModule {
   @override
   List<Type> get dependencies => [ILogger, IKeyValueStorage];
 
+  @override
+  List<Type> get provides => [ICacheManager];
+
   // 保存 locator 引用以便在 init 中使用
   late IServiceLocator _locator;
 

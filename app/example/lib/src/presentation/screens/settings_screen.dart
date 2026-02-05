@@ -65,40 +65,30 @@ class SettingsScreen extends ConsumerWidget {
     AppLocalizations l10n,
     ThemeState themeState,
   ) {
-    return Column(
-      children: [
-        RadioListTile<ThemeMode>(
-          title: Text(l10n.systemMode),
-          subtitle: const Text('Auto'),
-          value: ThemeMode.system,
-          groupValue: themeState.themeMode,
-          onChanged: (value) {
-            if (value != null) {
-              ref.read(themeProvider.notifier).setThemeMode(value);
-            }
-          },
-        ),
-        RadioListTile<ThemeMode>(
-          title: Text(l10n.lightMode),
-          value: ThemeMode.light,
-          groupValue: themeState.themeMode,
-          onChanged: (value) {
-            if (value != null) {
-              ref.read(themeProvider.notifier).setThemeMode(value);
-            }
-          },
-        ),
-        RadioListTile<ThemeMode>(
-          title: Text(l10n.darkMode),
-          value: ThemeMode.dark,
-          groupValue: themeState.themeMode,
-          onChanged: (value) {
-            if (value != null) {
-              ref.read(themeProvider.notifier).setThemeMode(value);
-            }
-          },
-        ),
-      ],
+    return RadioGroup<ThemeMode>(
+      groupValue: themeState.themeMode,
+      onChanged: (value) {
+        if (value != null) {
+          ref.read(themeProvider.notifier).setThemeMode(value);
+        }
+      },
+      child: Column(
+        children: [
+          RadioListTile<ThemeMode>(
+            title: Text(l10n.systemMode),
+            subtitle: const Text('Auto'),
+            value: ThemeMode.system,
+          ),
+          RadioListTile<ThemeMode>(
+            title: Text(l10n.lightMode),
+            value: ThemeMode.light,
+          ),
+          RadioListTile<ThemeMode>(
+            title: Text(l10n.darkMode),
+            value: ThemeMode.dark,
+          ),
+        ],
+      ),
     );
   }
 
@@ -157,31 +147,27 @@ class SettingsScreen extends ConsumerWidget {
     AppLocalizations l10n,
     LocaleState localeState,
   ) {
-    return Column(
-      children: [
-        RadioListTile<AppLocale>(
-          title: Text(l10n.english),
-          subtitle: const Text('English'),
-          value: AppLocale.english,
-          groupValue: localeState.appLocale,
-          onChanged: (value) {
-            if (value != null) {
-              ref.read(localeProvider.notifier).setLocale(value);
-            }
-          },
-        ),
-        RadioListTile<AppLocale>(
-          title: Text(l10n.chinese),
-          subtitle: const Text('中文'),
-          value: AppLocale.chinese,
-          groupValue: localeState.appLocale,
-          onChanged: (value) {
-            if (value != null) {
-              ref.read(localeProvider.notifier).setLocale(value);
-            }
-          },
-        ),
-      ],
+    return RadioGroup<AppLocale>(
+      groupValue: localeState.appLocale,
+      onChanged: (value) {
+        if (value != null) {
+          ref.read(localeProvider.notifier).setLocale(value);
+        }
+      },
+      child: Column(
+        children: [
+          RadioListTile<AppLocale>(
+            title: Text(l10n.english),
+            subtitle: const Text('English'),
+            value: AppLocale.english,
+          ),
+          RadioListTile<AppLocale>(
+            title: Text(l10n.chinese),
+            subtitle: const Text('中文'),
+            value: AppLocale.chinese,
+          ),
+        ],
+      ),
     );
   }
 

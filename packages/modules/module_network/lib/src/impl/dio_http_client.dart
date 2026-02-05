@@ -9,6 +9,8 @@ import '../utils/network_error_handler.dart';
 import 'dio_cancel_token_adapter.dart';
 import 'dio_form_data_adapter.dart';
 
+const _connectTimeoutExtraKey = 'connect_timeout';
+
 /// 基于 Dio 的 HTTP 客户端实现
 class DioHttpClient implements IHttpClient {
   late final dio.Dio _dio;
@@ -24,25 +26,42 @@ class DioHttpClient implements IHttpClient {
     required ICacheManager cacheManager,
     Duration? connectTimeout,
     Duration? receiveTimeout,
+    dio.Dio? dioClient,
   })  : _logger = logger,
         _cacheManager = cacheManager {
-    _dio = dio.Dio(
-      dio.BaseOptions(
-        baseUrl: baseUrl,
-        connectTimeout: connectTimeout ?? Duration(seconds: 30),
-        receiveTimeout: receiveTimeout ?? Duration(seconds: 30),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-      ),
-    );
+    _dio = dioClient ??
+        dio.Dio(
+          dio.BaseOptions(
+            baseUrl: baseUrl,
+            connectTimeout: connectTimeout ?? Duration(seconds: 30),
+            receiveTimeout: receiveTimeout ?? Duration(seconds: 30),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          ),
+        );
+
+    if (dioClient != null) {
+      _dio.options.baseUrl = baseUrl;
+      _dio.options.connectTimeout =
+          connectTimeout ?? _dio.options.connectTimeout ?? Duration(seconds: 30);
+      _dio.options.receiveTimeout =
+          receiveTimeout ?? _dio.options.receiveTimeout ?? Duration(seconds: 30);
+      _dio.options.headers.addAll({
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      });
+    }
 
     // 添加默认拦截器
     _setupInterceptors();
   }
 
   void _setupInterceptors() {
+    // 0. 超时配置拦截器
+    _dio.interceptors.add(_RequestTimeoutInterceptor());
+
     // 1. 日志拦截器
     _dio.interceptors.add(LoggingInterceptor(_logger));
 
@@ -58,14 +77,22 @@ class DioHttpClient implements IHttpClient {
       String path, {
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       }) async {
+    final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.get(
         path,
         queryParameters: queryParameters,
-        options: dio.Options(headers: headers),
-        cancelToken: _convertCancelToken(cancelToken),
+        options: dio.Options(
+          headers: headers,
+          extra: _mergeExtra(extra, connectTimeout),
+          receiveTimeout: receiveTimeout,
+        ),
+        cancelToken: dioToken,
       );
 
       return _handleResponse<T>(response);
@@ -76,6 +103,8 @@ class DioHttpClient implements IHttpClient {
       return NetworkResponse.failure(
         NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
       );
+    } finally {
+      _removeActiveToken(dioToken);
     }
   }
 
@@ -85,15 +114,23 @@ class DioHttpClient implements IHttpClient {
         dynamic data,
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       }) async {
+    final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.post(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: dio.Options(headers: headers),
-        cancelToken: _convertCancelToken(cancelToken),
+        options: dio.Options(
+          headers: headers,
+          extra: _mergeExtra(extra, connectTimeout),
+          receiveTimeout: receiveTimeout,
+        ),
+        cancelToken: dioToken,
       );
 
       return _handleResponse<T>(response);
@@ -104,6 +141,8 @@ class DioHttpClient implements IHttpClient {
       return NetworkResponse.failure(
         NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
       );
+    } finally {
+      _removeActiveToken(dioToken);
     }
   }
 
@@ -113,15 +152,23 @@ class DioHttpClient implements IHttpClient {
         dynamic data,
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       }) async {
+    final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.put(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: dio.Options(headers: headers),
-        cancelToken: _convertCancelToken(cancelToken),
+        options: dio.Options(
+          headers: headers,
+          extra: _mergeExtra(extra, connectTimeout),
+          receiveTimeout: receiveTimeout,
+        ),
+        cancelToken: dioToken,
       );
 
       return _handleResponse<T>(response);
@@ -132,6 +179,8 @@ class DioHttpClient implements IHttpClient {
       return NetworkResponse.failure(
         NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
       );
+    } finally {
+      _removeActiveToken(dioToken);
     }
   }
 
@@ -141,15 +190,23 @@ class DioHttpClient implements IHttpClient {
         dynamic data,
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       }) async {
+    final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.delete(
         path,
         data: data,
         queryParameters: queryParameters,
-        options: dio.Options(headers: headers),
-        cancelToken: _convertCancelToken(cancelToken),
+        options: dio.Options(
+          headers: headers,
+          extra: _mergeExtra(extra, connectTimeout),
+          receiveTimeout: receiveTimeout,
+        ),
+        cancelToken: dioToken,
       );
 
       return _handleResponse<T>(response);
@@ -160,6 +217,8 @@ class DioHttpClient implements IHttpClient {
       return NetworkResponse.failure(
         NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
       );
+    } finally {
+      _removeActiveToken(dioToken);
     }
   }
 
@@ -168,22 +227,27 @@ class DioHttpClient implements IHttpClient {
       String path,
       FormData formData, {
         ProgressCallback? onSendProgress,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       }) async {
+    final dioToken = _convertCancelToken(cancelToken);
     try {
       // 将 FormData 适配为 Dio FormData
       final dioFormData = formData is DioFormDataAdapter
           ? await formData.toDioFormData()
           : throw ArgumentError('FormData must be DioFormDataAdapter');
 
-      // 转换 CancelToken
-      final dioCancelToken = _convertCancelToken(cancelToken);
-
       final response = await _dio.post(
         path,
         data: dioFormData,
         onSendProgress: onSendProgress,
-        cancelToken: dioCancelToken,
+        options: dio.Options(
+          extra: _mergeExtra(extra, connectTimeout),
+          receiveTimeout: receiveTimeout,
+        ),
+        cancelToken: dioToken,
       );
 
       return _handleResponse<T>(response);
@@ -194,6 +258,8 @@ class DioHttpClient implements IHttpClient {
       return NetworkResponse.failure(
         NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
       );
+    } finally {
+      _removeActiveToken(dioToken);
     }
   }
 
@@ -202,14 +268,22 @@ class DioHttpClient implements IHttpClient {
       String urlPath,
       String savePath, {
         ProgressCallback? onReceiveProgress,
+        Map<String, dynamic>? extra,
+        Duration? connectTimeout,
+        Duration? receiveTimeout,
         CancelToken? cancelToken,
       }) async {
+    final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.download(
         urlPath,
         savePath,
         onReceiveProgress: onReceiveProgress,
-        cancelToken: _convertCancelToken(cancelToken),
+        options: dio.Options(
+          extra: _mergeExtra(extra, connectTimeout),
+          receiveTimeout: receiveTimeout,
+        ),
+        cancelToken: dioToken,
       );
 
       return NetworkResponse.success(
@@ -223,12 +297,14 @@ class DioHttpClient implements IHttpClient {
       return NetworkResponse.failure(
         NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
       );
+    } finally {
+      _removeActiveToken(dioToken);
     }
   }
 
   @override
   void addInterceptor(INetworkInterceptor interceptor) {
-    _dio.interceptors.add(_NetworkInterceptorAdapter(interceptor));
+    _dio.interceptors.add(_NetworkInterceptorAdapter(interceptor, _logger, this));
   }
 
   @override
@@ -278,6 +354,15 @@ class DioHttpClient implements IHttpClient {
     } else {
       // 如果是其他实现，创建一个新的 Dio CancelToken
       dioToken = dio.CancelToken();
+      if (token.isCancelled) {
+        dioToken.cancel('Cancelled before request');
+      } else {
+        token.addListener((reason) {
+          if (!dioToken.isCancelled) {
+            dioToken.cancel(reason);
+          }
+        });
+      }
     }
     
     // 添加到活跃 token 集合
@@ -292,28 +377,152 @@ class DioHttpClient implements IHttpClient {
       _activeTokens.remove(token);
     }
   }
+
+  Map<String, dynamic>? _mergeExtra(
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+  ) {
+    if (extra == null && connectTimeout == null) {
+      return null;
+    }
+
+    final merged =
+        extra != null ? Map<String, dynamic>.from(extra) : <String, dynamic>{};
+    if (connectTimeout != null) {
+      merged[_connectTimeoutExtraKey] = connectTimeout;
+    }
+    return merged;
+  }
+
+  NetworkRequest _toNetworkRequest(dio.RequestOptions options) {
+    return NetworkRequest(
+      path: options.path,
+      method: options.method,
+      queryParameters: options.queryParameters,
+      headers: options.headers,
+      data: options.data,
+      connectTimeout: options.connectTimeout,
+      receiveTimeout: options.receiveTimeout,
+      extra: options.extra,
+    );
+  }
+
+  void _applyNetworkRequest(dio.RequestOptions options, NetworkRequest request) {
+    options.path = request.path;
+    options.method = request.method;
+    options.queryParameters = request.queryParameters ?? options.queryParameters;
+    options.headers = request.headers ?? options.headers;
+    options.data = request.data ?? options.data;
+    options.connectTimeout = request.connectTimeout ?? options.connectTimeout;
+    options.receiveTimeout = request.receiveTimeout ?? options.receiveTimeout;
+    options.extra = request.extra ?? options.extra;
+  }
+
+  NetworkResponse<T> _toNetworkResponse<T>(dio.Response response) {
+    return NetworkResponse.success(
+      response.data as T,
+      statusCode: response.statusCode ?? 200,
+      statusMessage: response.statusMessage,
+      headers: response.headers.map,
+    );
+  }
+
+  void _applyNetworkResponse(dio.Response response, NetworkResponse networkResponse) {
+    response.data = networkResponse.data;
+    response.statusCode = networkResponse.statusCode;
+    response.statusMessage = networkResponse.statusMessage;
+    if (networkResponse.headers != null) {
+      final headerMap = <String, List<String>>{};
+      networkResponse.headers!.forEach((key, value) {
+        if (value is List<String>) {
+          headerMap[key] = value;
+        } else if (value is String) {
+          headerMap[key] = [value];
+        } else if (value != null) {
+          headerMap[key] = [value.toString()];
+        }
+      });
+      response.headers = dio.Headers.fromMap(headerMap);
+    }
+  }
+}
+
+/// 从 extra 中应用请求级 connectTimeout
+class _RequestTimeoutInterceptor extends dio.Interceptor {
+  @override
+  void onRequest(dio.RequestOptions options, dio.RequestInterceptorHandler handler) {
+    final extra = options.extra;
+    final connectTimeout = extra[_connectTimeoutExtraKey];
+    if (connectTimeout is Duration) {
+      options.connectTimeout = connectTimeout;
+    }
+    handler.next(options);
+  }
 }
 
 /// 网络拦截器适配器
 class _NetworkInterceptorAdapter extends dio.Interceptor {
   final INetworkInterceptor _interceptor;
+  final ILogger _logger;
+  final DioHttpClient _client;
 
-  _NetworkInterceptorAdapter(this._interceptor);
+  _NetworkInterceptorAdapter(this._interceptor, this._logger, this._client);
 
   @override
   void onRequest(dio.RequestOptions options, dio.RequestInterceptorHandler handler) async {
-    // 将 Dio RequestOptions 转换为 NetworkRequest
-    // 然后调用自定义拦截器
+    try {
+      final request = _client._toNetworkRequest(options);
+      final updated = await _interceptor.onRequest(request);
+      if (updated == null) {
+        return handler.reject(
+          dio.DioException(
+            requestOptions: options,
+            type: dio.DioExceptionType.cancel,
+            error: 'Request cancelled by interceptor',
+          ),
+        );
+      }
+      _client._applyNetworkRequest(options, updated);
+    } catch (e, stackTrace) {
+      _logger.error('Network interceptor onRequest failed', error: e, stackTrace: stackTrace);
+    }
     handler.next(options);
   }
 
   @override
   void onResponse(dio.Response response, dio.ResponseInterceptorHandler handler) {
-    handler.next(response);
+    () async {
+      try {
+        final networkResponse = _client._toNetworkResponse(response);
+        final updated = await _interceptor.onResponse(networkResponse);
+        _client._applyNetworkResponse(response, updated);
+      } catch (e, stackTrace) {
+        _logger.error('Network interceptor onResponse failed', error: e, stackTrace: stackTrace);
+      }
+      handler.next(response);
+    }();
   }
 
   @override
   void onError(dio.DioException err, dio.ErrorInterceptorHandler handler) {
-    handler.next(err);
+    () async {
+      try {
+        final exception = NetworkErrorHandler.handleDioException(err);
+        final recovery = await _interceptor.onError(exception);
+        if (recovery.isSuccess) {
+          final response = dio.Response(
+            requestOptions: err.requestOptions,
+            data: recovery.data,
+            statusCode: recovery.statusCode,
+            statusMessage: recovery.statusMessage,
+          );
+          _client._applyNetworkResponse(response, recovery);
+          return handler.resolve(response);
+        }
+      } catch (e, stackTrace) {
+        _logger.error('Network interceptor onError failed', error: e, stackTrace: stackTrace);
+      }
+      handler.next(err);
+    }();
   }
 }

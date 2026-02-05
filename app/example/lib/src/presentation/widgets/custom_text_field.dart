@@ -79,7 +79,7 @@ class CustomTextField extends StatelessWidget {
               borderSide: BorderSide(
                 color: hasError
                     ? theme.colorScheme.error
-                    : theme.colorScheme.outline.withOpacity(0.2),
+                    : theme.colorScheme.outline.withValues(alpha: 0.2),
                 width: 1.5,
               ),
             ),

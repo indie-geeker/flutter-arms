@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:interfaces/logger/log_output.dart';
 import 'package:interfaces/logger/log_entity.dart';
 import '../formatters/simple_formatter.dart';
@@ -28,7 +29,7 @@ class FileOutput implements LogOutput {
       // 检查文件大小，必要时轮转
       await _rotateIfNeeded();
     } catch (e) {
-      print('FileOutput error: $e');
+      debugPrint('FileOutput error: $e');
     }
   }
 

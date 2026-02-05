@@ -1,6 +1,4 @@
 
-import 'package:interfaces/interfaces.dart';
-
 /// 网络配置
 class NetworkConfig {
   /// 基础 URL

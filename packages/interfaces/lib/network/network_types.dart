@@ -9,6 +9,11 @@ abstract class CancelToken {
   /// 请求是否已取消
   bool get isCancelled;
 
+  /// 注册取消监听器
+  ///
+  /// 当取消发生时回调，并传入取消原因（可空）
+  void addListener(void Function(String? reason) listener);
+
   /// 创建新的取消令牌
   factory CancelToken() = _CancelTokenImpl;
 }
@@ -17,15 +22,27 @@ abstract class CancelToken {
 class _CancelTokenImpl implements CancelToken {
   bool _cancelled = false;
   String? _cancelReason;
+  final List<void Function(String? reason)> _listeners = [];
 
   @override
   void cancel([String? reason]) {
     _cancelled = true;
     _cancelReason = reason;
+    for (final listener in _listeners) {
+      listener(reason);
+    }
   }
 
   @override
   bool get isCancelled => _cancelled;
+
+  @override
+  void addListener(void Function(String? reason) listener) {
+    _listeners.add(listener);
+    if (_cancelled) {
+      listener(_cancelReason);
+    }
+  }
 
   String? get cancelReason => _cancelReason;
 }

@@ -1,4 +1,5 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/logger/log_level.dart';
 import 'package:interfaces/logger/log_output.dart';
@@ -93,7 +94,7 @@ class LoggerImpl implements ILogger {
         output.write(entry);
       } catch (e) {
         // 输出器异常不应影响主流程
-        print('LogOutput error: $e');
+        debugPrint('LogOutput error: $e');
       }
     }
   }

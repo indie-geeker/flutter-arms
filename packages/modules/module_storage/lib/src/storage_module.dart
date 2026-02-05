@@ -3,8 +3,10 @@ import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
+import 'package:interfaces/storage/i_secure_storage.dart';
 
 import 'impl/hive_kv_storage.dart';
+import 'impl/secure_storage.dart';
 
 /// 存储模块
 class StorageModule implements IModule {
@@ -21,6 +23,15 @@ class StorageModule implements IModule {
 
   @override
   List<Type> get dependencies => [ILogger];
+
+  @override
+  List<Type> get provides {
+    final provided = <Type>[IKeyValueStorage];
+    if (config.enableSecureStorage) {
+      provided.add(ISecureStorage);
+    }
+    return provided;
+  }
 
   // 保存 locator 引用以便在 init 中使用
   late IServiceLocator _locator;
@@ -48,9 +59,11 @@ class StorageModule implements IModule {
     //   locator.registerSingleton<IRelationalStorage>(relationalStorage);
     // }
     //
-    // // 注册安全存储
-    // final secureStorage = SecureStorageImpl(logger: logger);
-    // locator.registerSingleton<ISecureStorage>(secureStorage);
+    // 注册安全存储（可选）
+    if (config.enableSecureStorage) {
+      final secureStorage = FlutterSecureStorageImpl();
+      locator.registerSingleton<ISecureStorage>(secureStorage);
+    }
   }
 
   @override
@@ -63,12 +76,18 @@ class StorageModule implements IModule {
     //   await relationalStorage.init();
     // }
     //
-    // final secureStorage = _locator.get<ISecureStorage>();
-    // await secureStorage.init();
+    if (_locator.isRegistered<ISecureStorage>()) {
+      final secureStorage = _locator.get<ISecureStorage>();
+      await secureStorage.init();
+    }
   }
 
   @override
   Future<void> dispose() async {
+    if (_locator.isRegistered<ISecureStorage>()) {
+      final secureStorage = _locator.get<ISecureStorage>();
+      await secureStorage.close();
+    }
     await Hive.close();
   }
 }
@@ -77,11 +96,13 @@ class StorageModule implements IModule {
 class StorageConfig {
   final String kvStorageBoxName;
   final bool enableRelationalStorage;
+  final bool enableSecureStorage;
   final String databaseName;
 
   StorageConfig({
     this.kvStorageBoxName = 'app_storage',
     this.enableRelationalStorage = false,
+    this.enableSecureStorage = false,
     this.databaseName = 'app.db',
   });
 }
