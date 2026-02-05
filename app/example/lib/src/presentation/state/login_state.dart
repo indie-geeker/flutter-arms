@@ -39,8 +39,8 @@ abstract class LoginFormState with _$LoginFormState {
 extension LoginFormStateX on LoginFormState {
   /// 表单是否有效
   bool get isValid =>
-      username.length >= 3 &&
-      password.length >= 3 &&
+      username.isNotEmpty &&
+      password.isNotEmpty &&
       usernameError == null &&
       passwordError == null;
 

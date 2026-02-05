@@ -47,6 +47,7 @@ class StorageModule implements IModule {
     final kvStorage = HiveKeyValueStorage(
       logger: logger,
       boxName: config.kvStorageBoxName,
+      baseDir: config.baseDir,
     );
     locator.registerSingleton<IKeyValueStorage>(kvStorage);
 
@@ -95,12 +96,15 @@ class StorageModule implements IModule {
 /// 存储配置
 class StorageConfig {
   final String kvStorageBoxName;
+  /// Hive base directory. Absolute path uses Hive.init; relative uses initFlutter subDir.
+  final String? baseDir;
   final bool enableRelationalStorage;
   final bool enableSecureStorage;
   final String databaseName;
 
   StorageConfig({
     this.kvStorageBoxName = 'app_storage',
+    this.baseDir,
     this.enableRelationalStorage = false,
     this.enableSecureStorage = false,
     this.databaseName = 'app.db',

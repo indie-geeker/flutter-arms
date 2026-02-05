@@ -8,6 +8,13 @@ class RetryInterceptor extends Interceptor {
   final Dio _dio;  // 使用原始 Dio 实例进行重试
   final int maxRetries;
   final Duration retryDelay;
+  static const Set<String> _retryableMethods = {
+    'GET',
+    'PUT',
+    'DELETE',
+    'HEAD',
+    'OPTIONS',
+  };
 
   RetryInterceptor(
     this._logger,
@@ -50,6 +57,11 @@ class RetryInterceptor extends Interceptor {
 
   /// 判断是否应该重试
   bool _shouldRetry(DioException err) {
+    final method = err.requestOptions.method.toUpperCase();
+    if (!_retryableMethods.contains(method)) {
+      return false;
+    }
+
     // 只重试网络错误和超时错误
     return err.type == DioExceptionType.connectionTimeout ||
         err.type == DioExceptionType.sendTimeout ||
