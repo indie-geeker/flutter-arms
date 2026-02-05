@@ -6,6 +6,8 @@ import 'package:interfaces/interfaces.dart';
 import '../utils/network_utils.dart';
 
 /// 网络请求缓存拦截器
+///
+/// 缓存配置通过 [NetworkCacheOptions] 传入
 class CacheInterceptor extends Interceptor {
   final ICacheManager _cacheManager;
   final ILogger _logger;
@@ -19,14 +21,14 @@ class CacheInterceptor extends Interceptor {
       return handler.next(options);
     }
 
-    // 检查是否启用缓存
-    final cacheEnabled = options.extra['cache_enabled'] as bool? ?? false;
-    if (!cacheEnabled) {
+    final cacheOptions =
+        options.extra[NetworkCacheOptions.extraKey] as NetworkCacheOptions?;
+    if (cacheOptions == null || !cacheOptions.enabled) {
       return handler.next(options);
     }
 
     // 生成缓存键
-    final cacheKey = _generateCacheKey(options);
+    final cacheKey = _resolveCacheKey(options, cacheOptions);
 
     try {
       // 尝试从缓存读取
@@ -60,26 +62,33 @@ class CacheInterceptor extends Interceptor {
       return handler.next(response);
     }
 
-    // 检查是否启用缓存
-    final cacheEnabled = response.requestOptions.extra['cache_enabled'] as bool? ?? false;
-    if (!cacheEnabled) {
+    final cacheOptions = response.requestOptions.extra[NetworkCacheOptions.extraKey]
+        as NetworkCacheOptions?;
+    if (cacheOptions == null || !cacheOptions.enabled) {
       return handler.next(response);
     }
 
     // 生成缓存键
-    final cacheKey = _generateCacheKey(response.requestOptions);
+    final cacheKey = _resolveCacheKey(response.requestOptions, cacheOptions);
 
     try {
       // 获取缓存时长（默认 5 分钟）
-      final cacheDuration = response.requestOptions.extra['cache_duration'] as Duration? ??
-          Duration(minutes: 5);
+      final cacheDuration = cacheOptions.duration ?? Duration(minutes: 5);
+
+      final encoded = _encodeResponseData(response.data);
+      if (encoded == null) {
+        _logger.warning(
+          'Skip caching non-JSON response for: ${response.requestOptions.uri}',
+        );
+        return handler.next(response);
+      }
 
       // 存储到缓存
       await _cacheManager.put(
         cacheKey,
-        jsonEncode(response.data),
+        encoded,
         duration: cacheDuration,
-        policy: CachePolicy.normal,
+        policy: cacheOptions.policy,
       );
 
       _logger.debug('Cached response for: ${response.requestOptions.uri}');
@@ -97,5 +106,29 @@ class CacheInterceptor extends Interceptor {
       options.uri.toString(),
       options.queryParameters,
     );
+  }
+
+  String _resolveCacheKey(
+    RequestOptions options,
+    NetworkCacheOptions cacheOptions,
+  ) {
+    if (cacheOptions.cacheKey != null) {
+      return cacheOptions.cacheKey!;
+    }
+    if (cacheOptions.useHashKey) {
+      return NetworkUtils.generateCacheKeyHash(
+        options.uri.toString(),
+        options.queryParameters,
+      );
+    }
+    return _generateCacheKey(options);
+  }
+
+  String? _encodeResponseData(dynamic data) {
+    try {
+      return jsonEncode(data);
+    } catch (_) {
+      return null;
+    }
   }
 }

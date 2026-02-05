@@ -115,6 +115,7 @@ class _HeaderInterceptor implements INetworkInterceptor {
       connectTimeout: request.connectTimeout,
       receiveTimeout: request.receiveTimeout,
       extra: request.extra,
+      cacheOptions: request.cacheOptions,
     );
   }
 

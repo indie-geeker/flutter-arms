@@ -34,17 +34,22 @@ class ModuleRegistry {
     final orderedModules = _sortModulesByDependencies();
     _initializedModules.clear();
 
-    // 依次验证依赖、注册和初始化每个模块
-    for (int i = 0; i < orderedModules.length; i++) {
-      final module = orderedModules[i];
-      onProgress?.call(module, i + 1, orderedModules.length);
+    try {
+      // 依次验证依赖、注册和初始化每个模块
+      for (int i = 0; i < orderedModules.length; i++) {
+        final module = orderedModules[i];
+        onProgress?.call(module, i + 1, orderedModules.length);
 
-      // 验证当前模块的依赖是否已注册
-      _validateModuleDependencies(module);
+        // 验证当前模块的依赖是否已注册
+        _validateModuleDependencies(module);
 
-      await module.register(_locator);
-      await module.init();
-      _initializedModules.add(module);
+        await module.register(_locator);
+        _initializedModules.add(module);
+        await module.init();
+      }
+    } catch (_) {
+      await _rollbackInitializedModules();
+      rethrow;
     }
   }
 
@@ -69,6 +74,18 @@ class ModuleRegistry {
         _initializedModules.isNotEmpty ? _initializedModules : _modules;
     for (final module in modulesToDispose.reversed) {
       await module.dispose();
+    }
+    _initializedModules.clear();
+    await _locator.reset();
+  }
+
+  Future<void> _rollbackInitializedModules() async {
+    for (final module in _initializedModules.reversed) {
+      try {
+        await module.dispose();
+      } catch (_) {
+        // Best-effort rollback
+      }
     }
     _initializedModules.clear();
     await _locator.reset();

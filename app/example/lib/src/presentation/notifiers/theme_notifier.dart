@@ -23,22 +23,30 @@ class ThemeNotifier extends _$ThemeNotifier {
 
   /// 从存储加载主题偏好设置
   Future<void> _loadPreferences() async {
-    final themeModeIndex = await _storage.getInt(StorageKeys.themeMode);
-    final colorSchemeIndex = await _storage.getInt(StorageKeys.colorScheme);
+    try {
+      final themeModeIndex = await _storage.getInt(StorageKeys.themeMode);
+      final colorSchemeIndex = await _storage.getInt(StorageKeys.colorScheme);
 
-    final themeMode = themeModeIndex != null && themeModeIndex < ThemeMode.values.length
-        ? ThemeMode.values[themeModeIndex]
-        : ThemeMode.system;
+      final themeMode = themeModeIndex != null &&
+              themeModeIndex >= 0 &&
+              themeModeIndex < ThemeMode.values.length
+          ? ThemeMode.values[themeModeIndex]
+          : ThemeMode.system;
 
-    final colorScheme = colorSchemeIndex != null && colorSchemeIndex < AppColorScheme.values.length
-        ? AppColorScheme.values[colorSchemeIndex]
-        : AppColorScheme.blue;
+      final colorScheme = colorSchemeIndex != null &&
+              colorSchemeIndex >= 0 &&
+              colorSchemeIndex < AppColorScheme.values.length
+          ? AppColorScheme.values[colorSchemeIndex]
+          : AppColorScheme.blue;
 
-    state = ThemeState(
-      isLoading: false,
-      themeMode: themeMode,
-      colorScheme: colorScheme,
-    );
+      state = ThemeState(
+        isLoading: false,
+        themeMode: themeMode,
+        colorScheme: colorScheme,
+      );
+    } catch (_) {
+      state = const ThemeState(isLoading: false);
+    }
   }
 
   /// 设置主题模式

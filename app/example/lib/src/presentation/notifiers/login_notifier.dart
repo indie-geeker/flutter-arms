@@ -72,26 +72,14 @@ class LoginFormNotifier extends _$LoginFormNotifier {
 
   /// 验证用户名
   void _validateUsername() {
-    if (state.username.isEmpty) {
-      state = state.copyWith(usernameError: null);
-    } else if (state.username.length < 3) {
-      state = state.copyWith(
-        usernameError: 'Username must be at least 3 characters',
-      );
-    } else {
+    if (state.usernameError != null) {
       state = state.copyWith(usernameError: null);
     }
   }
 
   /// 验证密码
   void _validatePassword() {
-    if (state.password.isEmpty) {
-      state = state.copyWith(passwordError: null);
-    } else if (state.password.length < 3) {
-      state = state.copyWith(
-        passwordError: 'Password must be at least 3 characters',
-      );
-    } else {
+    if (state.passwordError != null) {
       state = state.copyWith(passwordError: null);
     }
   }

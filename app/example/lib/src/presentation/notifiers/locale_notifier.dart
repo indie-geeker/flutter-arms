@@ -22,16 +22,22 @@ class LocaleNotifier extends _$LocaleNotifier {
 
   /// 从存储加载语言偏好设置
   Future<void> _loadPreferences() async {
-    final localeIndex = await _storage.getInt(StorageKeys.locale);
+    try {
+      final localeIndex = await _storage.getInt(StorageKeys.locale);
 
-    final appLocale = localeIndex != null && localeIndex < AppLocale.values.length
-        ? AppLocale.values[localeIndex]
-        : AppLocale.english;
+      final appLocale = localeIndex != null &&
+              localeIndex >= 0 &&
+              localeIndex < AppLocale.values.length
+          ? AppLocale.values[localeIndex]
+          : AppLocale.english;
 
-    state = LocaleState(
-      isLoading: false,
-      appLocale: appLocale,
-    );
+      state = LocaleState(
+        isLoading: false,
+        appLocale: appLocale,
+      );
+    } catch (_) {
+      state = const LocaleState(isLoading: false);
+    }
   }
 
   /// 设置语言

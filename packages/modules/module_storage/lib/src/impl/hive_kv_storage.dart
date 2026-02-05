@@ -11,18 +11,20 @@ import '../utils/storage_file_utils.dart';
 class HiveKeyValueStorage implements IKeyValueStorage {
   late Box _box;
   final String boxName;
+  final String? baseDir;
   final ILogger _logger;
 
   HiveKeyValueStorage({
     required ILogger logger,
     this.boxName = 'app_storage',
+    this.baseDir,
   }) : _logger = logger;
 
   @override
   Future<void> init() async {
     try {
       // 使用 HiveFlutter 自动处理平台路径，确保多平台兼容
-      await Hive.initFlutter('flutter_arms_storage');
+      await _initHive();
       _box = await Hive.openBox(boxName);
       _logger.info('Hive KV storage initialized');
     } catch (e, stackTrace) {
@@ -30,6 +32,27 @@ class HiveKeyValueStorage implements IKeyValueStorage {
           error: e, stackTrace: stackTrace);
       rethrow;
     }
+  }
+
+  Future<void> _initHive() async {
+    if (baseDir == null || baseDir!.trim().isEmpty) {
+      await Hive.initFlutter('flutter_arms_storage');
+      return;
+    }
+
+    final dir = baseDir!.trim();
+    if (_isAbsolutePath(dir)) {
+      Hive.init(dir);
+    } else {
+      await Hive.initFlutter(dir);
+    }
+  }
+
+  bool _isAbsolutePath(String path) {
+    if (path.startsWith('/') || path.startsWith('\\')) {
+      return true;
+    }
+    return RegExp(r'^[A-Za-z]:[\\/]').hasMatch(path);
   }
 
   @override

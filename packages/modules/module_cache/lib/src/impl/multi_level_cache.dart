@@ -14,6 +14,7 @@ import '../models/cache_entry.dart';
 class MultiLevelCacheManager implements ICacheManager {
   final IKeyValueStorage _storage;  // 依赖 Storage 接口
   final ILogger _logger;
+  final CacheValueRegistry? _valueRegistry;
   final Map<String, CacheEntry> _memoryCache = {};
   final int _maxMemoryItems;
 
@@ -24,8 +25,10 @@ class MultiLevelCacheManager implements ICacheManager {
     required IKeyValueStorage storage,
     required ILogger logger,
     int maxMemoryItems = 100,
+    CacheValueRegistry? valueRegistry,
   })  : _storage = storage,
         _logger = logger,
+        _valueRegistry = valueRegistry,
         _maxMemoryItems = maxMemoryItems;
 
   @override
@@ -59,7 +62,10 @@ class MultiLevelCacheManager implements ICacheManager {
     // 2. 根据策略决定是否持久化（通过 Storage）
     if (policy != CachePolicy.memoryOnly) {
       try {
-        await _storage.setJson(_cacheKey(key), entry.toJson());
+        await _storage.setJson(
+          _cacheKey(key),
+          entry.toJson(registry: _valueRegistry),
+        );
       } catch (e, stackTrace) {
         _logger.error('Failed to persist cache',
             error: e, stackTrace: stackTrace);
@@ -87,7 +93,7 @@ class MultiLevelCacheManager implements ICacheManager {
     try {
       final json = await _storage.getJson(_cacheKey(key));
       if (json != null) {
-        final entry = CacheEntry.fromJson(json);
+        final entry = CacheEntry.fromJson(json, registry: _valueRegistry);
         if (!entry.isExpired) {
           // 加载到内存
           _memoryCache[key] = entry;
@@ -167,7 +173,7 @@ class MultiLevelCacheManager implements ICacheManager {
         try {
           final json = await _storage.getJson(key);
           if (json != null) {
-            final entry = CacheEntry.fromJson(json);
+            final entry = CacheEntry.fromJson(json, registry: _valueRegistry);
             if (entry.isExpired) {
               await _storage.remove(key);
             }

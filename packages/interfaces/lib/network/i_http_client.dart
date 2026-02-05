@@ -1,5 +1,6 @@
 
 import 'i_network_interceptor.dart';
+import 'network_cache_options.dart';
 import 'network_response.dart';
 import 'network_types.dart';
 
@@ -13,6 +14,7 @@ abstract class IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       });
 
@@ -25,6 +27,7 @@ abstract class IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       });
 
@@ -37,6 +40,7 @@ abstract class IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       });
 
@@ -49,6 +53,7 @@ abstract class IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       });
 
@@ -60,6 +65,7 @@ abstract class IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       });
 
@@ -71,6 +77,7 @@ abstract class IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       });
 
