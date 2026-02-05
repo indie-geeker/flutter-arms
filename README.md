@@ -322,9 +322,13 @@ melos bootstrap
 - **Disable network cache dependency**
   - `NetworkModule(baseUrl: '...', enableCache: false)`
 - **Per-request cache control**
-  - `httpClient.get('/users', extra: {'cache_enabled': true, 'cache_duration': Duration(minutes: 5)})`
+  - `httpClient.get('/users', cacheOptions: const NetworkCacheOptions(enabled: true, duration: Duration(minutes: 5)))`
+- **Custom cache serializers**
+  - `CacheModule(valueRegistry: CacheValueRegistry()..register(MySerializer()))`
 - **Enable secure storage**
   - `StorageModule(config: StorageConfig(enableSecureStorage: true))`
+- **Customize storage base directory**
+  - `StorageModule(config: StorageConfig(baseDir: '/path/to/hive'))`
 
 ### Running Tests
 

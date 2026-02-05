@@ -6,12 +6,17 @@ import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
 
 import 'impl/multi_level_cache.dart';
+import 'models/cache_entry.dart';
 
 /// 缓存模块
 class CacheModule implements IModule {
   final int maxMemoryItems;
+  final CacheValueRegistry? valueRegistry;
 
-  CacheModule({this.maxMemoryItems = 100});
+  CacheModule({
+    this.maxMemoryItems = 100,
+    this.valueRegistry,
+  });
 
   @override
   String get name => 'CacheModule';
@@ -40,6 +45,7 @@ class CacheModule implements IModule {
       storage: storage,  // 注入 Storage 接口
       logger: logger,
       maxMemoryItems: maxMemoryItems,
+      valueRegistry: valueRegistry,
     );
 
     locator.registerSingleton<ICacheManager>(cacheManager);

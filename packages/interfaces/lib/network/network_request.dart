@@ -1,4 +1,6 @@
 
+import 'network_cache_options.dart';
+
 /// 网络请求封装
 class NetworkRequest {
   /// 请求路径
@@ -22,8 +24,11 @@ class NetworkRequest {
   /// 接收超时时间
   final Duration? receiveTimeout;
 
-  /// 额外配置（用于传递自定义参数，如缓存配置）
+  /// 额外配置（用于传递自定义参数）
   final Map<String, dynamic>? extra;
+
+  /// 缓存配置
+  final NetworkCacheOptions? cacheOptions;
 
   NetworkRequest({
     required this.path,
@@ -34,6 +39,7 @@ class NetworkRequest {
     this.connectTimeout,
     this.receiveTimeout,
     this.extra,
+    this.cacheOptions,
   });
 
   /// 创建 GET 请求
@@ -42,6 +48,7 @@ class NetworkRequest {
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
         Map<String, dynamic>? extra,
+        NetworkCacheOptions? cacheOptions,
       }) {
     return NetworkRequest(
       path: path,
@@ -49,6 +56,7 @@ class NetworkRequest {
       queryParameters: queryParameters,
       headers: headers,
       extra: extra,
+      cacheOptions: cacheOptions,
     );
   }
 
@@ -59,6 +67,7 @@ class NetworkRequest {
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
         Map<String, dynamic>? extra,
+        NetworkCacheOptions? cacheOptions,
       }) {
     return NetworkRequest(
       path: path,
@@ -67,6 +76,7 @@ class NetworkRequest {
       queryParameters: queryParameters,
       headers: headers,
       extra: extra,
+      cacheOptions: cacheOptions,
     );
   }
 
@@ -77,6 +87,7 @@ class NetworkRequest {
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
         Map<String, dynamic>? extra,
+        NetworkCacheOptions? cacheOptions,
       }) {
     return NetworkRequest(
       path: path,
@@ -85,6 +96,7 @@ class NetworkRequest {
       queryParameters: queryParameters,
       headers: headers,
       extra: extra,
+      cacheOptions: cacheOptions,
     );
   }
 
@@ -95,6 +107,7 @@ class NetworkRequest {
         Map<String, dynamic>? queryParameters,
         Map<String, dynamic>? headers,
         Map<String, dynamic>? extra,
+        NetworkCacheOptions? cacheOptions,
       }) {
     return NetworkRequest(
       path: path,
@@ -103,6 +116,7 @@ class NetworkRequest {
       queryParameters: queryParameters,
       headers: headers,
       extra: extra,
+      cacheOptions: cacheOptions,
     );
   }
 

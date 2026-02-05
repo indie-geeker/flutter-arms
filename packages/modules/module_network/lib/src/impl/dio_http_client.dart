@@ -80,6 +80,7 @@ class DioHttpClient implements IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       }) async {
     final dioToken = _convertCancelToken(cancelToken);
@@ -89,7 +90,7 @@ class DioHttpClient implements IHttpClient {
         queryParameters: queryParameters,
         options: dio.Options(
           headers: headers,
-          extra: _mergeExtra(extra, connectTimeout),
+          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
           receiveTimeout: receiveTimeout,
         ),
         cancelToken: dioToken,
@@ -117,6 +118,7 @@ class DioHttpClient implements IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       }) async {
     final dioToken = _convertCancelToken(cancelToken);
@@ -127,7 +129,7 @@ class DioHttpClient implements IHttpClient {
         queryParameters: queryParameters,
         options: dio.Options(
           headers: headers,
-          extra: _mergeExtra(extra, connectTimeout),
+          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
           receiveTimeout: receiveTimeout,
         ),
         cancelToken: dioToken,
@@ -155,6 +157,7 @@ class DioHttpClient implements IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       }) async {
     final dioToken = _convertCancelToken(cancelToken);
@@ -165,7 +168,7 @@ class DioHttpClient implements IHttpClient {
         queryParameters: queryParameters,
         options: dio.Options(
           headers: headers,
-          extra: _mergeExtra(extra, connectTimeout),
+          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
           receiveTimeout: receiveTimeout,
         ),
         cancelToken: dioToken,
@@ -193,6 +196,7 @@ class DioHttpClient implements IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       }) async {
     final dioToken = _convertCancelToken(cancelToken);
@@ -203,7 +207,7 @@ class DioHttpClient implements IHttpClient {
         queryParameters: queryParameters,
         options: dio.Options(
           headers: headers,
-          extra: _mergeExtra(extra, connectTimeout),
+          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
           receiveTimeout: receiveTimeout,
         ),
         cancelToken: dioToken,
@@ -230,6 +234,7 @@ class DioHttpClient implements IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       }) async {
     final dioToken = _convertCancelToken(cancelToken);
@@ -244,7 +249,7 @@ class DioHttpClient implements IHttpClient {
         data: dioFormData,
         onSendProgress: onSendProgress,
         options: dio.Options(
-          extra: _mergeExtra(extra, connectTimeout),
+          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
           receiveTimeout: receiveTimeout,
         ),
         cancelToken: dioToken,
@@ -271,6 +276,7 @@ class DioHttpClient implements IHttpClient {
         Map<String, dynamic>? extra,
         Duration? connectTimeout,
         Duration? receiveTimeout,
+        NetworkCacheOptions? cacheOptions,
         CancelToken? cancelToken,
       }) async {
     final dioToken = _convertCancelToken(cancelToken);
@@ -280,7 +286,7 @@ class DioHttpClient implements IHttpClient {
         savePath,
         onReceiveProgress: onReceiveProgress,
         options: dio.Options(
-          extra: _mergeExtra(extra, connectTimeout),
+          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
           receiveTimeout: receiveTimeout,
         ),
         cancelToken: dioToken,
@@ -381,8 +387,9 @@ class DioHttpClient implements IHttpClient {
   Map<String, dynamic>? _mergeExtra(
     Map<String, dynamic>? extra,
     Duration? connectTimeout,
+    NetworkCacheOptions? cacheOptions,
   ) {
-    if (extra == null && connectTimeout == null) {
+    if (extra == null && connectTimeout == null && cacheOptions == null) {
       return null;
     }
 
@@ -390,6 +397,9 @@ class DioHttpClient implements IHttpClient {
         extra != null ? Map<String, dynamic>.from(extra) : <String, dynamic>{};
     if (connectTimeout != null) {
       merged[_connectTimeoutExtraKey] = connectTimeout;
+    }
+    if (cacheOptions != null) {
+      merged[NetworkCacheOptions.extraKey] = cacheOptions;
     }
     return merged;
   }
@@ -404,6 +414,7 @@ class DioHttpClient implements IHttpClient {
       connectTimeout: options.connectTimeout,
       receiveTimeout: options.receiveTimeout,
       extra: options.extra,
+      cacheOptions: _extractCacheOptions(options.extra),
     );
   }
 
@@ -415,7 +426,12 @@ class DioHttpClient implements IHttpClient {
     options.data = request.data ?? options.data;
     options.connectTimeout = request.connectTimeout ?? options.connectTimeout;
     options.receiveTimeout = request.receiveTimeout ?? options.receiveTimeout;
-    options.extra = request.extra ?? options.extra;
+    options.extra = _mergeExtra(
+          request.extra,
+          request.connectTimeout,
+          request.cacheOptions,
+        ) ??
+        options.extra;
   }
 
   NetworkResponse<T> _toNetworkResponse<T>(dio.Response response) {
@@ -444,6 +460,14 @@ class DioHttpClient implements IHttpClient {
       });
       response.headers = dio.Headers.fromMap(headerMap);
     }
+  }
+
+  NetworkCacheOptions? _extractCacheOptions(Map<String, dynamic> extra) {
+    final value = extra[NetworkCacheOptions.extraKey];
+    if (value is NetworkCacheOptions) {
+      return value;
+    }
+    return null;
   }
 }
 
