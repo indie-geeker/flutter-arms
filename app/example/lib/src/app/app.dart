@@ -40,23 +40,36 @@ class ArmsApp extends StatelessWidget {
       // 自定义加载界面
       loadingBuilder: (context, progress) {
         return MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 24),
-                  Text(progress.message, style: const TextStyle(fontSize: 14)),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${progress.current} / ${progress.total}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+          onGenerateRoute: (settings) {
+            return MaterialPageRoute<void>(
+              settings: settings,
+              builder: (_) {
+                return Scaffold(
+                  body: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 24),
+                        Text(
+                          progress.message,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${progress.current} / ${progress.total}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-          ),
+                );
+              },
+            );
+          },
         );
       },
 
@@ -78,10 +91,14 @@ class _ArmsMainApp extends ConsumerWidget {
 
     // 加载中时显示简单的加载界面
     if (themeState.isLoading || localeState.isLoading) {
-      return const MaterialApp(
-        home: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+      return MaterialApp(
+        onGenerateRoute: (settings) {
+          return MaterialPageRoute<void>(
+            settings: settings,
+            builder: (_) =>
+                const Scaffold(body: Center(child: CircularProgressIndicator())),
+          );
+        },
       );
     }
 

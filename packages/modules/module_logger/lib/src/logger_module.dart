@@ -4,7 +4,7 @@ import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/logger/log_level.dart';
 import 'package:interfaces/logger/log_output.dart';
-import 'package:module_logger/src/outputs/file_output.dart';
+import 'package:module_logger/src/outputs/disposable_log_output.dart';
 import 'impl/logger_impl.dart';
 
 /// 日志模块
@@ -54,9 +54,10 @@ class LoggerModule implements IModule {
   @override
   Future<void> dispose() async {
     // Logger cleanup if needed
-    for(var output in outputs){
-      if(output is FileOutput){
-         output.dispose();
+    for (final output in outputs) {
+      if (output is DisposableLogOutput) {
+        final disposable = output as DisposableLogOutput;
+        await disposable.dispose();
       }
     }
   }
