@@ -40,7 +40,7 @@ class HomeNotifier extends _$HomeNotifier {
       if (user != null) {
         state = HomeState.loaded(user);
       } else {
-        state = const HomeState.error('No user found');
+        state = const HomeState.loggedOut();
       }
     });
   }
