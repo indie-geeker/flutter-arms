@@ -72,8 +72,11 @@ abstract class FormData {
 
 /// 表单文件
 class FormFile {
-  /// 文件路径
-  final String filePath;
+  /// 文件路径（原生平台可用）
+  final String? filePath;
+
+  /// 文件字节（Web 推荐）
+  final List<int>? bytes;
 
   /// 文件名（可选，默认从路径提取）
   final String? filename;
@@ -82,10 +85,20 @@ class FormFile {
   final String? contentType;
 
   FormFile({
-    required this.filePath,
+    this.filePath,
+    this.bytes,
     this.filename,
     this.contentType,
-  });
+  }) : assert(
+          (filePath != null && filePath != '') || bytes != null,
+          'Either filePath or bytes must be provided.',
+        );
+
+  /// 是否包含文件路径
+  bool get hasFilePath => filePath != null && filePath!.isNotEmpty;
+
+  /// 是否包含文件字节
+  bool get hasBytes => bytes != null;
 
   /// 从文件路径创建
   factory FormFile.fromPath(
@@ -95,6 +108,19 @@ class FormFile {
       }) {
     return FormFile(
       filePath: filePath,
+      filename: filename,
+      contentType: contentType,
+    );
+  }
+
+  /// 从文件字节创建
+  factory FormFile.fromBytes(
+    List<int> bytes, {
+    String? filename,
+    String? contentType,
+  }) {
+    return FormFile(
+      bytes: bytes,
       filename: filename,
       contentType: contentType,
     );

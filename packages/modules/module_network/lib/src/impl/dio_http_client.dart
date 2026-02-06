@@ -1,11 +1,13 @@
 
 import 'package:dio/dio.dart' as dio;
+import 'package:flutter/foundation.dart';
 import 'package:interfaces/interfaces.dart';
 
 import '../interceptors/cache_interceptor.dart';
 import '../interceptors/logging_interceptor.dart';
 import '../interceptors/retry_interceptor.dart';
 import '../utils/network_error_handler.dart';
+import '../utils/web_file_download.dart';
 import 'dio_cancel_token_adapter.dart';
 import 'dio_form_data_adapter.dart';
 
@@ -281,6 +283,43 @@ class DioHttpClient implements IHttpClient {
       }) async {
     final dioToken = _convertCancelToken(cancelToken);
     try {
+      if (kIsWeb) {
+        final response = await _dio.get<List<int>>(
+          urlPath,
+          onReceiveProgress: onReceiveProgress,
+          options: dio.Options(
+            extra: _mergeExtra(extra, connectTimeout, cacheOptions),
+            receiveTimeout: receiveTimeout,
+            responseType: dio.ResponseType.bytes,
+          ),
+          cancelToken: dioToken,
+        );
+
+        final data = response.data;
+        if (data == null || data.isEmpty) {
+          return NetworkResponse.failure(
+            NetworkException(
+              message: 'Download response is empty.',
+              type: NetworkExceptionType.parseError,
+              statusCode: response.statusCode,
+            ),
+          );
+        }
+
+        await triggerWebDownload(
+          bytes: data,
+          fileName: _resolveWebDownloadFileName(savePath, response),
+          mimeType: _extractContentType(response),
+        );
+
+        return NetworkResponse.success(
+          null,
+          statusCode: response.statusCode ?? 200,
+          statusMessage: response.statusMessage,
+          headers: response.headers.map,
+        );
+      }
+
       final response = await _dio.download(
         urlPath,
         savePath,
@@ -295,6 +334,8 @@ class DioHttpClient implements IHttpClient {
       return NetworkResponse.success(
         null,
         statusCode: response.statusCode ?? 200,
+        statusMessage: response.statusMessage,
+        headers: response.headers.map,
       );
     } on dio.DioException catch (e) {
       return _handleError(e);
@@ -306,6 +347,70 @@ class DioHttpClient implements IHttpClient {
     } finally {
       _removeActiveToken(dioToken);
     }
+  }
+
+  String _resolveWebDownloadFileName(
+    String savePath,
+    dio.Response<List<int>> response,
+  ) {
+    final fromPath = _extractFileNameFromPath(savePath);
+    if (fromPath != null) return fromPath;
+
+    final contentDisposition = response.headers.value('content-disposition');
+    final fromHeader = _extractFileNameFromContentDisposition(contentDisposition);
+    if (fromHeader != null) return fromHeader;
+
+    return 'download-${DateTime.now().millisecondsSinceEpoch}.bin';
+  }
+
+  String? _extractFileNameFromPath(String path) {
+    final trimmed = path.trim();
+    if (trimmed.isEmpty) return null;
+
+    final normalized = trimmed.replaceAll('\\', '/');
+    final lastSegment = normalized.split('/').last.trim();
+    if (lastSegment.isEmpty || lastSegment == '.') {
+      return null;
+    }
+    return lastSegment;
+  }
+
+  String? _extractFileNameFromContentDisposition(String? headerValue) {
+    if (headerValue == null || headerValue.trim().isEmpty) return null;
+
+    final utf8Match = RegExp(
+      r"filename\*\s*=\s*UTF-8''([^;]+)",
+      caseSensitive: false,
+    ).firstMatch(headerValue);
+    if (utf8Match != null) {
+      return Uri.decodeComponent(utf8Match.group(1)!.trim());
+    }
+
+    final quotedMatch = RegExp(
+      r'filename\s*=\s*"([^"]+)"',
+      caseSensitive: false,
+    ).firstMatch(headerValue);
+    if (quotedMatch != null) {
+      return quotedMatch.group(1)!.trim();
+    }
+
+    final plainMatch = RegExp(
+      r'filename\s*=\s*([^;]+)',
+      caseSensitive: false,
+    ).firstMatch(headerValue);
+    if (plainMatch != null) {
+      final value = plainMatch.group(1)!.trim();
+      if (value.isNotEmpty) {
+        return value.replaceAll('"', '');
+      }
+    }
+    return null;
+  }
+
+  String? _extractContentType(dio.Response<List<int>> response) {
+    final value = response.headers.value('content-type');
+    if (value == null || value.trim().isEmpty) return null;
+    return value.split(';').first.trim();
   }
 
   @override

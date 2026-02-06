@@ -3,6 +3,7 @@ import 'package:example/src/domain/failures/auth_failure.dart';
 import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../di/providers.dart';
 import '../../router/app_router.dart';
 import '../notifiers/login_notifier.dart';
 import '../state/login_state.dart';
@@ -21,12 +22,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
+  bool _isRestoringSession = true;
 
   @override
   void initState() {
     super.initState();
     _usernameController = TextEditingController();
     _passwordController = TextEditingController();
+    _restoreSession();
   }
 
   @override
@@ -60,9 +63,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  Future<void> _restoreSession() async {
+    final getCurrentUser = ref.read(getCurrentUserUseCaseProvider);
+    final result = await getCurrentUser();
+    if (!mounted) return;
+
+    result.fold(
+      (_) {
+        setState(() {
+          _isRestoringSession = false;
+        });
+      },
+      (user) {
+        if (user != null) {
+          context.router.replace(const HomeRoute());
+          return;
+        }
+        setState(() {
+          _isRestoringSession = false;
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+
+    if (_isRestoringSession) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     // 监听登录状态
     ref.listen<LoginState>(loginProvider, (previous, next) {

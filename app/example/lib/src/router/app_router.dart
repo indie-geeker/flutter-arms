@@ -13,12 +13,12 @@ class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
     /// 登录页面（初始路由）
-    AutoRoute(page: LoginRoute.page, initial: true),
+    AutoRoute(page: LoginRoute.page, path: '/', initial: true),
 
     /// 主页
-    AutoRoute(page: HomeRoute.page),
+    AutoRoute(page: HomeRoute.page, path: '/home-route'),
 
     /// 设置页面
-    AutoRoute(page: SettingsRoute.page),
+    AutoRoute(page: SettingsRoute.page, path: '/settings'),
   ];
 }

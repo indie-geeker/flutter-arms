@@ -18,6 +18,7 @@ dependencies:
   dio: any
   http_parser: any
   crypto: any
+  web: any
 
 dev_dependencies:
   test: any
