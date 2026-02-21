@@ -140,7 +140,9 @@ melos_*.iml
 
 # AI-generated documentation
 docs/ai/
+docs/plans/
 CLAUDE.md
+.worktrees/
 
 # Personal notes and TODOs
 TODO.md
