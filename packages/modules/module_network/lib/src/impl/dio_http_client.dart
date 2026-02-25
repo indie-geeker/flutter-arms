@@ -3,6 +3,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart';
 import 'package:interfaces/interfaces.dart';
 
+import '../config/network_config.dart';
 import '../interceptors/cache_interceptor.dart';
 import '../interceptors/logging_interceptor.dart';
 import '../interceptors/retry_interceptor.dart';
@@ -18,6 +19,8 @@ class DioHttpClient implements IHttpClient {
   late final dio.Dio _dio;
   final ILogger _logger;
   final ICacheManager _cacheManager;
+  final bool _enableLogging;
+  final RetryConfig _retryConfig;
   
   /// 活跃的 CancelToken 集合，用于批量取消请求
   final Set<dio.CancelToken> _activeTokens = {};
@@ -28,9 +31,13 @@ class DioHttpClient implements IHttpClient {
     required ICacheManager cacheManager,
     Duration? connectTimeout,
     Duration? receiveTimeout,
+    bool enableLogging = true,
+    RetryConfig retryConfig = const RetryConfig(),
     dio.Dio? dioClient,
   })  : _logger = logger,
-        _cacheManager = cacheManager {
+        _cacheManager = cacheManager,
+        _enableLogging = enableLogging,
+        _retryConfig = retryConfig {
     _dio = dioClient ??
         dio.Dio(
           dio.BaseOptions(
@@ -65,13 +72,24 @@ class DioHttpClient implements IHttpClient {
     _dio.interceptors.add(_RequestTimeoutInterceptor());
 
     // 1. 日志拦截器
-    _dio.interceptors.add(LoggingInterceptor(_logger));
+    if (_enableLogging) {
+      _dio.interceptors.add(LoggingInterceptor(_logger));
+    }
 
     // 2. 缓存拦截器
     _dio.interceptors.add(CacheInterceptor(_cacheManager, _logger));
 
     // 3. 重试拦截器 (传入原始 Dio 实例以保留配置)
-    _dio.interceptors.add(RetryInterceptor(_logger, _dio));
+    _dio.interceptors.add(
+      RetryInterceptor(
+        _logger,
+        _dio,
+        maxRetries: _retryConfig.maxRetries,
+        retryDelay: _retryConfig.retryDelay,
+        exponentialBackoff: _retryConfig.exponentialBackoff,
+        retryableStatusCodes: _retryConfig.retryableStatusCodes,
+      ),
+    );
   }
 
   @override

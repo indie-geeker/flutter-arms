@@ -10,12 +10,22 @@ class ModuleRegistry {
 
   /// 注册模块
   void registerModule(IModule module) {
+    // 使用模块名去重，避免重试或重复注册导致同一模块被执行多次初始化
+    _modules.removeWhere((m) => m.name == module.name);
     _modules.add(module);
   }
 
   /// 批量注册模块
-  void registerModules(List<IModule> modules) {
-    _modules.addAll(modules);
+  void registerModules(
+    List<IModule> modules, {
+    bool replace = false,
+  }) {
+    if (replace) {
+      _modules.clear();
+    }
+    for (final module in modules) {
+      registerModule(module);
+    }
   }
 
   /// 按优先级排序并初始化所有模块

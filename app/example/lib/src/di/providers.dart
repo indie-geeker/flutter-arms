@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:core/core.dart';
+import 'package:interfaces/storage/i_secure_storage.dart';
 import '../data/datasources/auth_local_datasource.dart';
 import '../data/repositories/auth_repository_impl.dart';
 import '../domain/repositories/i_auth_repository.dart';
@@ -17,7 +18,10 @@ part 'providers.g.dart';
 @riverpod
 AuthLocalDataSource authLocalDataSource(Ref ref) {
   final storage = ref.watch(kvStorageProvider);
-  return AuthLocalDataSource(storage);
+  final secureStorage = ServiceLocator().isRegistered<ISecureStorage>()
+      ? ref.watch(secureStorageProvider)
+      : null;
+  return AuthLocalDataSource(storage, secureStorage: secureStorage);
 }
 
 // ============================================================================

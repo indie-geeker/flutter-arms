@@ -72,10 +72,10 @@ void main() {
   group('ModuleRegistry', () {
     late ModuleRegistry registry;
 
-    setUp(() {
+    setUp(() async {
       registry = ModuleRegistry();
       // 重置 ServiceLocator 单例状态
-      ServiceLocator().reset();
+      await ServiceLocator().reset();
     });
 
     tearDown(() async {
@@ -117,6 +117,47 @@ void main() {
         await registry.initializeAll();
 
         expect(initOrder, ['Provider', 'Consumer']);
+      });
+    });
+
+    group('module registration', () {
+      test('should deduplicate modules with same name when registered twice', () async {
+        final first = _CountingModule(
+          name: 'DuplicateModule',
+          priority: 10,
+          dependencies: const [],
+          provides: const [],
+        );
+        final second = _CountingModule(name: 'DuplicateModule');
+
+        registry.registerModule(first);
+        registry.registerModule(second);
+        await registry.initializeAll();
+
+        expect(first.initCount, 0);
+        expect(second.initCount, 1);
+      });
+
+      test('should replace previously registered modules when replace is true', () async {
+        final original = _CountingModule(name: 'Original');
+        final replacement = _CountingModule(name: 'Replacement');
+
+        registry.registerModules([original]);
+        registry.registerModules([replacement], replace: true);
+        await registry.initializeAll();
+
+        expect(original.initCount, 0);
+        expect(replacement.initCount, 1);
+      });
+
+      test('should not duplicate same module across repeated registerModules calls', () async {
+        final module = _CountingModule(name: 'RepeatRegister');
+
+        registry.registerModules([module]);
+        registry.registerModules([module]);
+        await registry.initializeAll();
+
+        expect(module.initCount, 1);
       });
     });
 
@@ -300,4 +341,44 @@ class _ConsumerModule implements IModule {
 
   @override
   Future<void> dispose() async {}
+}
+
+class _CountingModule implements IModule {
+  _CountingModule({
+    required this.name,
+    this.priority = 0,
+    this.dependencies = const [],
+    this.provides = const [],
+  });
+
+  @override
+  final String name;
+
+  @override
+  final int priority;
+
+  @override
+  final List<Type> dependencies;
+
+  @override
+  final List<Type> provides;
+
+  int registerCount = 0;
+  int initCount = 0;
+  int disposeCount = 0;
+
+  @override
+  Future<void> register(IServiceLocator locator) async {
+    registerCount++;
+  }
+
+  @override
+  Future<void> init() async {
+    initCount++;
+  }
+
+  @override
+  Future<void> dispose() async {
+    disposeCount++;
+  }
 }

@@ -1,16 +1,25 @@
-# example
+# flutter-arms example
 
-A new Flutter project.
+Reference app demonstrating the framework's default bootstrap path.
 
-## Getting Started
+## What It Initializes
 
-This project is a starting point for a Flutter application.
+- `LoggerModule` (debug level)
+- `StorageModule` with `enableSecureStorage: true`
 
-A few resources to get you started if this is your first Flutter project:
+The cache and network modules are available in the workspace but are not enabled by default in this demo app.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Run
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+cd app/example
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+```
+
+## Test
+
+```bash
+cd app/example
+flutter test
+```

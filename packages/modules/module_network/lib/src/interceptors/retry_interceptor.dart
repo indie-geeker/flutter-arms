@@ -8,6 +8,8 @@ class RetryInterceptor extends Interceptor {
   final Dio _dio;  // 使用原始 Dio 实例进行重试
   final int maxRetries;
   final Duration retryDelay;
+  final bool exponentialBackoff;
+  final Set<int> retryableStatusCodes;
   static const Set<String> _retryableMethods = {
     'GET',
     'PUT',
@@ -21,6 +23,8 @@ class RetryInterceptor extends Interceptor {
     this._dio, {
     this.maxRetries = 3,
     this.retryDelay = const Duration(seconds: 1),
+    this.exponentialBackoff = true,
+    this.retryableStatusCodes = const {408, 429, 500, 502, 503, 504},
   });
 
   @override
@@ -38,8 +42,10 @@ class RetryInterceptor extends Interceptor {
       return handler.next(err);
     }
 
-    // 指数退避等待
-    await Future.delayed(retryDelay * (retryCount + 1));
+    final delay = exponentialBackoff
+        ? retryDelay * (1 << retryCount)
+        : retryDelay;
+    await Future.delayed(delay);
 
     _logger.info('Retrying request (${retryCount + 1}/$maxRetries): ${err.requestOptions.uri}');
 
@@ -63,10 +69,16 @@ class RetryInterceptor extends Interceptor {
     }
 
     // 只重试网络错误和超时错误
+    final statusCode = err.response?.statusCode;
+
+    if (statusCode != null && retryableStatusCodes.contains(statusCode)) {
+      return true;
+    }
+
     return err.type == DioExceptionType.connectionTimeout ||
         err.type == DioExceptionType.sendTimeout ||
         err.type == DioExceptionType.receiveTimeout ||
         err.type == DioExceptionType.connectionError ||
-        (err.response?.statusCode != null && err.response!.statusCode! >= 500);
+        (statusCode != null && statusCode >= 500);
   }
 }
