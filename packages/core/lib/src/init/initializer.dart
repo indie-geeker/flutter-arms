@@ -17,7 +17,7 @@ class AppInitializer {
     required List<IModule> modules,
     void Function(String)? onProgress,
   }) async {
-    _registry.registerModules(modules);
+    _registry.registerModules(modules, replace: true);
     await _registry.initializeAllWithProgress((module, current, total) {
       onProgress?.call('Initializing ${module.name}... ($current/$total)');
     });

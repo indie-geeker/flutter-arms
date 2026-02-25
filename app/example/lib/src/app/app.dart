@@ -34,7 +34,9 @@ class ArmsApp extends StatelessWidget {
         LoggerModule(initialLevel: LogLevel.debug),
 
         // Storage Module - 用于持久化
-        StorageModule(),
+        StorageModule(
+          config: StorageConfig(enableSecureStorage: true),
+        ),
       ],
 
       // 自定义加载界面

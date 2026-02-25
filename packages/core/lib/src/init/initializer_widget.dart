@@ -66,7 +66,7 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
   Future<void> _initialize() async {
     try {
       // 注册所有模块到 Registry
-      _registry.registerModules(widget.modules);
+      _registry.registerModules(widget.modules, replace: true);
 
       // 使用统一的初始化逻辑（包含依赖验证）
       await _registry.initializeAllWithProgress((module, current, total) {
@@ -92,7 +92,9 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
   }
 
   void _updateProgress(String message, int current, int total) {
-    debugPrint('[Init] $message ($current/$total) - ${(current/total*100).toStringAsFixed(1)}%');
+    final percentage =
+        total > 0 ? ((current / total) * 100).toStringAsFixed(1) : '0.0';
+    debugPrint('[Init] $message ($current/$total) - $percentage%');
     if (mounted) {
       setState(() {
         _progress = InitializationProgress(

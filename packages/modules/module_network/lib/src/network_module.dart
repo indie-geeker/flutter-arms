@@ -7,6 +7,7 @@ import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/network/i_http_client.dart';
 
+import 'config/network_config.dart';
 import 'impl/dio_http_client.dart';
 
 /// 网络模块
@@ -15,13 +16,28 @@ class NetworkModule implements IModule {
   final Duration? connectTimeout;
   final Duration? receiveTimeout;
   final bool enableCache;
+  final bool enableLogging;
+  final RetryConfig retryConfig;
 
   NetworkModule({
     required this.baseUrl,
     this.connectTimeout,
     this.receiveTimeout,
     this.enableCache = true,
+    this.enableLogging = true,
+    this.retryConfig = const RetryConfig(),
   });
+
+  factory NetworkModule.fromConfig(NetworkConfig config) {
+    return NetworkModule(
+      baseUrl: config.baseUrl,
+      connectTimeout: config.connectTimeout,
+      receiveTimeout: config.receiveTimeout,
+      enableCache: config.enableCache,
+      enableLogging: config.enableLogging,
+      retryConfig: config.retryConfig,
+    );
+  }
 
   @override
   String get name => 'NetworkModule';
@@ -53,6 +69,8 @@ class NetworkModule implements IModule {
       cacheManager: cacheManager,  // 注入缓存管理器
       connectTimeout: connectTimeout,
       receiveTimeout: receiveTimeout,
+      enableLogging: enableLogging,
+      retryConfig: retryConfig,
     );
 
     locator.registerSingleton<IHttpClient>(httpClient);

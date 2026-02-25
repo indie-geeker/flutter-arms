@@ -35,7 +35,7 @@ flutter-arms is a production-ready Flutter monorepo framework designed to accele
 - **Monorepo Structure** - Dart workspace with Melos for efficient multi-package development
 - **Type Safety** - Full Dart 3+ support with sound null safety
 - **Extensible** - Easy to add, replace, or remove infrastructure modules
-- **Production Ready** - Example app demonstrating best practices
+- **Composable Demo** - Example app defaults to logger + secure storage, with cache/network as opt-in modules
 
 ## Architecture
 
@@ -153,6 +153,7 @@ This will:
 
 ```bash
 cd app/example
+dart run build_runner build --delete-conflicting-outputs
 flutter run
 ```
 
@@ -193,10 +194,12 @@ class MyApp extends StatelessWidget {
         // Logger Module - initialize first
         LoggerModule(initialLevel: LogLevel.debug),
         // Storage Module - for persistence
-        StorageModule(),
-        // Cache Module - for caching
+        StorageModule(
+          config: StorageConfig(enableSecureStorage: true),
+        ),
+        // Cache Module - optional
         CacheModule(),
-        // Network Module - for HTTP requests
+        // Network Module - optional
         NetworkModule(
           baseUrl: 'https://api.example.com',
           connectTimeout: Duration(seconds: 30),
