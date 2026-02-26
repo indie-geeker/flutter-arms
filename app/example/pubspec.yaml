@@ -45,6 +45,10 @@ dependencies:
     path: ../../packages/modules/module_storage
   module_logger:
     path: ../../packages/modules/module_logger
+  module_cache:
+    path: ../../packages/modules/module_cache
+  module_network:
+    path: ../../packages/modules/module_network
 
   # State management
   flutter_riverpod: ^3.0.3

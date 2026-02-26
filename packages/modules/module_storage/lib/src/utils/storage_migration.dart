@@ -69,6 +69,12 @@ class StorageMigration {
   /// 备份数据的键名前缀
   static const String backupPrefix = '__backup_';
 
+  /// 固定快照备份键，避免依赖运行时版本号恢复
+  static const String backupSnapshotKey = '${backupPrefix}snapshot';
+
+  /// 备份创建时的版本元数据
+  static const String backupVersionKey = '${backupPrefix}version';
+
   /// 注册的迁移脚本
   final Map<int, IMigrationScript> _migrations = {};
 
@@ -240,26 +246,34 @@ class StorageMigration {
     int version,
   ) async {
     final data = await context.getData();
-    final backupKey = '$backupPrefix$version';
-    await context.setData({backupKey: data});
+    final snapshot = Map<String, dynamic>.from(data);
+    final dataWithBackup = Map<String, dynamic>.from(data)
+      ..[backupSnapshotKey] = snapshot
+      ..[backupVersionKey] = version;
+    await context.clear();
+    await context.setData(dataWithBackup);
   }
 
   /// 从备份恢复数据
   Future<void> _restoreFromBackup(StorageMigrationContext context) async {
-    final version = await _getCurrentVersion(context);
-    final backupKey = '$backupPrefix$version';
-
-    if (!await context.hasKey(backupKey)) {
-      throw MigrationException('No backup found for version $version');
+    if (!await context.hasKey(backupSnapshotKey)) {
+      throw MigrationException('No backup snapshot found');
     }
 
     final data = await context.getData();
-    final backup = data[backupKey] as Map<String, dynamic>?;
+    final backup = data[backupSnapshotKey];
 
-    if (backup != null) {
+    if (backup is Map) {
+      final restoredData = <String, dynamic>{};
+      for (final entry in backup.entries) {
+        restoredData[entry.key.toString()] = entry.value;
+      }
       await context.clear();
-      await context.setData(backup);
+      await context.setData(restoredData);
+      return;
     }
+
+    throw MigrationException('Invalid backup snapshot format');
   }
 
   /// 清理备份数据
@@ -267,8 +281,13 @@ class StorageMigration {
     StorageMigrationContext context,
     int version,
   ) async {
-    final backupKey = '$backupPrefix$version';
-    await context.deleteKey(backupKey);
+    final data = await context.getData();
+    final legacyBackupKey = '$backupPrefix$version';
+    data.remove(backupSnapshotKey);
+    data.remove(backupVersionKey);
+    data.remove(legacyBackupKey);
+    await context.clear();
+    await context.setData(data);
   }
 
   /// 通知迁移进度

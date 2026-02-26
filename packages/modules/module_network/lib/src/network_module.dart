@@ -32,7 +32,7 @@ class NetworkModule implements IModule {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-    this.enableCache = true,
+    this.enableCache = false,
     this.defaultCacheDuration = const Duration(minutes: 5),
     this.enableLogging = true,
     this.retryConfig = const RetryConfig(),

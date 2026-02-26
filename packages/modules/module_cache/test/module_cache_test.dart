@@ -107,13 +107,31 @@ void main() {
     });
 
     group('Module Disposal', () {
-      test('should clear cache on disposal', () async {
+      test('should preserve persistent disk cache on disposal', () async {
         await module.register(locator);
         await module.init();
 
         final cacheManager = locator.get<ICacheManager>();
-        await cacheManager.put('key1', 'value1');
-        await cacheManager.put('key2', 'value2');
+        await cacheManager.put(
+          'persistent',
+          'value',
+          policy: CachePolicy.persistent,
+        );
+
+        await module.dispose();
+
+        final diskValue = await mockStorage.getJson('cache:persistent');
+        expect(diskValue, isNotNull);
+        expect(await cacheManager.get<String>('persistent'), 'value');
+      });
+
+      test('should clear in-memory cache on disposal', () async {
+        await module.register(locator);
+        await module.init();
+
+        final cacheManager = locator.get<ICacheManager>();
+        await cacheManager.put('key1', 'value1', policy: CachePolicy.memoryOnly);
+        await cacheManager.put('key2', 'value2', policy: CachePolicy.memoryOnly);
 
         await module.dispose();
 
@@ -123,7 +141,7 @@ void main() {
         expect(result2, isNull);
       });
 
-      test('should clear both memory and disk cache', () async {
+      test('should clear memory cache but keep disk cache', () async {
         await module.register(locator);
         await module.init();
 
@@ -134,7 +152,8 @@ void main() {
         await module.dispose();
 
         expect(await cacheManager.get<String>('memory'), isNull);
-        expect(await cacheManager.get<String>('disk'), isNull);
+        expect(await mockStorage.getJson('cache:disk'), isNotNull);
+        expect(await cacheManager.get<String>('disk'), 'value2');
       });
     });
 
@@ -147,7 +166,7 @@ void main() {
         // Init
         await module.init();
         final cacheManager = locator.get<ICacheManager>();
-        await cacheManager.put('test', 'value');
+        await cacheManager.put('test', 'value', policy: CachePolicy.memoryOnly);
         expect(await cacheManager.get<String>('test'), 'value');
 
         // Dispose
@@ -169,7 +188,7 @@ void main() {
         await module.init();
 
         final cacheManager = locator.get<ICacheManager>();
-        await cacheManager.put('test', 'value1');
+        await cacheManager.put('test', 'value1', policy: CachePolicy.memoryOnly);
 
         await module.dispose();
         await module.init();
@@ -290,20 +309,18 @@ void main() {
         final diskValueBefore = await mockStorage.getJson('cache:persistent');
         expect(diskValueBefore, isNotNull);
 
-        // Note: dispose() calls clear() which removes all data
-        // This test demonstrates that disposal clears cache as designed
         await module.dispose();
 
-        // Verify data was cleared as expected
+        // dispose() 仅清理内存，磁盘持久缓存仍应保留
         final diskValueAfter = await mockStorage.getJson('cache:persistent');
-        expect(diskValueAfter, isNull);
+        expect(diskValueAfter, isNotNull);
 
         // Re-init creates fresh cache
         await module.init();
 
-        // Cache is now empty after re-init
+        // 持久缓存在重初始化后仍可读取
         final result = await cacheManager.get<String>('persistent');
-        expect(result, isNull);
+        expect(result, 'data');
       });
     });
   });

@@ -198,11 +198,15 @@ import 'package:module_cache/module_cache.dart';
 import 'package:module_network/module_network.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final AppInitializerController initializerController =
+      AppInitializerController();
 
   @override
   Widget build(BuildContext context) {
     return AppInitializerWidget(
+      controller: initializerController,
       modules: [
         // Logger Module - initialize first
         LoggerModule(initialLevel: LogLevel.debug),
@@ -215,6 +219,7 @@ class MyApp extends StatelessWidget {
         // Network Module - optional
         NetworkModule(
           baseUrl: 'https://api.example.com',
+          enableCache: true,
           connectTimeout: Duration(seconds: 30),
         ),
       ],
@@ -242,6 +247,12 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+```
+
+When you have an app-level shutdown hook that supports `await`, call:
+
+```dart
+await initializerController.shutdown();
 ```
 
 3. **Use infrastructure services via Riverpod providers**
@@ -335,8 +346,8 @@ melos bootstrap
 
 ### Advanced Options
 
-- **Disable network cache dependency**
-  - `NetworkModule(baseUrl: '...', enableCache: false)`
+- **Enable network cache dependency**
+  - `NetworkModule(baseUrl: '...', enableCache: true)`
 - **Per-request cache control**
   - `httpClient.get('/users', cacheOptions: const NetworkCacheOptions(enabled: true, duration: Duration(minutes: 5)))`
 - **Custom cache serializers**

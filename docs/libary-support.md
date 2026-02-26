@@ -1,27 +1,24 @@
+# Library Support Matrix (Current)
 
-| 依赖库 | 版本 | 使用次数 | Android | iOS | macOS | Windows | Web | Linux | 全平台 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| auto_route | 10.3.0 | 4 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| crypto | 3.0.7 | 1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| cupertino_icons | 1.0.8 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| dartz | 0.10.1 | 7 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| dio | 5.9.0 | 8 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| encrypt | 5.0.3 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| flutter_localization | 0.3.3 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| flutter_riverpod | 3.0.3 | 5 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| flutter_secure_storage | 10.0.0 | 1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| freezed_annotation | 3.1.0 | 7 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| get_it | 9.2.0 | 1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| hive | 2.2.3 | 1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| hive_flutter | 1.1.0 | 1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| http_parser | 4.1.2 | 1 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| intl | 0.20.2 | 3 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| json_annotation | 4.9.0 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| logger | 2.6.2 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| mockito | 5.5.0 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| overlay_support | 2.1.0 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| path_provider | 2.1.5 | 0 | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ |
-| retrofit | 4.8.0 | 0 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| riverpod_annotation | 3.0.3 | 6 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| web | 1.1.1 | 1 | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| window_manager | 0.5.1 | 0 | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ |
+This matrix tracks **current direct runtime dependencies** used by the template
+workspace (core/modules/example). Stale or no-longer-used entries were removed.
+
+| Dependency | Used In | Platform Support | Notes |
+| --- | --- | --- | --- |
+| `get_it` | `packages/core` | ✅ Android/iOS/macOS/Windows/Linux/Web | Service locator |
+| `flutter_riverpod` | `packages/core`, `app/example` | ✅ All Flutter targets | State management |
+| `hive` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Key-value storage core |
+| `hive_flutter` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Flutter integration for Hive |
+| `flutter_secure_storage` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Secure key storage (platform plugin) |
+| `dio` | `packages/modules/module_network` | ✅ Android/iOS/macOS/Windows/Linux/Web | HTTP client |
+| `http_parser` | `packages/modules/module_network` | ✅ All (Dart) | MIME/media type parsing |
+| `crypto` | `packages/modules/module_network` | ✅ All (Dart) | Cache key hashing |
+| `web` | `packages/modules/module_network` | ✅ Web-only | Web platform interop helpers |
+| `auto_route` | `app/example` | ✅ Android/iOS/macOS/Windows/Linux/Web | Router in example app |
+| `dartz` | `app/example` | ✅ All (Dart) | Functional result types |
+| `intl` | `app/example` | ✅ All (Dart) | Localization/date formatting |
+
+## Notes
+
+- The table intentionally excludes dev-only dependencies (`build_runner`, test frameworks, lints).
+- For plugin-specific caveats (permissions, keystore, entitlements), refer to each package's upstream docs.
