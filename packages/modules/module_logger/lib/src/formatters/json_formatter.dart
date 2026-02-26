@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:interfaces/logger/log_entity.dart';
 
@@ -22,6 +21,10 @@ class JsonFormatter {
 
     if (entry.stackTrace != null) {
       map['stackTrace'] = entry.stackTrace.toString();
+    }
+
+    if (entry.extras != null && entry.extras!.isNotEmpty) {
+      map['extras'] = entry.extras;
     }
 
     return jsonEncode(map);

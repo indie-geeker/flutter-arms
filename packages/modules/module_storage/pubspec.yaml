@@ -6,7 +6,7 @@ publish_to: none
 
 environment:
   sdk: ^3.9.2
-  flutter: ">=1.17.0"
+  flutter: ">=3.35.6"
 
 resolution: workspace
 
@@ -15,14 +15,14 @@ dependencies:
     sdk: flutter
   interfaces:
     path: ../../interfaces
-  hive: any
-  hive_flutter: any
-  flutter_secure_storage: any
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^10.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  test: any
+  test: ^1.26.3
   flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the

@@ -10,6 +10,7 @@ class LogEntry {
   /// [timestamp] 时间戳
   /// [error] 错误对象
   /// [stackTrace] 堆栈跟踪
+  /// [extras] 结构化日志上下文
   LogEntry({
     required this.level,
     required this.message,
@@ -17,6 +18,7 @@ class LogEntry {
     DateTime? timestamp,
     this.error,
     this.stackTrace,
+    this.extras,
   }) : timestamp = timestamp ?? DateTime.now();
 
   /// 日志级别
@@ -36,6 +38,9 @@ class LogEntry {
 
   /// 堆栈跟踪
   final StackTrace? stackTrace;
+
+  /// 结构化日志上下文
+  final Map<String, dynamic>? extras;
 
   @override
   String toString() => '[$level] ${tag != null ? '[$tag] ' : ''}$message';

@@ -6,7 +6,7 @@ publish_to: none
 
 environment:
   sdk: ^3.9.2
-  flutter: ">=1.17.0"
+  flutter: ">=3.35.6"
 
 resolution: workspace
 
@@ -17,7 +17,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  test: any
+  test: ^1.26.3
   flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the

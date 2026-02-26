@@ -20,6 +20,7 @@ version: 1.0.0+1
 
 environment:
   sdk: ^3.9.2
+  flutter: ">=3.35.6"
 
 resolution: workspace
 # Dependencies specify other packages that your package needs in order to work.
@@ -33,7 +34,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: any
+  intl: ^0.20.2
 
   # Local packages
   core:
@@ -46,15 +47,15 @@ dependencies:
     path: ../../packages/modules/module_logger
 
   # State management
-  flutter_riverpod: any
-  riverpod_annotation: any
+  flutter_riverpod: ^3.0.3
+  riverpod_annotation: ^3.0.3
 
   # Routing
-  auto_route: any
+  auto_route: ^10.3.0
 
   # Code generation
-  freezed_annotation: any
-  json_annotation: any
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
 
   # Functional programming
   dartz: ^0.10.1
@@ -68,11 +69,11 @@ dev_dependencies:
     sdk: flutter
 
   # Code generation
-  build_runner: any
-  auto_route_generator: any
-  freezed: any
-  json_serializable: any
-  riverpod_generator: any
+  build_runner: ^2.11.1
+  auto_route_generator: ^10.2.6
+  freezed: ^3.2.3
+  json_serializable: ^6.11.2
+  riverpod_generator: ^3.0.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

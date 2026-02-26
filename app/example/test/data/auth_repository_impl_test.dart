@@ -1,0 +1,154 @@
+import 'package:dartz/dartz.dart';
+import 'package:example/src/data/datasources/auth_local_datasource.dart';
+import 'package:example/src/data/models/user_model.dart';
+import 'package:example/src/data/repositories/auth_repository_impl.dart';
+import 'package:example/src/domain/failures/auth_failure.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../support/test_doubles.dart';
+
+void main() {
+  group('AuthRepositoryImpl', () {
+    test(
+      'returns invalid username failure when username is too short',
+      () async {
+        final storage = InMemoryKeyValueStorage();
+        final repository = AuthRepositoryImpl(AuthLocalDataSource(storage));
+
+        final result = await repository.login(
+          username: 'ab',
+          password: 'secret',
+        );
+
+        expect(
+          result,
+          left(
+            const AuthFailure.invalidUsername(
+              'Username must be at least 3 characters',
+            ),
+          ),
+        );
+      },
+    );
+
+    test(
+      'returns invalid password failure when password is too short',
+      () async {
+        final storage = InMemoryKeyValueStorage();
+        final repository = AuthRepositoryImpl(AuthLocalDataSource(storage));
+
+        final result = await repository.login(
+          username: 'alice',
+          password: '12',
+        );
+
+        expect(
+          result,
+          left(
+            const AuthFailure.invalidPassword(
+              'Password must be at least 3 characters',
+            ),
+          ),
+        );
+      },
+    );
+
+    test('saves user and returns domain entity on successful login', () async {
+      final storage = InMemoryKeyValueStorage();
+      final dataSource = AuthLocalDataSource(storage);
+      final repository = AuthRepositoryImpl(dataSource);
+
+      final result = await repository.login(
+        username: 'alice',
+        password: 'secret',
+      );
+      final persisted = await dataSource.getCurrentUser();
+
+      expect(result.isRight(), isTrue);
+      expect(
+        result.getOrElse(() => throw StateError('expected success')).username,
+        'alice',
+      );
+      expect(persisted?.username, 'alice');
+    });
+
+    test('returns storageError when persistence throws during login', () async {
+      final storage = ThrowingKeyValueStorage()..throwOnSetJson = true;
+      final repository = AuthRepositoryImpl(AuthLocalDataSource(storage));
+
+      final result = await repository.login(
+        username: 'alice',
+        password: 'secret',
+      );
+
+      expect(
+        result,
+        left(const AuthFailure.storageError('Bad state: setJson failed')),
+      );
+    });
+
+    test('clears persisted user on logout', () async {
+      final storage = InMemoryKeyValueStorage();
+      final dataSource = AuthLocalDataSource(storage);
+      final repository = AuthRepositoryImpl(dataSource);
+      await dataSource.saveCurrentUser(
+        UserModel(id: 'u1', username: 'alice', loginTime: DateTime(2026, 1, 1)),
+      );
+
+      final result = await repository.logout();
+
+      expect(result, right<AuthFailure, Unit>(unit));
+      expect(await dataSource.hasCurrentUser(), isFalse);
+    });
+
+    test('returns storageError when logout fails', () async {
+      final storage = ThrowingKeyValueStorage()..throwOnRemove = true;
+      final repository = AuthRepositoryImpl(AuthLocalDataSource(storage));
+
+      final result = await repository.logout();
+
+      expect(
+        result,
+        left(const AuthFailure.storageError('Bad state: remove failed')),
+      );
+    });
+
+    test('maps current user model to domain entity', () async {
+      final storage = InMemoryKeyValueStorage();
+      final dataSource = AuthLocalDataSource(storage);
+      final repository = AuthRepositoryImpl(dataSource);
+      await dataSource.saveCurrentUser(
+        UserModel(id: 'u2', username: 'bob', loginTime: DateTime(2026, 2, 2)),
+      );
+
+      final result = await repository.getCurrentUser();
+
+      expect(result.isRight(), isTrue);
+      expect(
+        result.getOrElse(() => throw StateError('expected success'))?.username,
+        'bob',
+      );
+    });
+
+    test('returns storageError when getCurrentUser fails', () async {
+      final storage = ThrowingKeyValueStorage()..throwOnGetJson = true;
+      final repository = AuthRepositoryImpl(AuthLocalDataSource(storage));
+
+      final result = await repository.getCurrentUser();
+
+      expect(
+        result,
+        left(const AuthFailure.storageError('Bad state: getJson failed')),
+      );
+    });
+
+    test('returns false when isLoggedIn throws', () async {
+      final storage = ThrowingKeyValueStorage()..throwOnContainsKey = true;
+      final repository = AuthRepositoryImpl(AuthLocalDataSource(storage));
+
+      final isLoggedIn = await repository.isLoggedIn();
+
+      expect(isLoggedIn, isFalse);
+    });
+  });
+}

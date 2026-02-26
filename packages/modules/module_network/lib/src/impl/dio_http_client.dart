@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart';
 import 'package:interfaces/interfaces.dart';
@@ -8,6 +7,7 @@ import '../interceptors/cache_interceptor.dart';
 import '../interceptors/logging_interceptor.dart';
 import '../interceptors/retry_interceptor.dart';
 import '../utils/network_error_handler.dart';
+import '../utils/proxy_configurator.dart';
 import '../utils/web_file_download.dart';
 import 'dio_cancel_token_adapter.dart';
 import 'dio_form_data_adapter.dart';
@@ -21,7 +21,9 @@ class DioHttpClient implements IHttpClient {
   final ICacheManager _cacheManager;
   final bool _enableLogging;
   final RetryConfig _retryConfig;
-  
+  final Duration _defaultCacheDuration;
+  final NetworkCacheOptions? _defaultCacheOptions;
+
   /// 活跃的 CancelToken 集合，用于批量取消请求
   final Set<dio.CancelToken> _activeTokens = {};
 
@@ -31,37 +33,54 @@ class DioHttpClient implements IHttpClient {
     required ICacheManager cacheManager,
     Duration? connectTimeout,
     Duration? receiveTimeout,
+    Duration? sendTimeout,
+    Map<String, String> defaultHeaders = const {},
     bool enableLogging = true,
     RetryConfig retryConfig = const RetryConfig(),
+    Duration defaultCacheDuration = const Duration(minutes: 5),
+    NetworkCacheOptions? defaultCacheOptions,
+    ProxyConfig? proxyConfig,
     dio.Dio? dioClient,
-  })  : _logger = logger,
-        _cacheManager = cacheManager,
-        _enableLogging = enableLogging,
-        _retryConfig = retryConfig {
-    _dio = dioClient ??
+  }) : _logger = logger,
+       _cacheManager = cacheManager,
+       _enableLogging = enableLogging,
+       _retryConfig = retryConfig,
+       _defaultCacheDuration = defaultCacheDuration,
+       _defaultCacheOptions = defaultCacheOptions {
+    final mergedHeaders = <String, dynamic>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      ...defaultHeaders,
+    };
+
+    _dio =
+        dioClient ??
         dio.Dio(
           dio.BaseOptions(
             baseUrl: baseUrl,
             connectTimeout: connectTimeout ?? Duration(seconds: 30),
             receiveTimeout: receiveTimeout ?? Duration(seconds: 30),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
+            sendTimeout: sendTimeout ?? Duration(seconds: 30),
+            headers: mergedHeaders,
           ),
         );
 
     if (dioClient != null) {
       _dio.options.baseUrl = baseUrl;
       _dio.options.connectTimeout =
-          connectTimeout ?? _dio.options.connectTimeout ?? Duration(seconds: 30);
+          connectTimeout ??
+          _dio.options.connectTimeout ??
+          Duration(seconds: 30);
       _dio.options.receiveTimeout =
-          receiveTimeout ?? _dio.options.receiveTimeout ?? Duration(seconds: 30);
-      _dio.options.headers.addAll({
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      });
+          receiveTimeout ??
+          _dio.options.receiveTimeout ??
+          Duration(seconds: 30);
+      _dio.options.sendTimeout =
+          sendTimeout ?? _dio.options.sendTimeout ?? Duration(seconds: 30);
+      _dio.options.headers.addAll(mergedHeaders);
     }
+
+    configureProxy(_dio, proxyConfig, _logger);
 
     // 添加默认拦截器
     _setupInterceptors();
@@ -77,7 +96,13 @@ class DioHttpClient implements IHttpClient {
     }
 
     // 2. 缓存拦截器
-    _dio.interceptors.add(CacheInterceptor(_cacheManager, _logger));
+    _dio.interceptors.add(
+      CacheInterceptor(
+        _cacheManager,
+        _logger,
+        defaultDuration: _defaultCacheDuration,
+      ),
+    );
 
     // 3. 重试拦截器 (传入原始 Dio 实例以保留配置)
     _dio.interceptors.add(
@@ -94,15 +119,15 @@ class DioHttpClient implements IHttpClient {
 
   @override
   Future<NetworkResponse<T>> get<T>(
-      String path, {
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      }) async {
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  }) async {
     final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.get(
@@ -120,9 +145,16 @@ class DioHttpClient implements IHttpClient {
     } on dio.DioException catch (e) {
       return _handleError<T>(e);
     } catch (e, stackTrace) {
-      _logger.error('Unexpected error in GET request', error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Unexpected error in GET request',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return NetworkResponse.failure(
-        NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
+        NetworkException(
+          message: e.toString(),
+          type: NetworkExceptionType.unknown,
+        ),
       );
     } finally {
       _removeActiveToken(dioToken);
@@ -131,16 +163,16 @@ class DioHttpClient implements IHttpClient {
 
   @override
   Future<NetworkResponse<T>> post<T>(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  }) async {
     final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.post(
@@ -159,9 +191,16 @@ class DioHttpClient implements IHttpClient {
     } on dio.DioException catch (e) {
       return _handleError<T>(e);
     } catch (e, stackTrace) {
-      _logger.error('Unexpected error in POST request', error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Unexpected error in POST request',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return NetworkResponse.failure(
-        NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
+        NetworkException(
+          message: e.toString(),
+          type: NetworkExceptionType.unknown,
+        ),
       );
     } finally {
       _removeActiveToken(dioToken);
@@ -170,16 +209,16 @@ class DioHttpClient implements IHttpClient {
 
   @override
   Future<NetworkResponse<T>> put<T>(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  }) async {
     final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.put(
@@ -198,9 +237,16 @@ class DioHttpClient implements IHttpClient {
     } on dio.DioException catch (e) {
       return _handleError<T>(e);
     } catch (e, stackTrace) {
-      _logger.error('Unexpected error in PUT request', error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Unexpected error in PUT request',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return NetworkResponse.failure(
-        NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
+        NetworkException(
+          message: e.toString(),
+          type: NetworkExceptionType.unknown,
+        ),
       );
     } finally {
       _removeActiveToken(dioToken);
@@ -209,16 +255,16 @@ class DioHttpClient implements IHttpClient {
 
   @override
   Future<NetworkResponse<T>> delete<T>(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  }) async {
     final dioToken = _convertCancelToken(cancelToken);
     try {
       final response = await _dio.delete(
@@ -237,9 +283,16 @@ class DioHttpClient implements IHttpClient {
     } on dio.DioException catch (e) {
       return _handleError<T>(e);
     } catch (e, stackTrace) {
-      _logger.error('Unexpected error in DELETE request', error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Unexpected error in DELETE request',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return NetworkResponse.failure(
-        NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
+        NetworkException(
+          message: e.toString(),
+          type: NetworkExceptionType.unknown,
+        ),
       );
     } finally {
       _removeActiveToken(dioToken);
@@ -248,15 +301,15 @@ class DioHttpClient implements IHttpClient {
 
   @override
   Future<NetworkResponse<T>> upload<T>(
-      String path,
-      FormData formData, {
-        ProgressCallback? onSendProgress,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      }) async {
+    String path,
+    FormData formData, {
+    ProgressCallback? onSendProgress,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  }) async {
     final dioToken = _convertCancelToken(cancelToken);
     try {
       // 将 FormData 适配为 Dio FormData
@@ -279,9 +332,16 @@ class DioHttpClient implements IHttpClient {
     } on dio.DioException catch (e) {
       return _handleError<T>(e);
     } catch (e, stackTrace) {
-      _logger.error('Unexpected error in upload', error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Unexpected error in upload',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return NetworkResponse.failure(
-        NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
+        NetworkException(
+          message: e.toString(),
+          type: NetworkExceptionType.unknown,
+        ),
       );
     } finally {
       _removeActiveToken(dioToken);
@@ -290,15 +350,15 @@ class DioHttpClient implements IHttpClient {
 
   @override
   Future<NetworkResponse> download(
-      String urlPath,
-      String savePath, {
-        ProgressCallback? onReceiveProgress,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      }) async {
+    String urlPath,
+    String savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  }) async {
     final dioToken = _convertCancelToken(cancelToken);
     try {
       if (kIsWeb) {
@@ -358,9 +418,16 @@ class DioHttpClient implements IHttpClient {
     } on dio.DioException catch (e) {
       return _handleError(e);
     } catch (e, stackTrace) {
-      _logger.error('Unexpected error in download', error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Unexpected error in download',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return NetworkResponse.failure(
-        NetworkException(message: e.toString(), type: NetworkExceptionType.unknown),
+        NetworkException(
+          message: e.toString(),
+          type: NetworkExceptionType.unknown,
+        ),
       );
     } finally {
       _removeActiveToken(dioToken);
@@ -375,7 +442,9 @@ class DioHttpClient implements IHttpClient {
     if (fromPath != null) return fromPath;
 
     final contentDisposition = response.headers.value('content-disposition');
-    final fromHeader = _extractFileNameFromContentDisposition(contentDisposition);
+    final fromHeader = _extractFileNameFromContentDisposition(
+      contentDisposition,
+    );
     if (fromHeader != null) return fromHeader;
 
     return 'download-${DateTime.now().millisecondsSinceEpoch}.bin';
@@ -433,7 +502,9 @@ class DioHttpClient implements IHttpClient {
 
   @override
   void addInterceptor(INetworkInterceptor interceptor) {
-    _dio.interceptors.add(_NetworkInterceptorAdapter(interceptor, _logger, this));
+    _dio.interceptors.add(
+      _NetworkInterceptorAdapter(interceptor, _logger, this),
+    );
   }
 
   @override
@@ -474,7 +545,7 @@ class DioHttpClient implements IHttpClient {
   /// 转换 CancelToken 并将其加入活跃追踪
   dio.CancelToken? _convertCancelToken(CancelToken? token) {
     dio.CancelToken dioToken;
-    
+
     if (token == null) {
       // 无 token 时创建新 token 用于追踪
       dioToken = dio.CancelToken();
@@ -493,13 +564,13 @@ class DioHttpClient implements IHttpClient {
         });
       }
     }
-    
+
     // 添加到活跃 token 集合
     _activeTokens.add(dioToken);
-    
+
     return dioToken;
   }
-  
+
   /// 从活跃追踪中移除 token（请求完成后调用）
   void _removeActiveToken(dio.CancelToken? token) {
     if (token != null) {
@@ -512,17 +583,21 @@ class DioHttpClient implements IHttpClient {
     Duration? connectTimeout,
     NetworkCacheOptions? cacheOptions,
   ) {
-    if (extra == null && connectTimeout == null && cacheOptions == null) {
+    final resolvedCacheOptions = cacheOptions ?? _defaultCacheOptions;
+    if (extra == null &&
+        connectTimeout == null &&
+        resolvedCacheOptions == null) {
       return null;
     }
 
-    final merged =
-        extra != null ? Map<String, dynamic>.from(extra) : <String, dynamic>{};
+    final merged = extra != null
+        ? Map<String, dynamic>.from(extra)
+        : <String, dynamic>{};
     if (connectTimeout != null) {
       merged[_connectTimeoutExtraKey] = connectTimeout;
     }
-    if (cacheOptions != null) {
-      merged[NetworkCacheOptions.extraKey] = cacheOptions;
+    if (resolvedCacheOptions != null) {
+      merged[NetworkCacheOptions.extraKey] = resolvedCacheOptions;
     }
     return merged;
   }
@@ -541,15 +616,20 @@ class DioHttpClient implements IHttpClient {
     );
   }
 
-  void _applyNetworkRequest(dio.RequestOptions options, NetworkRequest request) {
+  void _applyNetworkRequest(
+    dio.RequestOptions options,
+    NetworkRequest request,
+  ) {
     options.path = request.path;
     options.method = request.method;
-    options.queryParameters = request.queryParameters ?? options.queryParameters;
+    options.queryParameters =
+        request.queryParameters ?? options.queryParameters;
     options.headers = request.headers ?? options.headers;
     options.data = request.data ?? options.data;
     options.connectTimeout = request.connectTimeout ?? options.connectTimeout;
     options.receiveTimeout = request.receiveTimeout ?? options.receiveTimeout;
-    options.extra = _mergeExtra(
+    options.extra =
+        _mergeExtra(
           request.extra,
           request.connectTimeout,
           request.cacheOptions,
@@ -566,7 +646,10 @@ class DioHttpClient implements IHttpClient {
     );
   }
 
-  void _applyNetworkResponse(dio.Response response, NetworkResponse networkResponse) {
+  void _applyNetworkResponse(
+    dio.Response response,
+    NetworkResponse networkResponse,
+  ) {
     response.data = networkResponse.data;
     response.statusCode = networkResponse.statusCode;
     response.statusMessage = networkResponse.statusMessage;
@@ -597,7 +680,10 @@ class DioHttpClient implements IHttpClient {
 /// 从 extra 中应用请求级 connectTimeout
 class _RequestTimeoutInterceptor extends dio.Interceptor {
   @override
-  void onRequest(dio.RequestOptions options, dio.RequestInterceptorHandler handler) {
+  void onRequest(
+    dio.RequestOptions options,
+    dio.RequestInterceptorHandler handler,
+  ) {
     final extra = options.extra;
     final connectTimeout = extra[_connectTimeoutExtraKey];
     if (connectTimeout is Duration) {
@@ -616,7 +702,10 @@ class _NetworkInterceptorAdapter extends dio.Interceptor {
   _NetworkInterceptorAdapter(this._interceptor, this._logger, this._client);
 
   @override
-  void onRequest(dio.RequestOptions options, dio.RequestInterceptorHandler handler) async {
+  void onRequest(
+    dio.RequestOptions options,
+    dio.RequestInterceptorHandler handler,
+  ) async {
     try {
       final request = _client._toNetworkRequest(options);
       final updated = await _interceptor.onRequest(request);
@@ -631,20 +720,31 @@ class _NetworkInterceptorAdapter extends dio.Interceptor {
       }
       _client._applyNetworkRequest(options, updated);
     } catch (e, stackTrace) {
-      _logger.error('Network interceptor onRequest failed', error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Network interceptor onRequest failed',
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
     handler.next(options);
   }
 
   @override
-  void onResponse(dio.Response response, dio.ResponseInterceptorHandler handler) {
+  void onResponse(
+    dio.Response response,
+    dio.ResponseInterceptorHandler handler,
+  ) {
     () async {
       try {
         final networkResponse = _client._toNetworkResponse(response);
         final updated = await _interceptor.onResponse(networkResponse);
         _client._applyNetworkResponse(response, updated);
       } catch (e, stackTrace) {
-        _logger.error('Network interceptor onResponse failed', error: e, stackTrace: stackTrace);
+        _logger.error(
+          'Network interceptor onResponse failed',
+          error: e,
+          stackTrace: stackTrace,
+        );
       }
       handler.next(response);
     }();
@@ -667,7 +767,11 @@ class _NetworkInterceptorAdapter extends dio.Interceptor {
           return handler.resolve(response);
         }
       } catch (e, stackTrace) {
-        _logger.error('Network interceptor onError failed', error: e, stackTrace: stackTrace);
+        _logger.error(
+          'Network interceptor onError failed',
+          error: e,
+          stackTrace: stackTrace,
+        );
       }
       handler.next(err);
     }();

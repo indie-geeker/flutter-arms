@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:interfaces/interfaces.dart';
@@ -11,11 +10,19 @@ import '../utils/network_utils.dart';
 class CacheInterceptor extends Interceptor {
   final ICacheManager _cacheManager;
   final ILogger _logger;
+  final Duration _defaultDuration;
 
-  CacheInterceptor(this._cacheManager, this._logger);
+  CacheInterceptor(
+    this._cacheManager,
+    this._logger, {
+    Duration defaultDuration = const Duration(minutes: 5),
+  }) : _defaultDuration = defaultDuration;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     // 只缓存 GET 请求
     if (options.method.toUpperCase() != 'GET') {
       return handler.next(options);
@@ -24,6 +31,11 @@ class CacheInterceptor extends Interceptor {
     final cacheOptions =
         options.extra[NetworkCacheOptions.extraKey] as NetworkCacheOptions?;
     if (cacheOptions == null || !cacheOptions.enabled) {
+      return handler.next(options);
+    }
+
+    // networkFirst: 跳过请求前缓存读取，优先请求网络。
+    if (cacheOptions.policy == CachePolicy.networkFirst) {
       return handler.next(options);
     }
 
@@ -55,6 +67,45 @@ class CacheInterceptor extends Interceptor {
   }
 
   @override
+  void onError(DioException err, ErrorInterceptorHandler handler) async {
+    final request = err.requestOptions;
+    if (request.method.toUpperCase() != 'GET') {
+      return handler.next(err);
+    }
+
+    final cacheOptions =
+        request.extra[NetworkCacheOptions.extraKey] as NetworkCacheOptions?;
+    if (cacheOptions == null ||
+        !cacheOptions.enabled ||
+        cacheOptions.policy != CachePolicy.networkFirst) {
+      return handler.next(err);
+    }
+
+    final cacheKey = _resolveCacheKey(request, cacheOptions);
+    try {
+      final cachedData = await _cacheManager.get<String>(cacheKey);
+      if (cachedData != null) {
+        _logger.warning(
+          'Network failed, fallback to cache for: ${request.uri}',
+          error: err,
+        );
+        return handler.resolve(
+          Response(
+            requestOptions: request,
+            data: jsonDecode(cachedData),
+            statusCode: 200,
+            extra: {'from_cache': true},
+          ),
+        );
+      }
+    } catch (e) {
+      _logger.warning('Failed to load fallback cache', error: e);
+    }
+
+    handler.next(err);
+  }
+
+  @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
     // 只缓存 GET 请求的成功响应
     if (response.requestOptions.method.toUpperCase() != 'GET' ||
@@ -62,8 +113,9 @@ class CacheInterceptor extends Interceptor {
       return handler.next(response);
     }
 
-    final cacheOptions = response.requestOptions.extra[NetworkCacheOptions.extraKey]
-        as NetworkCacheOptions?;
+    final cacheOptions =
+        response.requestOptions.extra[NetworkCacheOptions.extraKey]
+            as NetworkCacheOptions?;
     if (cacheOptions == null || !cacheOptions.enabled) {
       return handler.next(response);
     }
@@ -72,8 +124,8 @@ class CacheInterceptor extends Interceptor {
     final cacheKey = _resolveCacheKey(response.requestOptions, cacheOptions);
 
     try {
-      // 获取缓存时长（默认 5 分钟）
-      final cacheDuration = cacheOptions.duration ?? Duration(minutes: 5);
+      // 获取缓存时长（使用客户端默认值作为兜底）
+      final cacheDuration = cacheOptions.duration ?? _defaultDuration;
 
       final encoded = _encodeResponseData(response.data);
       if (encoded == null) {

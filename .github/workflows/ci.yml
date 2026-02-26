@@ -18,6 +18,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: 3.35.6
           channel: stable
 
       - name: Setup Melos
@@ -28,6 +29,11 @@ jobs:
       - name: Bootstrap Workspace
         run: melos bootstrap
 
+      - name: Generate Example App Code
+        run: |
+          cd app/example
+          dart run build_runner build --delete-conflicting-outputs
+
       - name: Analyze Core Packages
         run: |
           melos exec --scope="core" -- flutter analyze
@@ -36,6 +42,7 @@ jobs:
           melos exec --scope="module_storage" -- flutter analyze
           melos exec --scope="module_cache" -- flutter analyze
           melos exec --scope="module_network" -- flutter analyze
+          melos exec --scope="example" -- flutter analyze
 
       - name: Test Core Packages
         run: |
@@ -45,6 +52,7 @@ jobs:
           melos exec --scope="module_storage" -- flutter test
           melos exec --scope="module_cache" -- flutter test
           melos exec --scope="module_network" -- flutter test
+          melos exec --scope="example" -- flutter test
 
       - name: Verify Empty Test Files
         run: |
@@ -52,3 +60,4 @@ jobs:
           test -s packages/interfaces/test/interfaces_test.dart
           test -s packages/modules/module_storage/test/storage_test.dart
           test -s packages/modules/module_network/test/module_network_test.dart
+          test -s app/example/test/widget_test.dart
