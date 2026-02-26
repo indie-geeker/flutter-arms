@@ -1,3 +1,4 @@
+import 'dart:convert';
 
 import 'package:interfaces/logger/log_entity.dart';
 
@@ -15,6 +16,10 @@ class SimpleFormatter {
 
     if (entry.stackTrace != null) {
       buffer.write('\n  StackTrace:\n${_formatStackTrace(entry.stackTrace!)}');
+    }
+
+    if (entry.extras != null && entry.extras!.isNotEmpty) {
+      buffer.write('\n  Extras: ${jsonEncode(entry.extras)}');
     }
 
     return buffer.toString();

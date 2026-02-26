@@ -22,7 +22,9 @@ flutter-arms is a production-ready Flutter monorepo framework designed to accele
 - [Development](#development)
   - [Adding New Modules](#adding-new-modules)
   - [Running Tests](#running-tests)
+  - [Release Notes](#release-notes)
   - [Code Generation](#code-generation)
+- [Advanced Docs](#advanced-docs)
 - [Tech Stack](#tech-stack)
 - [Contributing](#contributing)
 - [License](#license)
@@ -36,6 +38,7 @@ flutter-arms is a production-ready Flutter monorepo framework designed to accele
 - **Type Safety** - Full Dart 3+ support with sound null safety
 - **Extensible** - Easy to add, replace, or remove infrastructure modules
 - **Composable Demo** - Example app defaults to logger + secure storage, with cache/network as opt-in modules
+- **Structured Logging** - `ILogger` supports contextual `extras` for machine-readable logs
 
 ## Architecture
 
@@ -125,7 +128,7 @@ flutter-arms/
 
 ### Prerequisites
 
-- [Flutter 3.35.6](https://flutter.dev/docs/get-started/install) or higher
+- [Flutter 3.35.6](https://flutter.dev/docs/get-started/install) (recommended via FVM)
 - Dart SDK ^3.9.2 (included with Flutter)
 
 ### Installation
@@ -144,6 +147,12 @@ dart pub global activate melos
 melos bootstrap
 ```
 
+Optional (recommended) to align local tooling with CI:
+
+```bash
+fvm use
+```
+
 This will:
 - Install all package dependencies
 - Link local packages together
@@ -158,6 +167,10 @@ flutter run
 ```
 
 Select your target device when prompted.
+
+> Note: Generated files (`*.g.dart`, `*.freezed.dart`, `*.gr.dart`) are not
+> committed. Always run code generation before analyzing, testing, or running
+> the example app.
 
 ## Usage
 
@@ -339,13 +352,36 @@ melos bootstrap
 # Run tests for all packages
 melos exec -- flutter test
 
+# CI required baseline (main workflow):
+# - flutter analyze
+# - flutter test
+
 # Run tests for specific package
 cd packages/core
 flutter test
 
-# Run with coverage
-flutter test --coverage
+# Staged quality check (manual / scheduled workflow):
+# 1) collect coverage
+melos exec --scope="core" --scope="interfaces" --scope="module_logger" --scope="module_storage" --scope="module_cache" --scope="module_network" --scope="example" -- flutter test --coverage
+# 2) enforce staged coverage gate
+scripts/check_coverage.sh
+
+# The gate checks: core/interfaces/module_*/app/example
+# and fails if any package coverage report is missing or empty.
+
+# Override thresholds if needed
+MIN_TOTAL_COVERAGE=60 MIN_PACKAGE_COVERAGE=50 scripts/check_coverage.sh
+
+# Verify example app (code generation required)
+cd app/example
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze
+flutter test
 ```
+
+### Release Notes
+
+- Simple release note template: [docs/release-notes.md](docs/release-notes.md)
 
 ### Code Generation
 
@@ -363,6 +399,10 @@ dart run build_runner watch --delete-conflicting-outputs
 # Clean generated files
 dart run build_runner clean
 ```
+
+## Advanced Docs
+
+- Production operations runbook: [docs/advanced/production-runbook.md](docs/advanced/production-runbook.md)
 
 ## Tech Stack
 

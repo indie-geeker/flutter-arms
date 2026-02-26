@@ -11,13 +11,28 @@ class _FakeLogger implements ILogger {
   void addOutput(LogOutput output) {}
 
   @override
-  void debug(String message, {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void debug(
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
 
   @override
-  void error(String message, {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void error(
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
 
   @override
-  void fatal(String message, {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void fatal(
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
 
   @override
   void info(String message, {Map<String, dynamic>? extras}) {}
@@ -26,13 +41,24 @@ class _FakeLogger implements ILogger {
   void init({LogLevel level = LogLevel.debug, List<LogOutput>? outputs}) {}
 
   @override
-  void log(LogLevel level, String message, {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void log(
+    LogLevel level,
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
 
   @override
   void setLevel(LogLevel level) {}
 
   @override
-  void warning(String message, {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void warning(
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
 }
 
 class _FakeCacheManager implements ICacheManager {
@@ -56,13 +82,13 @@ class _FakeCacheManager implements ICacheManager {
 
   @override
   Future<CacheStats> getStats() async => CacheStats(
-        totalKeys: 0,
-        memoryKeys: 0,
-        diskKeys: 0,
-        totalSize: 0,
-        hitCount: 0,
-        missCount: 0,
-      );
+    totalKeys: 0,
+    memoryKeys: 0,
+    diskKeys: 0,
+    totalSize: 0,
+    hitCount: 0,
+    missCount: 0,
+  );
 
   @override
   Future<void> init() async {}
@@ -160,7 +186,8 @@ class _RecoveryInterceptor implements INetworkInterceptor {
   Future<NetworkRequest?> onRequest(NetworkRequest request) async => request;
 
   @override
-  Future<NetworkResponse<T>> onResponse<T>(NetworkResponse<T> response) async => response;
+  Future<NetworkResponse<T>> onResponse<T>(NetworkResponse<T> response) async =>
+      response;
 
   @override
   Future<NetworkResponse<T>> onError<T>(NetworkException error) async {
@@ -174,12 +201,81 @@ class _RecoveryInterceptor implements INetworkInterceptor {
 
 void main() {
   group('DioHttpClient interceptors', () {
+    test('applies default headers and send timeout from constructor', () async {
+      final adapter = _FakeAdapter(
+        (_) => dio.ResponseBody.fromString(
+          '{"ok":true}',
+          200,
+          headers: {
+            'content-type': ['application/json'],
+          },
+        ),
+      );
+      final dioClient = dio.Dio()
+        ..httpClientAdapter = adapter
+        ..options.responseType = dio.ResponseType.json;
+      final client = DioHttpClient(
+        baseUrl: 'https://example.com',
+        logger: _FakeLogger(),
+        cacheManager: _FakeCacheManager(),
+        dioClient: dioClient,
+        sendTimeout: const Duration(seconds: 7),
+        defaultHeaders: const {'X-App': 'flutter-arms'},
+      );
+
+      final response = await client.get<Map<String, dynamic>>('/test');
+
+      expect(response.isSuccess, true);
+      expect(adapter.lastOptions?.headers['X-App'], 'flutter-arms');
+      expect(adapter.lastOptions?.sendTimeout, const Duration(seconds: 7));
+    });
+
+    test(
+      'uses default cache options when request cache options are omitted',
+      () async {
+        final adapter = _FakeAdapter(
+          (_) => dio.ResponseBody.fromString(
+            '{"ok":true}',
+            200,
+            headers: {
+              'content-type': ['application/json'],
+            },
+          ),
+        );
+        final dioClient = dio.Dio()
+          ..httpClientAdapter = adapter
+          ..options.responseType = dio.ResponseType.json;
+        final client = DioHttpClient(
+          baseUrl: 'https://example.com',
+          logger: _FakeLogger(),
+          cacheManager: _FakeCacheManager(),
+          dioClient: dioClient,
+          defaultCacheOptions: const NetworkCacheOptions(
+            enabled: true,
+            policy: CachePolicy.cacheFirst,
+          ),
+        );
+
+        final response = await client.get<Map<String, dynamic>>('/test');
+
+        expect(response.isSuccess, true);
+        final cacheOptions =
+            adapter.lastOptions?.extra[NetworkCacheOptions.extraKey]
+                as NetworkCacheOptions?;
+        expect(cacheOptions, isNotNull);
+        expect(cacheOptions?.enabled, true);
+        expect(cacheOptions?.policy, CachePolicy.cacheFirst);
+      },
+    );
+
     test('applies onRequest modifications', () async {
       final adapter = _FakeAdapter(
         (_) => dio.ResponseBody.fromString(
           '{"ok":true}',
           200,
-          headers: {'content-type': ['application/json']},
+          headers: {
+            'content-type': ['application/json'],
+          },
         ),
       );
       final dioClient = dio.Dio()
@@ -194,7 +290,10 @@ void main() {
 
       client.addInterceptor(_HeaderInterceptor());
 
-      final response = await client.get<Map<String, dynamic>>('/test', headers: {'A': 'B'});
+      final response = await client.get<Map<String, dynamic>>(
+        '/test',
+        headers: {'A': 'B'},
+      );
 
       expect(response.isSuccess, true);
       expect(adapter.lastOptions?.headers['X-Test'], '1');
@@ -205,7 +304,9 @@ void main() {
         (_) => dio.ResponseBody.fromString(
           '{"ok":true}',
           200,
-          headers: {'content-type': ['application/json']},
+          headers: {
+            'content-type': ['application/json'],
+          },
         ),
       );
       final dioClient = dio.Dio()

@@ -56,12 +56,31 @@ void main() {
       expect(mockOutput.entries[0].level, LogLevel.info);
     });
 
+    test('should preserve extras in log entry', () {
+      logger.init(level: LogLevel.debug, outputs: [mockOutput]);
+
+      logger.info(
+        'info with extras',
+        extras: {'traceId': 'trace-1', 'attempt': 2},
+      );
+
+      expect(mockOutput.entries.length, 1);
+      expect(mockOutput.entries[0].extras, {
+        'traceId': 'trace-1',
+        'attempt': 2,
+      });
+    });
+
     test('should log warning messages with error and stackTrace', () {
       logger.init(level: LogLevel.debug, outputs: [mockOutput]);
       final testError = Exception('test error');
       final testStack = StackTrace.current;
 
-      logger.warning('warning message', error: testError, stackTrace: testStack);
+      logger.warning(
+        'warning message',
+        error: testError,
+        stackTrace: testStack,
+      );
 
       expect(mockOutput.entries.length, 1);
       expect(mockOutput.entries[0].message, 'warning message');
@@ -283,6 +302,19 @@ void main() {
       expect(json['stackTrace'], contains('stack trace here'));
     });
 
+    test('should include extras in JSON output', () {
+      final entry = LogEntry(
+        level: LogLevel.info,
+        message: 'with extras',
+        extras: {'traceId': 'trace-2', 'userId': 42},
+      );
+
+      final result = formatter.format(entry);
+      final json = jsonDecode(result);
+
+      expect(json['extras'], {'traceId': 'trace-2', 'userId': 42});
+    });
+
     test('should include tag when present', () {
       final entry = LogEntry(
         level: LogLevel.info,
@@ -297,10 +329,7 @@ void main() {
     });
 
     test('should omit null fields', () {
-      final entry = LogEntry(
-        level: LogLevel.info,
-        message: 'simple message',
-      );
+      final entry = LogEntry(level: LogLevel.info, message: 'simple message');
 
       final result = formatter.format(entry);
       final json = jsonDecode(result);
@@ -325,10 +354,7 @@ void main() {
   group('ConsoleOutput Tests', () {
     test('should write formatted output', () {
       final output = ConsoleOutput(useColors: false);
-      final entry = LogEntry(
-        level: LogLevel.info,
-        message: 'console test',
-      );
+      final entry = LogEntry(level: LogLevel.info, message: 'console test');
 
       // Should not throw
       expect(() => output.write(entry), returnsNormally);
@@ -338,7 +364,10 @@ void main() {
       final output = ConsoleOutput(useColors: true);
       final entry = LogEntry(level: LogLevel.error, message: 'error');
       final entryDebug = LogEntry(level: LogLevel.debug, message: 'debug');
-      final entryWarning = LogEntry(level: LogLevel.warning, message: 'warning');
+      final entryWarning = LogEntry(
+        level: LogLevel.warning,
+        message: 'warning',
+      );
 
       // Should not throw - color codes will be added
       expect(() => output.write(entry), returnsNormally);
@@ -420,14 +449,19 @@ void main() {
     });
 
     test('should rotate file when size exceeds limit', () async {
-      final output = FileOutput(testFilePath, maxFileSize: 100); // Very small limit
+      final output = FileOutput(
+        testFilePath,
+        maxFileSize: 100,
+      ); // Very small limit
 
       // Write enough data to exceed limit
       for (int i = 0; i < 10; i++) {
-        output.write(LogEntry(
-          level: LogLevel.info,
-          message: 'This is a long message to exceed the file size limit $i',
-        ));
+        output.write(
+          LogEntry(
+            level: LogLevel.info,
+            message: 'This is a long message to exceed the file size limit $i',
+          ),
+        );
         await Future.delayed(Duration(milliseconds: 10));
       }
 
@@ -526,7 +560,9 @@ void main() {
     });
 
     test('should dispose file outputs on module dispose', () async {
-      final tempDir = await Directory.systemTemp.createTemp('logger_module_test_');
+      final tempDir = await Directory.systemTemp.createTemp(
+        'logger_module_test_',
+      );
       final testFilePath = '${tempDir.path}/test.log';
       final fileOutput = FileOutput(testFilePath);
 

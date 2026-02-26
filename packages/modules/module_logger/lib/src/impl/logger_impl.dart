@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/logger/log_level.dart';
@@ -11,10 +10,7 @@ class LoggerImpl implements ILogger {
   final List<LogOutput> _outputs = [];
 
   @override
-  void init({
-    LogLevel level = LogLevel.debug,
-    List<LogOutput>? outputs,
-  }) {
+  void init({LogLevel level = LogLevel.debug, List<LogOutput>? outputs}) {
     _level = level;
     if (outputs != null) {
       _outputs.addAll(outputs);
@@ -23,13 +19,18 @@ class LoggerImpl implements ILogger {
 
   @override
   void debug(
-      String message, {
-        dynamic error,
-        StackTrace? stackTrace,
-        Map<String, dynamic>? extras,
-      }) {
-    log(LogLevel.debug, message,
-        error: error, stackTrace: stackTrace, extras: extras);
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
+    log(
+      LogLevel.debug,
+      message,
+      error: error,
+      stackTrace: stackTrace,
+      extras: extras,
+    );
   }
 
   @override
@@ -39,45 +40,60 @@ class LoggerImpl implements ILogger {
 
   @override
   void warning(
-      String message, {
-        dynamic error,
-        StackTrace? stackTrace,
-        Map<String, dynamic>? extras,
-      }) {
-    log(LogLevel.warning, message,
-        error: error, stackTrace: stackTrace, extras: extras);
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
+    log(
+      LogLevel.warning,
+      message,
+      error: error,
+      stackTrace: stackTrace,
+      extras: extras,
+    );
   }
 
   @override
   void error(
-      String message, {
-        dynamic error,
-        StackTrace? stackTrace,
-        Map<String, dynamic>? extras,
-      }) {
-    log(LogLevel.error, message,
-        error: error, stackTrace: stackTrace, extras: extras);
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
+    log(
+      LogLevel.error,
+      message,
+      error: error,
+      stackTrace: stackTrace,
+      extras: extras,
+    );
   }
 
   @override
   void fatal(
-      String message, {
-        dynamic error,
-        StackTrace? stackTrace,
-        Map<String, dynamic>? extras,
-      }) {
-    log(LogLevel.fatal, message,
-        error: error, stackTrace: stackTrace, extras: extras);
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
+    log(
+      LogLevel.fatal,
+      message,
+      error: error,
+      stackTrace: stackTrace,
+      extras: extras,
+    );
   }
 
   @override
   void log(
-      LogLevel level,
-      String message, {
-        dynamic error,
-        StackTrace? stackTrace,
-        Map<String, dynamic>? extras,
-      }) {
+    LogLevel level,
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
     // 级别过滤
     if (level < _level) return;
 
@@ -86,6 +102,7 @@ class LoggerImpl implements ILogger {
       message: message,
       error: error,
       stackTrace: stackTrace,
+      extras: extras != null ? Map<String, dynamic>.from(extras) : null,
     );
 
     // 分发到所有输出器

@@ -21,5 +21,10 @@ flutter run
 
 ```bash
 cd app/example
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze
 flutter test
 ```
+
+Generated files are intentionally not committed in this repository. Keep running
+`build_runner` before local analyze/test and in CI.

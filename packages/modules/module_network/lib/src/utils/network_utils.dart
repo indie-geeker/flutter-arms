@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
@@ -8,9 +7,9 @@ class NetworkUtils {
   ///
   /// 基于 URL 和查询参数生成唯一的缓存键
   static String generateCacheKey(
-      String url,
-      Map<String, dynamic>? queryParameters,
-      ) {
+    String url,
+    Map<String, dynamic>? queryParameters,
+  ) {
     final uri = Uri.parse(url);
     final params = queryParameters ?? {};
 
@@ -31,9 +30,9 @@ class NetworkUtils {
 
   /// 生成缓存键的 MD5 哈希（更短）
   static String generateCacheKeyHash(
-      String url,
-      Map<String, dynamic>? queryParameters,
-      ) {
+    String url,
+    Map<String, dynamic>? queryParameters,
+  ) {
     final cacheKey = generateCacheKey(url, queryParameters);
     final bytes = utf8.encode(cacheKey);
     final digest = md5.convert(bytes);
@@ -45,7 +44,9 @@ class NetworkUtils {
   /// 安全地拼接基础 URL 和路径
   static String joinUrl(String baseUrl, String path) {
     // 移除 baseUrl 末尾的斜杠
-    final base = baseUrl.endsWith('/') ? baseUrl.substring(0, baseUrl.length - 1) : baseUrl;
+    final base = baseUrl.endsWith('/')
+        ? baseUrl.substring(0, baseUrl.length - 1)
+        : baseUrl;
 
     // 确保 path 以斜杠开头
     final p = path.startsWith('/') ? path : '/$path';
@@ -59,11 +60,13 @@ class NetworkUtils {
   static String encodeQueryParameters(Map<String, dynamic> params) {
     if (params.isEmpty) return '';
 
-    final encodedParams = params.entries.map((entry) {
-      final key = Uri.encodeComponent(entry.key);
-      final value = Uri.encodeComponent(entry.value.toString());
-      return '$key=$value';
-    }).join('&');
+    final encodedParams = params.entries
+        .map((entry) {
+          final key = Uri.encodeComponent(entry.key);
+          final value = Uri.encodeComponent(entry.value.toString());
+          return '$key=$value';
+        })
+        .join('&');
 
     return encodedParams;
   }
@@ -135,15 +138,16 @@ class NetworkUtils {
   }
 
   /// 添加查询参数到 URL
-  static String addQueryParameters(
-      String url,
-      Map<String, dynamic> params,
-      ) {
+  static String addQueryParameters(String url, Map<String, dynamic> params) {
     if (params.isEmpty) return url;
 
     final uri = Uri.parse(url);
-    final queryParams = Map<String, dynamic>.from(uri.queryParameters)
-      ..addAll(params);
+    final queryParams = Map<String, String>.from(uri.queryParameters)
+      ..addEntries(
+        params.entries.map(
+          (entry) => MapEntry(entry.key, entry.value.toString()),
+        ),
+      );
 
     return uri.replace(queryParameters: queryParams).toString();
   }

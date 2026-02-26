@@ -11,6 +11,7 @@ coverage/
 lib/generated_plugin_registrant.dart
 
 # Code generation (build_runner)
+# Policy: generated files are not committed; CI regenerates before analyze/test.
 *.g.dart
 *.freezed.dart
 *.gr.dart
@@ -160,4 +161,3 @@ logs/
 *.tmp
 *.temp
 .cache/
-

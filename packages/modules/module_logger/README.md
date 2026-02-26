@@ -11,6 +11,7 @@ Logger module for flutter-arms.
 - Multiple output channels (`ConsoleOutput`, `FileOutput`)
 - Log level filtering
 - Safe output dispatch (single output failure does not break the log pipeline)
+- Structured log `extras` propagation across logger -> entry -> formatter/output
 
 ## Usage
 
@@ -22,6 +23,16 @@ LoggerModule(
     FileOutput('/tmp/app.log'),
   ],
 )
+```
+
+```dart
+logger.info(
+  'User signed in',
+  extras: {
+    'userId': 'u-123',
+    'traceId': 'trace-abc',
+  },
+);
 ```
 
 ## Security Note

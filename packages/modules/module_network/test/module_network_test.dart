@@ -30,6 +30,31 @@ void main() {
 
       expect(module.dependencies, [ILogger, ICacheManager]);
     });
+
+    test('should carry advanced config values from NetworkConfig', () {
+      final proxyConfig = ProxyConfig(
+        host: '127.0.0.1',
+        port: 8888,
+        username: 'user',
+        password: 'pass',
+      );
+      final config = NetworkConfig(
+        baseUrl: 'https://example.com',
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 20),
+        sendTimeout: const Duration(seconds: 30),
+        defaultHeaders: const {'X-App': 'flutter-arms', 'X-Env': 'test'},
+        defaultCacheDuration: const Duration(minutes: 8),
+        proxyConfig: proxyConfig,
+      );
+
+      final module = NetworkModule.fromConfig(config);
+
+      expect(module.sendTimeout, const Duration(seconds: 30));
+      expect(module.defaultHeaders, {'X-App': 'flutter-arms', 'X-Env': 'test'});
+      expect(module.defaultCacheDuration, const Duration(minutes: 8));
+      expect(module.proxyConfig, same(proxyConfig));
+    });
   });
 
   group('LoggingInterceptor', () {
@@ -48,10 +73,7 @@ void main() {
         data: {
           'username': 'alice',
           'password': '123456',
-          'nested': {
-            'refresh_token': 'refresh-secret',
-            'note': 'safe',
-          },
+          'nested': {'refresh_token': 'refresh-secret', 'note': 'safe'},
         },
       );
 
@@ -84,10 +106,7 @@ void main() {
         data: {
           'name': 'Alice',
           'access_token': 'access-secret',
-          'meta': {
-            'api_key': 'api-secret',
-            'region': 'us',
-          },
+          'meta': {'api_key': 'api-secret', 'region': 'us'},
         },
       );
 
@@ -189,10 +208,16 @@ class _NoopRequestHandler extends RequestInterceptorHandler {
   void next(RequestOptions requestOptions) {}
 
   @override
-  void reject(DioException error, [bool callFollowingErrorInterceptor = false]) {}
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {}
 
   @override
-  void resolve(Response response, [bool callFollowingResponseInterceptor = false]) {}
+  void resolve(
+    Response response, [
+    bool callFollowingResponseInterceptor = false,
+  ]) {}
 }
 
 class _NoopResponseHandler extends ResponseInterceptorHandler {
@@ -200,7 +225,10 @@ class _NoopResponseHandler extends ResponseInterceptorHandler {
   void next(Response response) {}
 
   @override
-  void reject(DioException error, [bool callFollowingErrorInterceptor = false]) {}
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {}
 
   @override
   void resolve(Response response) {}
