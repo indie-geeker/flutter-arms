@@ -60,6 +60,11 @@ class CacheModule implements IModule {
   @override
   Future<void> dispose() async {
     final cacheManager = _locator.get<ICacheManager>();
+    if (cacheManager is MultiLevelCacheManager) {
+      await cacheManager.disposeMemory();
+      return;
+    }
+    // 回退路径：未知实现时保持原有语义（完整清理）。
     await cacheManager.clear();
   }
 }

@@ -8,6 +8,13 @@ import 'package:test/test.dart';
 
 void main() {
   group('NetworkModule', () {
+    test('should disable cache by default for direct constructor', () {
+      final module = NetworkModule(baseUrl: 'https://example.com');
+
+      expect(module.enableCache, false);
+      expect(module.dependencies, [ILogger]);
+    });
+
     test('should derive dependencies from config when cache is disabled', () {
       final config = NetworkConfig(
         baseUrl: 'https://example.com',

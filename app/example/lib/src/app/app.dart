@@ -2,8 +2,11 @@ import 'package:core/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/logger/log_level.dart';
+import 'package:module_cache/module_cache.dart';
 import 'package:module_logger/module_logger.dart';
+import 'package:module_network/module_network.dart';
 import 'package:module_storage/storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../l10n/app_localizations.dart';
@@ -13,6 +16,11 @@ import '../presentation/state/locale_state.dart';
 import '../router/app_router.dart';
 
 part 'app.g.dart';
+
+const bool kEnableFullStackProfile = bool.fromEnvironment(
+  'ARMS_EXAMPLE_FULL_STACK',
+  defaultValue: false,
+);
 
 /// 应用路由 Provider
 ///
@@ -24,20 +32,19 @@ AppRouter appRouter(Ref ref) => AppRouter();
 ///
 /// 使用 Clean Architecture 和模块化架构
 class ArmsApp extends StatelessWidget {
-  const ArmsApp({super.key});
+  const ArmsApp({
+    super.key,
+    this.enableFullStackProfile = kEnableFullStackProfile,
+  });
+
+  final bool enableFullStackProfile;
 
   @override
   Widget build(BuildContext context) {
     return AppInitializerWidget(
-      modules: [
-        // Logger Module - 最先初始化
-        LoggerModule(initialLevel: LogLevel.debug),
-
-        // Storage Module - 用于持久化
-        StorageModule(
-          config: StorageConfig(enableSecureStorage: true),
-        ),
-      ],
+      modules: buildBootstrapModules(
+        enableFullStackProfile: enableFullStackProfile,
+      ),
 
       // 自定义加载界面
       loadingBuilder: (context, progress) {
@@ -79,6 +86,31 @@ class ArmsApp extends StatelessWidget {
       child: const ProviderScope(child: _ArmsMainApp()),
     );
   }
+}
+
+List<IModule> buildBootstrapModules({
+  bool enableFullStackProfile = kEnableFullStackProfile,
+  bool enableSecureStorage = true,
+}) {
+  final modules = <IModule>[
+    LoggerModule(initialLevel: LogLevel.debug),
+    StorageModule(
+      config: StorageConfig(enableSecureStorage: enableSecureStorage),
+    ),
+  ];
+
+  if (enableFullStackProfile) {
+    modules.addAll([
+      CacheModule(),
+      NetworkModule(
+        baseUrl: 'https://api.example.com',
+        enableCache: true,
+        connectTimeout: const Duration(seconds: 30),
+      ),
+    ]);
+  }
+
+  return modules;
 }
 
 /// 应用主体（在模块初始化后显示）

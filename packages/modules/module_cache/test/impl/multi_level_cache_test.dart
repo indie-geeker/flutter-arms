@@ -356,6 +356,20 @@ void main() {
         final exists = await cacheManager.containsKey('expired');
         expect(exists, false);
       });
+
+      test('should return false for expired key on disk', () async {
+        final expiredEntry = {
+          'key': 'expired_disk',
+          'value': 'old_value',
+          'createdAt': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
+          'expiresAt': DateTime.now().subtract(Duration(hours: 1)).toIso8601String(),
+          'policy': 'normal',
+        };
+        await mockStorage.setJson('cache:expired_disk', expiredEntry);
+
+        final exists = await cacheManager.containsKey('expired_disk');
+        expect(exists, false);
+      });
     });
 
     group('LRU Eviction', () {
@@ -558,6 +572,16 @@ void main() {
 
         final stats = await cacheManager.getStats();
         expect(stats.totalKeys >= 2, true);
+      });
+
+      test('should deduplicate total keys across memory and disk', () async {
+        await cacheManager.put('shared', 'value', policy: CachePolicy.normal);
+        await cacheManager.put('memory_only', 'value', policy: CachePolicy.memoryOnly);
+
+        final stats = await cacheManager.getStats();
+        expect(stats.memoryKeys, 2);
+        expect(stats.diskKeys, 1);
+        expect(stats.totalKeys, 2);
       });
 
       test('should track memory keys', () async {

@@ -21,6 +21,9 @@ NetworkModule(
 )
 ```
 
+`enableCache` defaults to `false`. Set it to `true` only when `ICacheManager`
+is available in the module graph.
+
 ### Initialize from `NetworkConfig`
 
 ```dart

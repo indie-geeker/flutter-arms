@@ -18,6 +18,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
+          # Keep this pinned version aligned with .fvmrc and README.
           flutter-version: 3.35.6
           channel: stable
 
@@ -34,25 +35,27 @@ jobs:
           cd app/example
           dart run build_runner build --delete-conflicting-outputs
 
-      - name: Analyze Core Packages
+      - name: Example Profile Smoke
         run: |
-          melos exec --scope="core" -- flutter analyze
-          melos exec --scope="interfaces" -- flutter analyze
-          melos exec --scope="module_logger" -- flutter analyze
-          melos exec --scope="module_storage" -- flutter analyze
-          melos exec --scope="module_cache" -- flutter analyze
-          melos exec --scope="module_network" -- flutter analyze
-          melos exec --scope="example" -- flutter analyze
+          cd app/example
+          flutter test test/app_bootstrap_env_smoke_test.dart --dart-define=ARMS_EXPECT_FULL_STACK=false
+          flutter test test/app_bootstrap_env_smoke_test.dart --dart-define=ARMS_EXAMPLE_FULL_STACK=true --dart-define=ARMS_EXPECT_FULL_STACK=true
 
-      - name: Test Core Packages
+      - name: Analyze Workspace
         run: |
-          melos exec --scope="core" -- flutter test
-          melos exec --scope="interfaces" -- flutter test
-          melos exec --scope="module_logger" -- flutter test
-          melos exec --scope="module_storage" -- flutter test
-          melos exec --scope="module_cache" -- flutter test
-          melos exec --scope="module_network" -- flutter test
-          melos exec --scope="example" -- flutter test
+          melos exec --concurrency=1 -- flutter analyze
+
+      - name: Collect Coverage Reports
+        run: |
+          melos exec --concurrency=1 -- flutter test --coverage
+
+      - name: Coverage Gate
+        env:
+          MIN_TOTAL_COVERAGE: 60
+          MIN_PACKAGE_COVERAGE: 50
+        run: |
+          chmod +x scripts/check_coverage.sh
+          scripts/check_coverage.sh
 
       - name: Verify Empty Test Files
         run: |

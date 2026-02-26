@@ -23,7 +23,7 @@ dependencies:
   # router
   auto_route: ^10.3.0
   # network
-  dio: ^5.9.0
+  dio: ^5.9.1
   # json
   json_annotation: ^4.9.0
   # extend models
@@ -31,10 +31,10 @@ dependencies:
   # extra tools
   crypto: ^3.0.7
   hive: ^2.2.3
-  get_it: ^9.2.0
+  get_it: ^9.2.1
 
 dev_dependencies:
-  melos: ^7.3.0
+  melos: ^7.4.0
   flutter_lints: ^6.0.0
   build_runner: ^2.11.1
   custom_lint: ^0.8.0

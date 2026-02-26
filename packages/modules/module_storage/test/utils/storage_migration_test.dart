@@ -298,6 +298,80 @@ void main() {
         // Should still have original data after rollback attempt
         expect(mockStorage.containsKey('original_value'), isTrue);
       });
+
+      test('should restore full snapshot when migration fails mid-chain', () async {
+        final replaceStorage = <String, dynamic>{
+          'foo': 'bar',
+          StorageMigration.versionKey: 0,
+        };
+        final replaceContext = StorageMigrationContext(
+          getData: () async => Map<String, dynamic>.from(replaceStorage),
+          setData: (data) async {
+            replaceStorage
+              ..clear()
+              ..addAll(data);
+          },
+          deleteKey: (key) async => replaceStorage.remove(key),
+          hasKey: (key) async => replaceStorage.containsKey(key),
+          getKeys: () async => replaceStorage.keys.toSet(),
+          clear: () async => replaceStorage.clear(),
+        );
+
+        migration.registerMigrations([
+          TestMigrationScript(
+            fromVersion: 0,
+            toVersion: 1,
+            description: 'v0 -> v1',
+            onMigrate: (ctx) async {
+              final data = await ctx.getData();
+              data['step1'] = true;
+              await ctx.setData(data);
+            },
+          ),
+          FailingStepMigrationScript(
+            fromVersion: 1,
+            toVersion: 2,
+            description: 'v1 -> v2 fail',
+          ),
+        ]);
+
+        await expectLater(
+          migration.migrate(replaceContext),
+          throwsA(isA<MigrationException>()),
+        );
+
+        expect(
+          replaceStorage,
+          equals({
+            'foo': 'bar',
+            StorageMigration.versionKey: 0,
+          }),
+        );
+      });
+
+      test('should cleanup backup data after successful migration', () async {
+        mockStorage = {'foo': 'bar'};
+
+        migration.registerMigration(
+          TestMigrationScript(
+            fromVersion: 0,
+            toVersion: 1,
+            description: 'v0 -> v1',
+            onMigrate: (ctx) async {
+              final data = await ctx.getData();
+              data['step'] = 'done';
+              await ctx.setData(data);
+            },
+          ),
+        );
+
+        await migration.migrate(context);
+
+        final hasBackupKeys = mockStorage.keys.any(
+          (key) => key.startsWith(StorageMigration.backupPrefix),
+        );
+        expect(hasBackupKeys, isFalse);
+      });
     });
   });
 }
@@ -373,6 +447,37 @@ class FailingMigrationScript implements IMigrationScript {
   @override
   Future<bool> migrate(StorageMigrationContext context) async {
     return false; // Always fail
+  }
+
+  @override
+  Future<void> rollback(StorageMigrationContext context) async {
+    // Do nothing for test
+  }
+}
+
+class FailingStepMigrationScript implements IMigrationScript {
+  @override
+  final int fromVersion;
+
+  @override
+  final int toVersion;
+
+  @override
+  final String description;
+
+  FailingStepMigrationScript({
+    required this.fromVersion,
+    required this.toVersion,
+    required this.description,
+  });
+
+  @override
+  Future<bool> migrate(StorageMigrationContext context) async {
+    final data = await context.getData();
+    data['should_not_persist'] = true;
+    data[StorageMigration.versionKey] = 99;
+    await context.setData(data);
+    return false;
   }
 
   @override

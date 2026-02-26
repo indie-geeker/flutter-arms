@@ -21,6 +21,27 @@ class InitializationProgress {
   double get percentage => total > 0 ? current / total : 0.0;
 }
 
+/// 初始化生命周期控制器
+///
+/// 用于在应用退出等可等待的时机显式触发模块销毁。
+class AppInitializerController {
+  Future<void> Function()? _shutdownHandler;
+
+  Future<void> shutdown() async {
+    final handler = _shutdownHandler;
+    if (handler == null) return;
+    await handler();
+  }
+
+  void _attach(Future<void> Function() handler) {
+    _shutdownHandler = handler;
+  }
+
+  void _detach() {
+    _shutdownHandler = null;
+  }
+}
+
 /// 应用初始化 Widget
 /// 提供可视化的初始化过程，支持自定义加载和错误界面
 class AppInitializerWidget extends StatefulWidget {
@@ -33,6 +54,9 @@ class AppInitializerWidget extends StatefulWidget {
   /// 自定义错误界面构建器
   final Widget Function(BuildContext, Object)? errorBuilder;
 
+  /// 可选的生命周期控制器，用于显式触发模块销毁
+  final AppInitializerController? controller;
+
   /// 初始化成功后显示的应用主体
   final Widget child;
 
@@ -42,6 +66,7 @@ class AppInitializerWidget extends StatefulWidget {
     required this.child,
     this.loadingBuilder,
     this.errorBuilder,
+    this.controller,
   });
 
   @override
@@ -51,6 +76,7 @@ class AppInitializerWidget extends StatefulWidget {
 class _AppInitializerWidgetState extends State<AppInitializerWidget> {
   late Future<void> _initializationFuture;
   final ModuleRegistry _registry = ModuleRegistry();
+  Future<void>? _shutdownFuture;
   InitializationProgress _progress = InitializationProgress(
     message: 'Starting initialization...',
     current: 0,
@@ -60,7 +86,17 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
   @override
   void initState() {
     super.initState();
+    widget.controller?._attach(_shutdownModules);
     _initializationFuture = _initialize();
+  }
+
+  @override
+  void didUpdateWidget(covariant AppInitializerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?._detach();
+      widget.controller?._attach(_shutdownModules);
+    }
   }
 
   Future<void> _initialize() async {
@@ -199,8 +235,12 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
 
   @override
   void dispose() {
-    // 应用退出时清理资源
-    _registry.disposeAll();
+    widget.controller?._detach();
     super.dispose();
+  }
+
+  Future<void> _shutdownModules() {
+    _shutdownFuture ??= _registry.disposeAll();
+    return _shutdownFuture!;
   }
 }

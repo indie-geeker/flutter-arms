@@ -141,18 +141,45 @@ class MultiLevelCacheManager implements ICacheManager {
     _missCount = 0;
   }
 
+  /// 模块销毁时仅清理进程内内存，不清理磁盘持久缓存。
+  Future<void> disposeMemory() async {
+    _memoryCache.clear();
+    _hitCount = 0;
+    _missCount = 0;
+  }
+
   @override
   Future<bool> containsKey(String key) async {
+    final storageKey = _cacheKey(key);
+
     // 检查内存
     if (_memoryCache.containsKey(key)) {
       final entry = _memoryCache[key]!;
       if (!entry.isExpired) {
         return true;
       }
+      _memoryCache.remove(key);
     }
 
-    // 检查磁盘
-    return await _storage.containsKey(_cacheKey(key));
+    // 检查磁盘并验证是否过期
+    try {
+      final json = await _storage.getJson(storageKey);
+      if (json == null) {
+        return false;
+      }
+
+      final entry = CacheEntry.fromJson(json, registry: _valueRegistry);
+      if (entry.isExpired) {
+        await _storage.remove(storageKey);
+        return false;
+      }
+
+      return true;
+    } catch (e, stackTrace) {
+      _logger.error('Failed to check cache key existence',
+          error: e, stackTrace: stackTrace);
+      return false;
+    }
   }
 
   @override
@@ -188,12 +215,16 @@ class MultiLevelCacheManager implements ICacheManager {
   @override
   Future<CacheStats> getStats() async {
     final keys = await _storage.getKeys();
-    final diskKeys = keys.where((k) => k.startsWith('cache:')).length;
+    final diskCacheKeys = keys
+        .where((k) => k.startsWith('cache:'))
+        .map((k) => k.substring('cache:'.length))
+        .toSet();
+    final totalKeys = {..._memoryCache.keys, ...diskCacheKeys}.length;
 
     return CacheStats(
-      totalKeys: _memoryCache.length + diskKeys,
+      totalKeys: totalKeys,
       memoryKeys: _memoryCache.length,
-      diskKeys: diskKeys,
+      diskKeys: diskCacheKeys.length,
       totalSize: await getCacheSize(),
       hitCount: _hitCount,
       missCount: _missCount,
