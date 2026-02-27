@@ -55,33 +55,17 @@ class LoginFormNotifier extends _$LoginFormNotifier {
 
   /// 更新用户名
   void updateUsername(String username) {
-    state = state.copyWith(username: username);
-    _validateUsername();
+    state = state.copyWith(username: username, usernameError: null);
   }
 
   /// 更新密码
   void updatePassword(String password) {
-    state = state.copyWith(password: password);
-    _validatePassword();
+    state = state.copyWith(password: password, passwordError: null);
   }
 
   /// 切换密码可见性
   void togglePasswordVisibility() {
     state = state.copyWith(obscurePassword: !state.obscurePassword);
-  }
-
-  /// 验证用户名
-  void _validateUsername() {
-    if (state.usernameError != null) {
-      state = state.copyWith(usernameError: null);
-    }
-  }
-
-  /// 验证密码
-  void _validatePassword() {
-    if (state.passwordError != null) {
-      state = state.copyWith(passwordError: null);
-    }
   }
 
   /// 清除所有错误

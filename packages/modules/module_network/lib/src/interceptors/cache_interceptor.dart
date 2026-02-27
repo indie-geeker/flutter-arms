@@ -151,15 +151,6 @@ class CacheInterceptor extends Interceptor {
     handler.next(response);
   }
 
-  /// 生成缓存键
-  String _generateCacheKey(RequestOptions options) {
-    // 使用 NetworkUtils 生成标准缓存键
-    return NetworkUtils.generateCacheKey(
-      options.uri.toString(),
-      options.queryParameters,
-    );
-  }
-
   String _resolveCacheKey(
     RequestOptions options,
     NetworkCacheOptions cacheOptions,
@@ -173,7 +164,10 @@ class CacheInterceptor extends Interceptor {
         options.queryParameters,
       );
     }
-    return _generateCacheKey(options);
+    return NetworkUtils.generateCacheKey(
+      options.uri.toString(),
+      options.queryParameters,
+    );
   }
 
   String? _encodeResponseData(dynamic data) {

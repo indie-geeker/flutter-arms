@@ -12,7 +12,7 @@ import '../notifiers/home_notifier.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  void _handleLogout(BuildContext context, WidgetRef ref) {
+  void _handleLogout(WidgetRef ref) {
     ref.read(homeProvider.notifier).logout();
   }
 
@@ -44,14 +44,14 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             tooltip: l10n.logout,
-            onPressed: () => _handleLogout(context, ref),
+            onPressed: () => _handleLogout(ref),
           ),
         ],
       ),
       body: Center(
         child: HomeContent(
           userState: userState,
-          onLogout: () => _handleLogout(context, ref),
+          onLogout: () => _handleLogout(ref),
         ),
       ),
     );

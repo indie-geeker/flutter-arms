@@ -129,8 +129,9 @@ class _ArmsMainApp extends ConsumerWidget {
         onGenerateRoute: (settings) {
           return MaterialPageRoute<void>(
             settings: settings,
-            builder: (_) =>
-                const Scaffold(body: Center(child: CircularProgressIndicator())),
+            builder: (_) => const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
           );
         },
       );
@@ -139,8 +140,8 @@ class _ArmsMainApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'FlutterArms Example',
       debugShowCheckedModeBanner: false,
-      theme: _buildLightTheme(themeState.colorScheme.color),
-      darkTheme: _buildDarkTheme(themeState.colorScheme.color),
+      theme: _buildTheme(themeState.colorScheme.color, Brightness.light),
+      darkTheme: _buildTheme(themeState.colorScheme.color, Brightness.dark),
       themeMode: themeState.themeMode,
       locale: localeState.appLocale.locale,
       supportedLocales: AppLocale.values.map((e) => e.locale),
@@ -154,28 +155,12 @@ class _ArmsMainApp extends ConsumerWidget {
     );
   }
 
-  /// 浅色主题
-  ThemeData _buildLightTheme(Color seedColor) {
+  ThemeData _buildTheme(Color seedColor, Brightness brightness) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: seedColor,
-        brightness: Brightness.light,
-      ),
-      cardTheme: CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-    );
-  }
-
-  /// 深色主题
-  ThemeData _buildDarkTheme(Color seedColor) {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: Brightness.dark,
+        brightness: brightness,
       ),
       cardTheme: CardThemeData(
         elevation: 2,
