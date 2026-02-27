@@ -1,12 +1,13 @@
 name: module_logger
-description: "A new Flutter package project."
+description: "Pluggable logging module implementing ILogger for flutter-arms."
 version: 0.0.1
-homepage:
+homepage: https://github.com/indie-geeker/flutter-arms
+repository: https://github.com/indie-geeker/flutter-arms
 publish_to: none
 
 environment:
-  sdk: ^3.9.2
-  flutter: ">=3.35.6"
+  sdk: ^3.11.0
+  flutter: ">=3.41.2"
 
 resolution: workspace
 
@@ -20,7 +21,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  test: ^1.26.3
   flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the

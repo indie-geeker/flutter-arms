@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:interfaces/interfaces.dart';
 import 'package:module_network/src/utils/network_error_handler.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('NetworkErrorHandler.handleDioException', () {

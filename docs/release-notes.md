@@ -23,8 +23,8 @@ Use this format for each release:
 
 Quick checklist before publishing:
 
-- `melos exec --scope="core" --scope="interfaces" --scope="module_logger" --scope="module_storage" --scope="module_cache" --scope="module_network" --scope="example" -- flutter analyze`
-- `melos exec --scope="core" --scope="interfaces" --scope="module_logger" --scope="module_storage" --scope="module_cache" --scope="module_network" --scope="example" -- flutter test`
+- `melos run analyze`
+- `melos run test`
 - If this is a quality stage or pre-release hardening cycle, also run coverage:
-  - `melos exec --scope="core" --scope="interfaces" --scope="module_logger" --scope="module_storage" --scope="module_cache" --scope="module_network" --scope="example" -- flutter test --coverage`
+  - `melos run test:coverage`
   - `scripts/check_coverage.sh`

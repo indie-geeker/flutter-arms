@@ -8,38 +8,26 @@ import 'package:module_storage/src/storage_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('StorageModule', () {
-    test('should expose logger dependency and key-value storage provider', () {
-      final module = StorageModule();
-
-      expect(module.dependencies, [ILogger]);
-      expect(module.provides, [IKeyValueStorage]);
-    });
-
-    test('should expose secure storage when enabled', () {
+  group('StorageModule disposal isolation', () {
+    test('dispose should close module-owned key-value storage', () async {
+      final keyValueStorage = RecordingKeyValueStorage();
+      final locator = RecordingServiceLocator(logger: NoopLogger());
       final module = StorageModule(
-        config: StorageConfig(enableSecureStorage: true),
+        keyValueStorageBuilder: ({required logger, required config}) {
+          return keyValueStorage;
+        },
       );
 
-      expect(module.provides, contains(IKeyValueStorage));
-      expect(module.provides, contains(ISecureStorage));
+      await module.register(locator);
+      await module.dispose();
+
+      expect(keyValueStorage.closeCount, 1);
     });
 
-    test('StorageConfig should provide expected defaults', () {
-      final config = StorageConfig();
-
-      expect(config.kvStorageBoxName, 'app_storage');
-      expect(config.baseDir, isNull);
-      expect(config.enableSecureStorage, isFalse);
-      expect(config.enableRelationalStorage, isFalse);
-      expect(config.databaseName, 'app.db');
-    });
-
-    test('should register storages created by injected builders', () async {
-      final keyValueStorage = _NoopKeyValueStorage();
-      final secureStorage = _NoopSecureStorage();
-      final locator = _SimpleServiceLocator(_NoopLogger());
-
+    test('dispose should close key-value and secure storage when enabled', () async {
+      final keyValueStorage = RecordingKeyValueStorage();
+      final secureStorage = RecordingSecureStorage();
+      final locator = RecordingServiceLocator(logger: NoopLogger());
       final module = StorageModule(
         config: StorageConfig(enableSecureStorage: true),
         keyValueStorageBuilder: ({required logger, required config}) {
@@ -49,17 +37,18 @@ void main() {
       );
 
       await module.register(locator);
+      await module.dispose();
 
-      expect(locator.get<IKeyValueStorage>(), same(keyValueStorage));
-      expect(locator.get<ISecureStorage>(), same(secureStorage));
+      expect(keyValueStorage.closeCount, 1);
+      expect(secureStorage.closeCount, 1);
     });
   });
 }
 
-class _SimpleServiceLocator implements IServiceLocator {
+class RecordingServiceLocator implements IServiceLocator {
   final Map<Type, dynamic> _services = {};
 
-  _SimpleServiceLocator(ILogger logger) {
+  RecordingServiceLocator({required ILogger logger}) {
     _services[ILogger] = logger;
   }
 
@@ -102,7 +91,7 @@ class _SimpleServiceLocator implements IServiceLocator {
   }
 }
 
-class _NoopLogger implements ILogger {
+class NoopLogger implements ILogger {
   @override
   void addOutput(LogOutput output) {}
 
@@ -157,12 +146,16 @@ class _NoopLogger implements ILogger {
   }) {}
 }
 
-class _NoopKeyValueStorage implements IKeyValueStorage {
+class RecordingKeyValueStorage implements IKeyValueStorage {
+  int closeCount = 0;
+
   @override
   Future<void> clear() async {}
 
   @override
-  Future<void> close() async {}
+  Future<void> close() async {
+    closeCount += 1;
+  }
 
   @override
   Future<bool> containsKey(String key) async => false;
@@ -216,12 +209,16 @@ class _NoopKeyValueStorage implements IKeyValueStorage {
   Future<void> setStringList(String key, List<String> value) async {}
 }
 
-class _NoopSecureStorage implements ISecureStorage {
+class RecordingSecureStorage implements ISecureStorage {
+  int closeCount = 0;
+
   @override
   Future<void> clear() async {}
 
   @override
-  Future<void> close() async {}
+  Future<void> close() async {
+    closeCount += 1;
+  }
 
   @override
   Future<bool> containsKey(String key) async => false;

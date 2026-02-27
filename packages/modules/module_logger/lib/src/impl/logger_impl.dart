@@ -12,9 +12,9 @@ class LoggerImpl implements ILogger {
   @override
   void init({LogLevel level = LogLevel.debug, List<LogOutput>? outputs}) {
     _level = level;
-    if (outputs != null) {
-      _outputs.addAll(outputs);
-    }
+    _outputs
+      ..clear()
+      ..addAll(outputs ?? const <LogOutput>[]);
   }
 
   @override

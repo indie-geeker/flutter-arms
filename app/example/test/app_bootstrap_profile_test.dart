@@ -40,6 +40,7 @@ void main() {
 
       final networkModule = modules.whereType<NetworkModule>().single;
       expect(networkModule.enableCache, isTrue);
+      expect(networkModule.baseUrl, 'https://jsonplaceholder.typicode.com');
       expect(networkModule.dependencies, containsAll([ILogger, ICacheManager]));
 
       final providedTypes = modules.expand((m) => m.provides).toSet();

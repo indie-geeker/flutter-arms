@@ -1,5 +1,7 @@
 name: example
-description: "A new Flutter project."
+description: "Reference app showcasing flutter-arms bootstrap profiles and feature slices."
+homepage: https://github.com/indie-geeker/flutter-arms
+repository: https://github.com/indie-geeker/flutter-arms
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -19,8 +21,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.9.2
-  flutter: ">=3.35.6"
+  sdk: ^3.11.0
+  flutter: ">=3.41.2"
 
 resolution: workspace
 # Dependencies specify other packages that your package needs in order to work.
@@ -51,11 +53,11 @@ dependencies:
     path: ../../packages/modules/module_network
 
   # State management
-  flutter_riverpod: ^3.0.3
-  riverpod_annotation: ^3.0.3
+  flutter_riverpod: ^3.1.0
+  riverpod_annotation: ^4.0.0
 
   # Routing
-  auto_route: ^10.3.0
+  auto_route: ^11.1.0
 
   # Code generation
   freezed_annotation: ^3.1.0
@@ -74,10 +76,10 @@ dev_dependencies:
 
   # Code generation
   build_runner: ^2.11.1
-  auto_route_generator: ^10.2.6
+  auto_route_generator: ^10.4.0
   freezed: ^3.2.3
   json_serializable: ^6.11.2
-  riverpod_generator: ^3.0.3
+  riverpod_generator: ^4.0.0+1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

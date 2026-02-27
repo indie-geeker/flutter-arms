@@ -4,7 +4,7 @@ import 'package:interfaces/logger/log_output.dart';
 import 'package:module_network/src/config/network_config.dart';
 import 'package:module_network/src/interceptors/logging_interceptor.dart';
 import 'package:module_network/src/network_module.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('NetworkModule', () {

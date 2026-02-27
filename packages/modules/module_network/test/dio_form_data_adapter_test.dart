@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:module_network/src/impl/dio_form_data_adapter.dart';
 import 'package:interfaces/interfaces.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DioFormDataAdapter', () {
