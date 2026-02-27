@@ -25,19 +25,23 @@ class LoginUseCase {
     // 1. 创建并验证用户名
     final username = Username.create(usernameStr);
     final usernameValidation = username.validate();
-    if (usernameValidation.isLeft()) {
-      return usernameValidation.flatMap(
-        (_) => left(const AuthFailure.unexpected('Unexpected error')),
-      );
+    final usernameFailure = usernameValidation.fold(
+      (failure) => failure,
+      (_) => null,
+    );
+    if (usernameFailure != null) {
+      return left(usernameFailure);
     }
 
     // 2. 创建并验证密码
     final password = Password.create(passwordStr);
     final passwordValidation = password.validate();
-    if (passwordValidation.isLeft()) {
-      return passwordValidation.flatMap(
-        (_) => left(const AuthFailure.unexpected('Unexpected error')),
-      );
+    final passwordFailure = passwordValidation.fold(
+      (failure) => failure,
+      (_) => null,
+    );
+    if (passwordFailure != null) {
+      return left(passwordFailure);
     }
 
     // 3. 调用仓储执行登录

@@ -40,8 +40,8 @@ melos bootstrap
 cd app/example
 dart run build_runner build --delete-conflicting-outputs
 cd ../..
-melos exec --scope="core" --scope="interfaces" --scope="module_logger" --scope="module_storage" --scope="module_cache" --scope="module_network" --scope="example" -- flutter analyze
-melos exec --scope="core" --scope="interfaces" --scope="module_logger" --scope="module_storage" --scope="module_cache" --scope="module_network" --scope="example" -- flutter test --coverage
+melos run analyze
+melos run test:coverage
 scripts/check_coverage.sh
 ```
 

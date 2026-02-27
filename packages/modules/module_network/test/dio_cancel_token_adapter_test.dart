@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:module_network/src/impl/dio_cancel_token_adapter.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('DioCancelTokenAdapter', () {

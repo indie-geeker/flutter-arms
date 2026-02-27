@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/logger/log_entity.dart';
 import 'package:interfaces/logger/log_level.dart';
@@ -145,6 +145,26 @@ void main() {
       expect(output2.entries.length, 1);
       expect(output1.entries[0].message, 'test message');
       expect(output2.entries[0].message, 'test message');
+    });
+
+    test('should replace outputs instead of appending on re-init', () {
+      final firstOutput = MockLogOutput();
+      final secondOutput = MockLogOutput();
+
+      logger.init(level: LogLevel.debug, outputs: [firstOutput]);
+      logger.info('before');
+
+      logger.init(level: LogLevel.debug, outputs: [secondOutput]);
+      logger.info('after');
+
+      expect(
+        firstOutput.entries.where((entry) => entry.message == 'after'),
+        isEmpty,
+      );
+      expect(
+        secondOutput.entries.where((entry) => entry.message == 'after'),
+        hasLength(1),
+      );
     });
 
     test('should add output dynamically', () {

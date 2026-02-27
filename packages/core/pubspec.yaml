@@ -1,12 +1,13 @@
 name: core
-description: "A new Flutter package project."
+description: "Core module orchestration, DI, and lifecycle utilities for flutter-arms."
 version: 0.0.1
-homepage:
+homepage: https://github.com/indie-geeker/flutter-arms
+repository: https://github.com/indie-geeker/flutter-arms
 publish_to: none
 
 environment:
-  sdk: ^3.9.2
-  flutter: ">=3.35.6"
+  sdk: ^3.11.0
+  flutter: ">=3.41.2"
 
 resolution: workspace
 
@@ -16,12 +17,11 @@ dependencies:
   interfaces:
     path: ../interfaces
   get_it: ^9.2.1
-  flutter_riverpod: ^3.0.3
+  flutter_riverpod: ^3.1.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  test: ^1.26.3
   flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the

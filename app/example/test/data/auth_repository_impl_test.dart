@@ -10,46 +10,46 @@ import '../support/test_doubles.dart';
 void main() {
   group('AuthRepositoryImpl', () {
     test(
-      'returns invalid username failure when username is too short',
+      'does not re-validate username length and still persists user',
       () async {
         final storage = InMemoryKeyValueStorage();
-        final repository = AuthRepositoryImpl(AuthLocalDataSource(storage));
+        final dataSource = AuthLocalDataSource(storage);
+        final repository = AuthRepositoryImpl(dataSource);
 
         final result = await repository.login(
           username: 'ab',
           password: 'secret',
         );
+        final persisted = await dataSource.getCurrentUser();
 
+        expect(result.isRight(), isTrue);
         expect(
-          result,
-          left(
-            const AuthFailure.invalidUsername(
-              'Username must be at least 3 characters',
-            ),
-          ),
+          result.getOrElse(() => throw StateError('expected success')).username,
+          'ab',
         );
+        expect(persisted?.username, 'ab');
       },
     );
 
     test(
-      'returns invalid password failure when password is too short',
+      'does not re-validate password length and still persists user',
       () async {
         final storage = InMemoryKeyValueStorage();
-        final repository = AuthRepositoryImpl(AuthLocalDataSource(storage));
+        final dataSource = AuthLocalDataSource(storage);
+        final repository = AuthRepositoryImpl(dataSource);
 
         final result = await repository.login(
           username: 'alice',
           password: '12',
         );
+        final persisted = await dataSource.getCurrentUser();
 
+        expect(result.isRight(), isTrue);
         expect(
-          result,
-          left(
-            const AuthFailure.invalidPassword(
-              'Password must be at least 3 characters',
-            ),
-          ),
+          result.getOrElse(() => throw StateError('expected success')).username,
+          'alice',
         );
+        expect(persisted?.username, 'alice');
       },
     );
 

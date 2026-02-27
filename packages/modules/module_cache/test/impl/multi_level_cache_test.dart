@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:interfaces/cache/cache_policy.dart';
 import 'package:module_cache/src/impl/multi_level_cache.dart';
 

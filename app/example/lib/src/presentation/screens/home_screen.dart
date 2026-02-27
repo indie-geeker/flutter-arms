@@ -1,7 +1,10 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:core/core.dart';
 import 'package:flutter/material.dart';
-import '../../../l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:interfaces/cache/i_cache_manager.dart';
+import 'package:interfaces/network/i_http_client.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../router/app_router.dart';
 import '../notifiers/home_notifier.dart';
 
@@ -16,10 +19,31 @@ class HomeScreen extends ConsumerWidget {
     ref.read(homeProvider.notifier).logout();
   }
 
+  bool _isNetworkDemoAvailable() {
+    final locator = ServiceLocator();
+    return locator.isRegistered<IHttpClient>() &&
+        locator.isRegistered<ICacheManager>();
+  }
+
+  void _handleNetworkDemoTap(BuildContext context, {required bool isAvailable}) {
+    if (isAvailable) {
+      context.router.push(const NetworkDemoRoute());
+      return;
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Full-stack profile is disabled. Run with ARMS_EXAMPLE_FULL_STACK=true.',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final userState = ref.watch(homeProvider);
+    final networkDemoAvailable = _isNetworkDemoAvailable();
 
     // 监听登出状态
     ref.listen(homeProvider, (previous, next) {
@@ -36,6 +60,14 @@ class HomeScreen extends ConsumerWidget {
         title: Text(l10n.home),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.cloud_sync_outlined),
+            tooltip: 'Network demo',
+            onPressed: () => _handleNetworkDemoTap(
+              context,
+              isAvailable: networkDemoAvailable,
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             tooltip: l10n.settings,

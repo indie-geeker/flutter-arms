@@ -2,7 +2,7 @@ import 'package:interfaces/cache/cache_stats.dart';
 import 'package:interfaces/network/network_cache_options.dart';
 import 'package:interfaces/network/network_exception.dart';
 import 'package:interfaces/network/network_types.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('interfaces contracts', () {

@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import '../presentation/screens/home_screen.dart';
 import '../presentation/screens/login_screen.dart';
+import '../presentation/screens/network_demo_screen.dart';
 import '../presentation/screens/settings_screen.dart';
 
 part 'app_router.gr.dart';
@@ -20,5 +21,8 @@ class AppRouter extends RootStackRouter {
 
     /// 设置页面
     AutoRoute(page: SettingsRoute.page, path: '/settings'),
+
+    /// 网络演示页面
+    AutoRoute(page: NetworkDemoRoute.page, path: '/network-demo'),
   ];
 }

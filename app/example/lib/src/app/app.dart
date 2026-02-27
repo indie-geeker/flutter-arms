@@ -103,7 +103,7 @@ List<IModule> buildBootstrapModules({
     modules.addAll([
       CacheModule(),
       NetworkModule(
-        baseUrl: 'https://api.example.com',
+        baseUrl: 'https://jsonplaceholder.typicode.com',
         enableCache: true,
         connectTimeout: const Duration(seconds: 30),
       ),

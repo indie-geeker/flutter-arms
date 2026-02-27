@@ -1,8 +1,8 @@
 name: flutter_arms
 
 environment:
-  sdk: '>=3.9.2 <4.0.0'
-  flutter: ">=3.35.6"
+  sdk: '>=3.11.0 <4.0.0'
+  flutter: ">=3.41.2"
 
 workspace:
   - packages/core
@@ -18,10 +18,10 @@ workspace:
 dependencies:
   intl: ^0.20.2
   # state management
-  flutter_riverpod: ^3.0.3
-  riverpod_annotation: ^3.0.3
+  flutter_riverpod: ^3.1.0
+  riverpod_annotation: ^4.0.0
   # router
-  auto_route: ^10.3.0
+  auto_route: ^11.1.0
   # network
   dio: ^5.9.1
   # json
@@ -37,10 +37,28 @@ dev_dependencies:
   melos: ^7.4.0
   flutter_lints: ^6.0.0
   build_runner: ^2.11.1
-  custom_lint: ^0.8.0
-  riverpod_lint: ^3.0.3
-  riverpod_generator: ^3.0.3
-  auto_route_generator: ^10.2.6
-  retrofit_generator: ^10.0.0
+  custom_lint: ^0.8.1
+  riverpod_lint: ^3.1.0
+  riverpod_generator: ^4.0.0+1
+  auto_route_generator: ^10.4.0
+  retrofit_generator: ^10.2.1
   json_serializable: ^6.11.2
   freezed: ^3.2.3
+
+melos:
+  scripts:
+    analyze:
+      description: Run flutter analyze across all workspace packages.
+      run: melos exec --concurrency=1 -- flutter analyze
+    test:
+      description: Run flutter test across all workspace packages.
+      run: melos exec --concurrency=1 -- flutter test
+    test:coverage:
+      description: Run flutter test --coverage across all workspace packages.
+      run: melos exec --concurrency=1 -- flutter test --coverage
+    verify:
+      description: Bootstrap workspace, then run analyze and test scripts.
+      run: |
+        melos bootstrap
+        melos run analyze
+        melos run test

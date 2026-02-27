@@ -18,6 +18,26 @@ Enable via `--dart-define=ARMS_EXAMPLE_FULL_STACK=true`:
 - `CacheModule`
 - `NetworkModule(enableCache: true)`
 
+## Network Demo Flow
+
+Path: `Login -> Home -> Network demo (cloud icon)`
+
+The screen fetches sample posts from `https://jsonplaceholder.typicode.com/posts`
+through `IHttpClient` and exposes three cache modes:
+
+- `cacheFirst`: read local cache first, fallback to network
+- `networkFirst`: request network first, fallback to cache when network fails
+- `disabled`: always request network without cache usage
+
+UI will show `Source: cache` or `Source: network` for each fetch result.
+In minimal profile, tapping the entry shows an explanatory message.
+
+## Auth Validation Responsibility
+
+- `LoginUseCase` is the single owner of username/password validation.
+- `AuthRepositoryImpl` focuses on data access and persistence error mapping only.
+- Calling repository methods directly in tests bypasses input validation by design.
+
 ## Run
 
 ```bash

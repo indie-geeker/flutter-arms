@@ -7,7 +7,7 @@ import 'package:interfaces/logger/log_output.dart';
 import 'package:module_network/src/config/network_config.dart';
 import 'package:module_network/src/utils/proxy_configurator.dart';
 import 'package:module_network/src/utils/proxy_utils.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('configureProxy', () {

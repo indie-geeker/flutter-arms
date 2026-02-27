@@ -218,7 +218,7 @@ class MyApp extends StatelessWidget {
         CacheModule(),
         // Network Module - optional
         NetworkModule(
-          baseUrl: 'https://api.example.com',
+          baseUrl: 'https://jsonplaceholder.typicode.com',
           enableCache: true,
           connectTimeout: Duration(seconds: 30),
         ),
@@ -360,8 +360,11 @@ melos bootstrap
 ### Running Tests
 
 ```bash
-# Run tests for all packages
-melos exec -- flutter test
+# Run analysis/tests for all workspace packages
+melos run analyze
+melos run test
+# One-shot workspace gate (bootstrap + analyze + test)
+melos run verify
 
 # CI required baseline (main workflow):
 # - flutter analyze
@@ -373,7 +376,7 @@ flutter test
 
 # Staged quality check (manual / scheduled workflow):
 # 1) collect coverage
-melos exec --scope="core" --scope="interfaces" --scope="module_logger" --scope="module_storage" --scope="module_cache" --scope="module_network" --scope="example" -- flutter test --coverage
+melos run test:coverage
 # 2) enforce staged coverage gate
 scripts/check_coverage.sh
 
@@ -414,6 +417,7 @@ dart run build_runner clean
 ## Advanced Docs
 
 - Production operations runbook: [docs/advanced/production-runbook.md](docs/advanced/production-runbook.md)
+- Library support matrix: [docs/library-support.md](docs/library-support.md)
 
 ## Tech Stack
 

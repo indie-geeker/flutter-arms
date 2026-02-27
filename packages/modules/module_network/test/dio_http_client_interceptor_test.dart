@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart' as dio;
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:interfaces/interfaces.dart';
 import 'package:interfaces/logger/log_output.dart';
 import 'package:module_network/src/impl/dio_http_client.dart';

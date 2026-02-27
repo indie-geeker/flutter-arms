@@ -20,24 +20,6 @@ class AuthRepositoryImpl implements IAuthRepository {
     required String password,
   }) async {
     try {
-      // 简化的登录逻辑：只验证长度
-      // 实际项目中应该调用远程 API
-      if (username.length < 3) {
-        return left(
-          const AuthFailure.invalidUsername(
-            'Username must be at least 3 characters',
-          ),
-        );
-      }
-
-      if (password.length < 3) {
-        return left(
-          const AuthFailure.invalidPassword(
-            'Password must be at least 3 characters',
-          ),
-        );
-      }
-
       // 创建用户模型
       final userModel = UserModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),

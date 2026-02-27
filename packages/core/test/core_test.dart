@@ -1,7 +1,7 @@
 import 'package:core/src/init/initializer.dart';
 import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('AppInitializer', () {

@@ -40,6 +40,50 @@ void main() {
       },
     );
 
+    test(
+      'returns invalid username failure before hitting repository',
+      () async {
+        final repository = FakeAuthRepository()
+          ..onLogin = (username, password) async =>
+              throw StateError('should not be called');
+        final useCase = LoginUseCase(repository);
+
+        final result = await useCase(usernameStr: 'ab', passwordStr: 'secret');
+
+        expect(
+          result,
+          left(
+            const AuthFailure.invalidUsername(
+              'Username must be at least 3 characters',
+            ),
+          ),
+        );
+        expect(repository.loginCallCount, 0);
+      },
+    );
+
+    test(
+      'returns invalid password failure before hitting repository',
+      () async {
+        final repository = FakeAuthRepository()
+          ..onLogin = (username, password) async =>
+              throw StateError('should not be called');
+        final useCase = LoginUseCase(repository);
+
+        final result = await useCase(usernameStr: 'alice', passwordStr: '12');
+
+        expect(
+          result,
+          left(
+            const AuthFailure.invalidPassword(
+              'Password must be at least 3 characters',
+            ),
+          ),
+        );
+        expect(repository.loginCallCount, 0);
+      },
+    );
+
     test('delegates login to repository after validation', () async {
       final user = UserEntity(
         id: 'u1',

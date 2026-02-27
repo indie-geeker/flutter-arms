@@ -1,4 +1,4 @@
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:core/src/di/module_registry.dart';
 import 'package:core/src/di/service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
