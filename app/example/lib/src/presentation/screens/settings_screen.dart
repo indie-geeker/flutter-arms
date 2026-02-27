@@ -21,14 +21,12 @@ class SettingsScreen extends ConsumerWidget {
     final localeState = ref.watch(localeProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.settings),
-      ),
+      appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         children: [
           // 主题模式部分
           _buildSectionHeader(context, l10n.themeMode),
-          _buildThemeModeSection(context, ref, l10n, themeState),
+          _buildThemeModeSection(ref, l10n, themeState),
 
           const Divider(),
 
@@ -40,7 +38,7 @@ class SettingsScreen extends ConsumerWidget {
 
           // 语言部分
           _buildSectionHeader(context, l10n.language),
-          _buildLanguageSection(context, ref, l10n, localeState),
+          _buildLanguageSection(ref, l10n, localeState),
         ],
       ),
     );
@@ -52,15 +50,14 @@ class SettingsScreen extends ConsumerWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-            ),
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
 
   Widget _buildThemeModeSection(
-    BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n,
     ThemeState themeState,
@@ -129,10 +126,7 @@ class SettingsScreen extends ConsumerWidget {
                 ],
               ),
               child: isSelected
-                  ? Icon(
-                      Icons.check,
-                      color: _getContrastColor(scheme.color),
-                    )
+                  ? Icon(Icons.check, color: _getContrastColor(scheme.color))
                   : null,
             ),
           );
@@ -142,7 +136,6 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Widget _buildLanguageSection(
-    BuildContext context,
     WidgetRef ref,
     AppLocalizations l10n,
     LocaleState localeState,

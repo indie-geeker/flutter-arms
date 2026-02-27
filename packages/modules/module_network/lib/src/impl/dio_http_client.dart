@@ -128,37 +128,17 @@ class DioHttpClient implements IHttpClient {
     NetworkCacheOptions? cacheOptions,
     CancelToken? cancelToken,
   }) async {
-    final dioToken = _convertCancelToken(cancelToken);
-    try {
-      final response = await _dio.get(
-        path,
-        queryParameters: queryParameters,
-        options: dio.Options(
-          headers: headers,
-          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
-          receiveTimeout: receiveTimeout,
-        ),
-        cancelToken: dioToken,
-      );
-
-      return _handleResponse<T>(response);
-    } on dio.DioException catch (e) {
-      return _handleError<T>(e);
-    } catch (e, stackTrace) {
-      _logger.error(
-        'Unexpected error in GET request',
-        error: e,
-        stackTrace: stackTrace,
-      );
-      return NetworkResponse.failure(
-        NetworkException(
-          message: e.toString(),
-          type: NetworkExceptionType.unknown,
-        ),
-      );
-    } finally {
-      _removeActiveToken(dioToken);
-    }
+    return _request<T>(
+      method: 'GET',
+      path: path,
+      queryParameters: queryParameters,
+      headers: headers,
+      extra: extra,
+      connectTimeout: connectTimeout,
+      receiveTimeout: receiveTimeout,
+      cacheOptions: cacheOptions,
+      cancelToken: cancelToken,
+    );
   }
 
   @override
@@ -173,38 +153,18 @@ class DioHttpClient implements IHttpClient {
     NetworkCacheOptions? cacheOptions,
     CancelToken? cancelToken,
   }) async {
-    final dioToken = _convertCancelToken(cancelToken);
-    try {
-      final response = await _dio.post(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-        options: dio.Options(
-          headers: headers,
-          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
-          receiveTimeout: receiveTimeout,
-        ),
-        cancelToken: dioToken,
-      );
-
-      return _handleResponse<T>(response);
-    } on dio.DioException catch (e) {
-      return _handleError<T>(e);
-    } catch (e, stackTrace) {
-      _logger.error(
-        'Unexpected error in POST request',
-        error: e,
-        stackTrace: stackTrace,
-      );
-      return NetworkResponse.failure(
-        NetworkException(
-          message: e.toString(),
-          type: NetworkExceptionType.unknown,
-        ),
-      );
-    } finally {
-      _removeActiveToken(dioToken);
-    }
+    return _request<T>(
+      method: 'POST',
+      path: path,
+      data: data,
+      queryParameters: queryParameters,
+      headers: headers,
+      extra: extra,
+      connectTimeout: connectTimeout,
+      receiveTimeout: receiveTimeout,
+      cacheOptions: cacheOptions,
+      cancelToken: cancelToken,
+    );
   }
 
   @override
@@ -219,38 +179,18 @@ class DioHttpClient implements IHttpClient {
     NetworkCacheOptions? cacheOptions,
     CancelToken? cancelToken,
   }) async {
-    final dioToken = _convertCancelToken(cancelToken);
-    try {
-      final response = await _dio.put(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-        options: dio.Options(
-          headers: headers,
-          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
-          receiveTimeout: receiveTimeout,
-        ),
-        cancelToken: dioToken,
-      );
-
-      return _handleResponse<T>(response);
-    } on dio.DioException catch (e) {
-      return _handleError<T>(e);
-    } catch (e, stackTrace) {
-      _logger.error(
-        'Unexpected error in PUT request',
-        error: e,
-        stackTrace: stackTrace,
-      );
-      return NetworkResponse.failure(
-        NetworkException(
-          message: e.toString(),
-          type: NetworkExceptionType.unknown,
-        ),
-      );
-    } finally {
-      _removeActiveToken(dioToken);
-    }
+    return _request<T>(
+      method: 'PUT',
+      path: path,
+      data: data,
+      queryParameters: queryParameters,
+      headers: headers,
+      extra: extra,
+      connectTimeout: connectTimeout,
+      receiveTimeout: receiveTimeout,
+      cacheOptions: cacheOptions,
+      cancelToken: cancelToken,
+    );
   }
 
   @override
@@ -265,38 +205,18 @@ class DioHttpClient implements IHttpClient {
     NetworkCacheOptions? cacheOptions,
     CancelToken? cancelToken,
   }) async {
-    final dioToken = _convertCancelToken(cancelToken);
-    try {
-      final response = await _dio.delete(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-        options: dio.Options(
-          headers: headers,
-          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
-          receiveTimeout: receiveTimeout,
-        ),
-        cancelToken: dioToken,
-      );
-
-      return _handleResponse<T>(response);
-    } on dio.DioException catch (e) {
-      return _handleError<T>(e);
-    } catch (e, stackTrace) {
-      _logger.error(
-        'Unexpected error in DELETE request',
-        error: e,
-        stackTrace: stackTrace,
-      );
-      return NetworkResponse.failure(
-        NetworkException(
-          message: e.toString(),
-          type: NetworkExceptionType.unknown,
-        ),
-      );
-    } finally {
-      _removeActiveToken(dioToken);
-    }
+    return _request<T>(
+      method: 'DELETE',
+      path: path,
+      data: data,
+      queryParameters: queryParameters,
+      headers: headers,
+      extra: extra,
+      connectTimeout: connectTimeout,
+      receiveTimeout: receiveTimeout,
+      cacheOptions: cacheOptions,
+      cancelToken: cancelToken,
+    );
   }
 
   @override
@@ -638,12 +558,7 @@ class DioHttpClient implements IHttpClient {
   }
 
   NetworkResponse<T> _toNetworkResponse<T>(dio.Response response) {
-    return NetworkResponse.success(
-      response.data as T,
-      statusCode: response.statusCode ?? 200,
-      statusMessage: response.statusMessage,
-      headers: response.headers.map,
-    );
+    return _handleResponse<T>(response);
   }
 
   void _applyNetworkResponse(
@@ -674,6 +589,52 @@ class DioHttpClient implements IHttpClient {
       return value;
     }
     return null;
+  }
+
+  Future<NetworkResponse<T>> _request<T>({
+    required String method,
+    required String path,
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  }) async {
+    final dioToken = _convertCancelToken(cancelToken);
+    try {
+      final response = await _dio.request(
+        path,
+        data: data,
+        queryParameters: queryParameters,
+        options: dio.Options(
+          method: method,
+          headers: headers,
+          extra: _mergeExtra(extra, connectTimeout, cacheOptions),
+          receiveTimeout: receiveTimeout,
+        ),
+        cancelToken: dioToken,
+      );
+      return _handleResponse<T>(response);
+    } on dio.DioException catch (e) {
+      return _handleError<T>(e);
+    } catch (e, stackTrace) {
+      _logger.error(
+        'Unexpected error in $method request',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      return NetworkResponse.failure(
+        NetworkException(
+          message: e.toString(),
+          type: NetworkExceptionType.unknown,
+        ),
+      );
+    } finally {
+      _removeActiveToken(dioToken);
+    }
   }
 }
 

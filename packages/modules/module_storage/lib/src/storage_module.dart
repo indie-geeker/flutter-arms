@@ -12,8 +12,7 @@ import 'impl/secure_storage.dart';
 class StorageModule implements IModule {
   final StorageConfig config;
 
-  StorageModule({StorageConfig? config})
-      : config = config ?? StorageConfig();
+  StorageModule({StorageConfig? config}) : config = config ?? StorageConfig();
 
   @override
   String get name => 'StorageModule';
@@ -50,16 +49,8 @@ class StorageModule implements IModule {
       baseDir: config.baseDir,
     );
     locator.registerSingleton<IKeyValueStorage>(kvStorage);
+    // Reserved extension point: relational/document storage can be registered here.
 
-    // // 注册关系型存储（可选）
-    // if (config.enableRelationalStorage) {
-    //   final relationalStorage = SQLiteStorage(
-    //     logger: logger,
-    //     databaseName: config.databaseName,
-    //   );
-    //   locator.registerSingleton<IRelationalStorage>(relationalStorage);
-    // }
-    //
     // 注册安全存储（可选）
     if (config.enableSecureStorage) {
       final secureStorage = FlutterSecureStorageImpl();
@@ -71,12 +62,6 @@ class StorageModule implements IModule {
   Future<void> init() async {
     final kvStorage = _locator.get<IKeyValueStorage>();
     await kvStorage.init();
-
-    // if (_locator.isRegistered<IRelationalStorage>()) {
-    //   final relationalStorage = _locator.get<IRelationalStorage>();
-    //   await relationalStorage.init();
-    // }
-    //
     if (_locator.isRegistered<ISecureStorage>()) {
       final secureStorage = _locator.get<ISecureStorage>();
       await secureStorage.init();
@@ -96,6 +81,7 @@ class StorageModule implements IModule {
 /// 存储配置
 class StorageConfig {
   final String kvStorageBoxName;
+
   /// Hive base directory. Absolute path uses Hive.init; relative uses initFlutter subDir.
   final String? baseDir;
   final bool enableRelationalStorage;
