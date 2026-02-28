@@ -16,7 +16,7 @@ class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   void _handleLogout(WidgetRef ref) {
-    ref.read(homeProvider.notifier).logout();
+    ref.read(homeNotifierProvider.notifier).logout();
   }
 
   bool _isNetworkDemoAvailable() {
@@ -42,11 +42,11 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final userState = ref.watch(homeProvider);
+    final userState = ref.watch(homeNotifierProvider);
     final networkDemoAvailable = _isNetworkDemoAvailable();
 
     // 监听登出状态
-    ref.listen(homeProvider, (previous, next) {
+    ref.listen(homeNotifierProvider, (previous, next) {
       next.whenOrNull(
         loggedOut: () {
           // 登出成功，返回登录页

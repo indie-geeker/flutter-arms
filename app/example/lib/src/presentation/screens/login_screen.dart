@@ -40,8 +40,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _handleLogin() {
-    final formNotifier = ref.read(loginFormProvider.notifier);
-    final loginNotifier = ref.read(loginProvider.notifier);
+    final formNotifier = ref.read(loginFormNotifierProvider.notifier);
+    final loginNotifier = ref.read(loginNotifierProvider.notifier);
 
     // 清除之前的错误
     formNotifier.clearErrors();
@@ -95,7 +95,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
 
     // 监听登录状态
-    ref.listen<LoginState>(loginProvider, (previous, next) {
+    ref.listen<LoginState>(loginNotifierProvider, (previous, next) {
       next.when(
         initial: () {},
         loading: () {},
@@ -121,8 +121,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     });
 
-    final loginState = ref.watch(loginProvider);
-    final formState = ref.watch(loginFormProvider);
+    final loginState = ref.watch(loginNotifierProvider);
+    final formState = ref.watch(loginFormNotifierProvider);
     final isLoading = loginState.maybeWhen(
       loading: () => true,
       orElse: () => false,
@@ -142,17 +142,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 isLoading: isLoading,
                 onUsernameChanged: (value) {
                   ref
-                      .read(loginFormProvider.notifier)
+                      .read(loginFormNotifierProvider.notifier)
                       .updateUsername(value);
                 },
                 onPasswordChanged: (value) {
                   ref
-                      .read(loginFormProvider.notifier)
+                      .read(loginFormNotifierProvider.notifier)
                       .updatePassword(value);
                 },
                 onTogglePasswordVisibility: () {
                   ref
-                      .read(loginFormProvider.notifier)
+                      .read(loginFormNotifierProvider.notifier)
                       .togglePasswordVisibility();
                 },
                 onLogin: _handleLogin,

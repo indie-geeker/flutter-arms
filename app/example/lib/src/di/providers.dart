@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:core/core.dart';
 import 'package:interfaces/cache/i_cache_manager.dart';

@@ -29,13 +29,13 @@ void main() {
 
       final states = <LoginState>[];
       final subscription = container.listen<LoginState>(
-        loginProvider,
+        loginNotifierProvider,
         (_, next) => states.add(next),
         fireImmediately: true,
       );
       addTearDown(subscription.close);
 
-      await container.read(loginProvider.notifier).login('alice', 'secret');
+      await container.read(loginNotifierProvider.notifier).login('alice', 'secret');
 
       expect(states.first, const LoginState.initial());
       expect(states, contains(const LoginState.loading()));
@@ -54,10 +54,10 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      await container.read(loginProvider.notifier).login('alice', 'wrong-pass');
+      await container.read(loginNotifierProvider.notifier).login('alice', 'wrong-pass');
 
       expect(
-        container.read(loginProvider),
+        container.read(loginNotifierProvider),
         const LoginState.failure(AuthFailure.invalidCredentials()),
       );
     });
@@ -73,11 +73,11 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      final notifier = container.read(loginProvider.notifier);
+      final notifier = container.read(loginNotifierProvider.notifier);
       await notifier.login('alice', 'wrong-pass');
       notifier.reset();
 
-      expect(container.read(loginProvider), const LoginState.initial());
+      expect(container.read(loginNotifierProvider), const LoginState.initial());
     });
   });
 
@@ -85,7 +85,7 @@ void main() {
     test('updates input fields and clears validation errors', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
-      final notifier = container.read(loginFormProvider.notifier);
+      final notifier = container.read(loginFormNotifierProvider.notifier);
       notifier.state = const LoginFormState(
         username: '',
         password: '',
@@ -96,7 +96,7 @@ void main() {
       notifier.updateUsername('alice');
       notifier.updatePassword('secret');
 
-      final state = container.read(loginFormProvider);
+      final state = container.read(loginFormNotifierProvider);
       expect(state.username, 'alice');
       expect(state.password, 'secret');
       expect(state.usernameError, isNull);
@@ -106,19 +106,19 @@ void main() {
     test('toggles password visibility and resets form state', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
-      final notifier = container.read(loginFormProvider.notifier);
+      final notifier = container.read(loginFormNotifierProvider.notifier);
 
       notifier.togglePasswordVisibility();
-      expect(container.read(loginFormProvider).obscurePassword, isTrue);
+      expect(container.read(loginFormNotifierProvider).obscurePassword, isTrue);
 
       notifier.reset();
-      expect(container.read(loginFormProvider), const LoginFormState());
+      expect(container.read(loginFormNotifierProvider), const LoginFormState());
     });
 
     test('clearErrors removes both usernameError and passwordError', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
-      final notifier = container.read(loginFormProvider.notifier);
+      final notifier = container.read(loginFormNotifierProvider.notifier);
       notifier.state = const LoginFormState(
         username: 'alice',
         password: 'secret',
@@ -128,7 +128,7 @@ void main() {
 
       notifier.clearErrors();
 
-      final state = container.read(loginFormProvider);
+      final state = container.read(loginFormNotifierProvider);
       expect(state.usernameError, isNull);
       expect(state.passwordError, isNull);
     });

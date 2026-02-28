@@ -18,14 +18,14 @@ class _NetworkDemoScreenState extends ConsumerState<NetworkDemoScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(networkDemoProvider.notifier).fetch();
+      ref.read(networkDemoNotifierProvider.notifier).fetch();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(networkDemoProvider);
-    final notifier = ref.read(networkDemoProvider.notifier);
+    final state = ref.watch(networkDemoNotifierProvider);
+    final notifier = ref.read(networkDemoNotifierProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(

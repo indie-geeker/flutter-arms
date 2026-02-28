@@ -1,8 +1,8 @@
 name: flutter_arms
 
 environment:
-  sdk: '>=3.11.0 <4.0.0'
-  flutter: ">=3.41.2"
+  sdk: '>=3.9.0 <4.0.0'
+  flutter: ">=3.35.7"
 
 workspace:
   - packages/core
@@ -18,10 +18,10 @@ workspace:
 dependencies:
   intl: ^0.20.2
   # state management
-  flutter_riverpod: ^3.1.0
-  riverpod_annotation: ^4.0.0
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
   # router
-  auto_route: ^11.1.0
+  auto_route: ^10.2.3
   # network
   dio: ^5.9.1
   # json
@@ -32,18 +32,19 @@ dependencies:
   crypto: ^3.0.7
   hive: ^2.2.3
   get_it: ^9.2.1
+  retrofit: 4.9.1
 
 dev_dependencies:
   melos: ^7.4.0
   flutter_lints: ^6.0.0
-  build_runner: ^2.11.1
-  custom_lint: ^0.8.1
-  riverpod_lint: ^3.1.0
-  riverpod_generator: ^4.0.0+1
-  auto_route_generator: ^10.4.0
-  retrofit_generator: ^10.2.1
-  json_serializable: ^6.11.2
-  freezed: ^3.2.3
+  build_runner: ^2.5.4
+  custom_lint: ^0.7.6
+  riverpod_lint: ^2.6.5
+  riverpod_generator: ^2.6.5
+  auto_route_generator: ^10.2.3
+  retrofit_generator: ^9.7.0
+  json_serializable: ^6.9.5
+  freezed: ^3.1.0
 
 melos:
   scripts:

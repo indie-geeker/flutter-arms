@@ -29,13 +29,13 @@ void main() {
 
       final states = <NetworkDemoState>[];
       final subscription = container.listen<NetworkDemoState>(
-        networkDemoProvider,
+        networkDemoNotifierProvider,
         (_, next) => states.add(next),
         fireImmediately: true,
       );
       addTearDown(subscription.close);
 
-      await container.read(networkDemoProvider.notifier).fetch();
+      await container.read(networkDemoNotifierProvider.notifier).fetch();
 
       expect(states.any((state) => state.isLoading), isTrue);
       expect(states.last.fromCache, isTrue);
@@ -50,9 +50,9 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
-      await container.read(networkDemoProvider.notifier).fetch();
+      await container.read(networkDemoNotifierProvider.notifier).fetch();
 
-      final state = container.read(networkDemoProvider);
+      final state = container.read(networkDemoNotifierProvider);
       expect(state.available, isFalse);
       expect(
         state.errorMessage,

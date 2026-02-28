@@ -16,13 +16,13 @@ Future<LocaleState> _waitForLocaleLoaded(
   ProviderContainer container, {
   Duration timeout = const Duration(seconds: 1),
 }) async {
-  final current = container.read(localeProvider);
+  final current = container.read(localeNotifierProvider);
   if (!current.isLoading) {
     return current;
   }
 
   final completer = Completer<LocaleState>();
-  final subscription = container.listen<LocaleState>(localeProvider, (_, next) {
+  final subscription = container.listen<LocaleState>(localeNotifierProvider, (_, next) {
     if (!next.isLoading && !completer.isCompleted) {
       completer.complete(next);
     }
@@ -39,13 +39,13 @@ Future<ThemeState> _waitForThemeLoaded(
   ProviderContainer container, {
   Duration timeout = const Duration(seconds: 1),
 }) async {
-  final current = container.read(themeProvider);
+  final current = container.read(themeNotifierProvider);
   if (!current.isLoading) {
     return current;
   }
 
   final completer = Completer<ThemeState>();
-  final subscription = container.listen<ThemeState>(themeProvider, (_, next) {
+  final subscription = container.listen<ThemeState>(themeNotifierProvider, (_, next) {
     if (!next.isLoading && !completer.isCompleted) {
       completer.complete(next);
     }
@@ -69,17 +69,17 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      container.read(localeProvider.notifier);
+      container.read(localeNotifierProvider.notifier);
       final loaded = await _waitForLocaleLoaded(container);
 
       expect(loaded.isLoading, isFalse);
       expect(loaded.appLocale, AppLocale.chinese);
 
       await container
-          .read(localeProvider.notifier)
+          .read(localeNotifierProvider.notifier)
           .setLocale(AppLocale.english);
 
-      expect(container.read(localeProvider).appLocale, AppLocale.english);
+      expect(container.read(localeNotifierProvider).appLocale, AppLocale.english);
       expect(await storage.getInt(StorageKeys.locale), AppLocale.english.index);
     });
   });
@@ -95,20 +95,20 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      container.read(themeProvider.notifier);
+      container.read(themeNotifierProvider.notifier);
       final loaded = await _waitForThemeLoaded(container);
       expect(loaded.isLoading, isFalse);
       expect(loaded.themeMode, ThemeMode.dark);
       expect(loaded.colorScheme, AppColorScheme.green);
 
       await container
-          .read(themeProvider.notifier)
+          .read(themeNotifierProvider.notifier)
           .setThemeMode(ThemeMode.light);
       await container
-          .read(themeProvider.notifier)
+          .read(themeNotifierProvider.notifier)
           .setColorScheme(AppColorScheme.orange);
 
-      final updated = container.read(themeProvider);
+      final updated = container.read(themeNotifierProvider);
       expect(updated.themeMode, ThemeMode.light);
       expect(updated.colorScheme, AppColorScheme.orange);
       expect(

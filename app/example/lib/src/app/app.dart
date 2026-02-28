@@ -117,8 +117,8 @@ class _ArmsMainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appRouter = ref.watch(appRouterProvider);
-    final themeState = ref.watch(themeProvider);
-    final localeState = ref.watch(localeProvider);
+    final themeState = ref.watch(themeNotifierProvider);
+    final localeState = ref.watch(localeNotifierProvider);
 
     // 加载中时显示简单的加载界面
     if (themeState.isLoading || localeState.isLoading) {

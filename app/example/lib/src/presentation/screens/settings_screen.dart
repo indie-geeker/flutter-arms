@@ -17,8 +17,8 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final themeState = ref.watch(themeProvider);
-    final localeState = ref.watch(localeProvider);
+    final themeState = ref.watch(themeNotifierProvider);
+    final localeState = ref.watch(localeNotifierProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settings)),
@@ -66,7 +66,7 @@ class SettingsScreen extends ConsumerWidget {
       groupValue: themeState.themeMode,
       onChanged: (value) {
         if (value != null) {
-          ref.read(themeProvider.notifier).setThemeMode(value);
+          ref.read(themeNotifierProvider.notifier).setThemeMode(value);
         }
       },
       child: Column(
@@ -103,7 +103,7 @@ class SettingsScreen extends ConsumerWidget {
           final isSelected = themeState.colorScheme == scheme;
           return GestureDetector(
             onTap: () {
-              ref.read(themeProvider.notifier).setColorScheme(scheme);
+              ref.read(themeNotifierProvider.notifier).setColorScheme(scheme);
             },
             child: Container(
               width: 48,
@@ -144,7 +144,7 @@ class SettingsScreen extends ConsumerWidget {
       groupValue: localeState.appLocale,
       onChanged: (value) {
         if (value != null) {
-          ref.read(localeProvider.notifier).setLocale(value);
+          ref.read(localeNotifierProvider.notifier).setLocale(value);
         }
       },
       child: Column(
