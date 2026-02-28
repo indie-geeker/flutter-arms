@@ -37,7 +37,7 @@ flutter-arms is a production-ready Flutter monorepo framework designed to accele
 - **Monorepo Structure** - Dart workspace with Melos for efficient multi-package development
 - **Type Safety** - Full Dart 3+ support with sound null safety
 - **Extensible** - Easy to add, replace, or remove infrastructure modules
-- **Composable Demo** - Example app defaults to logger + secure storage, with cache/network as opt-in modules
+- **Composable Demo** - Example app defaults to logger + key-value storage, with cache/network as opt-in modules
 - **Structured Logging** - `ILogger` supports contextual `extras` for machine-readable logs
 
 ## Architecture
@@ -211,9 +211,7 @@ class MyApp extends StatelessWidget {
         // Logger Module - initialize first
         LoggerModule(initialLevel: LogLevel.debug),
         // Storage Module - for persistence
-        StorageModule(
-          config: StorageConfig(enableSecureStorage: true),
-        ),
+        StorageModule(),
         // Cache Module - optional
         CacheModule(),
         // Network Module - optional
@@ -352,8 +350,6 @@ melos bootstrap
   - `httpClient.get('/users', cacheOptions: const NetworkCacheOptions(enabled: true, duration: Duration(minutes: 5)))`
 - **Custom cache serializers**
   - `CacheModule(valueRegistry: CacheValueRegistry()..register(MySerializer()))`
-- **Enable secure storage**
-  - `StorageModule(config: StorageConfig(enableSecureStorage: true))`
 - **Customize storage base directory**
   - `StorageModule(config: StorageConfig(baseDir: '/path/to/hive'))`
 

@@ -9,7 +9,6 @@ workspace (core/modules/example). Stale or no-longer-used entries were removed.
 | `flutter_riverpod` | `packages/core`, `app/example` | ✅ All Flutter targets | State management |
 | `hive` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Key-value storage core |
 | `hive_flutter` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Flutter integration for Hive |
-| `flutter_secure_storage` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Secure key storage (platform plugin) |
 | `dio` | `packages/modules/module_network` | ✅ Android/iOS/macOS/Windows/Linux/Web | HTTP client |
 | `http_parser` | `packages/modules/module_network` | ✅ All (Dart) | MIME/media type parsing |
 | `crypto` | `packages/modules/module_network` | ✅ All (Dart) | Cache key hashing |

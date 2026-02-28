@@ -7,7 +7,7 @@ Reference app demonstrating two bootstrap profiles.
 ### Minimal (default)
 
 - `LoggerModule` (debug level)
-- `StorageModule` with `enableSecureStorage: true`
+- `StorageModule`
 
 ### Full-stack (optional)
 

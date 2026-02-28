@@ -1,7 +1,6 @@
 # module_storage
 
-Storage module for FlutterArms. Provides Hive-backed key-value storage and optional
-secure storage.
+Storage module for FlutterArms. Provides Hive-backed key-value storage.
 
 ## Usage
 
@@ -10,7 +9,6 @@ StorageModule(
   config: StorageConfig(
     kvStorageBoxName: 'app_storage',
     baseDir: '/path/to/hive',
-    enableSecureStorage: true,
   ),
 )
 ```

@@ -160,3 +160,5 @@ logs/
 *.tmp
 *.temp
 .cache/
+
+.fvm/
