@@ -2,7 +2,7 @@
 import 'i_storage.dart';
 
 /// 键值对存储接口
-/// 实现：Hive、SharedPreferences、MMKV
+/// 实现：Hive CE、SharedPreferences、MMKV
 abstract class IKeyValueStorage extends IStorage {
   /// 存储字符串
   Future<void> setString(String key, String value);

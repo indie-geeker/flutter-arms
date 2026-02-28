@@ -2,7 +2,7 @@
 import 'i_storage.dart';
 
 /// 文档存储接口（类似 NoSQL）
-/// 实现：Hive、Isar
+/// 实现：Hive CE、Isar
 abstract class IDocumentStorage<T> extends IStorage {
   /// 插入文档
   Future<String> insert(T document);

@@ -110,7 +110,7 @@ flutter-arms/
 │   │
 │   └── modules/             # Infrastructure implementations
 │       ├── module_network/  # Network module (Dio, HTTP)
-│       ├── module_cache/    # Cache module (Hive, SharedPreferences)
+│       ├── module_cache/    # Cache module (Hive CE, SharedPreferences)
 │       ├── module_logger/   # Logger module
 │       └── module_storage/  # Storage module
 │
@@ -351,7 +351,7 @@ melos bootstrap
 - **Custom cache serializers**
   - `CacheModule(valueRegistry: CacheValueRegistry()..register(MySerializer()))`
 - **Customize storage base directory**
-  - `StorageModule(config: StorageConfig(baseDir: '/path/to/hive'))`
+  - `StorageModule(config: StorageConfig(baseDir: '/path/to/hive_ce'))`
 
 ### Running Tests
 

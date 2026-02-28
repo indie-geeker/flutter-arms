@@ -1,5 +1,5 @@
 name: module_storage
-description: "Hive-based storage module implementing key-value storage interfaces."
+description: "Hive CE-based storage module implementing key-value storage interfaces."
 version: 0.0.1
 homepage: https://github.com/indie-geeker/flutter-arms
 repository: https://github.com/indie-geeker/flutter-arms
@@ -16,8 +16,8 @@ dependencies:
     sdk: flutter
   interfaces:
     path: ../../interfaces
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
 
 dev_dependencies:
   flutter_test:

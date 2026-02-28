@@ -81,7 +81,7 @@ IKeyValueStorage _defaultKeyValueStorageBuilder({
 class StorageConfig {
   final String kvStorageBoxName;
 
-  /// Hive base directory. Absolute path uses Hive.init; relative uses initFlutter subDir.
+  /// Hive CE base directory. Absolute path uses Hive.init; relative uses initFlutter subDir.
   final String? baseDir;
   final bool enableRelationalStorage;
   final String databaseName;

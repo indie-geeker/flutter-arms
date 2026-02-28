@@ -7,8 +7,8 @@ workspace (core/modules/example). Stale or no-longer-used entries were removed.
 | --- | --- | --- | --- |
 | `get_it` | `packages/core` | ✅ Android/iOS/macOS/Windows/Linux/Web | Service locator |
 | `flutter_riverpod` | `packages/core`, `app/example` | ✅ All Flutter targets | State management |
-| `hive` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Key-value storage core |
-| `hive_flutter` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Flutter integration for Hive |
+| `hive_ce` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Key-value storage core (Community Edition) |
+| `hive_ce_flutter` | `packages/modules/module_storage` | ✅ Android/iOS/macOS/Windows/Linux/Web | Flutter integration for Hive CE |
 | `dio` | `packages/modules/module_network` | ✅ Android/iOS/macOS/Windows/Linux/Web | HTTP client |
 | `http_parser` | `packages/modules/module_network` | ✅ All (Dart) | MIME/media type parsing |
 | `crypto` | `packages/modules/module_network` | ✅ All (Dart) | Cache key hashing |

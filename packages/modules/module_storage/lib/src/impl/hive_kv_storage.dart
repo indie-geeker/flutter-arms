@@ -1,13 +1,13 @@
 
 import 'dart:convert';
 
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
 
 import '../utils/storage_file_utils.dart';
 
-/// 基于 Hive 的 KV 存储实现
+/// 基于 Hive CE 的 KV 存储实现
 class HiveKeyValueStorage implements IKeyValueStorage {
   late Box _box;
   final String boxName;
@@ -23,12 +23,12 @@ class HiveKeyValueStorage implements IKeyValueStorage {
   @override
   Future<void> init() async {
     try {
-      // 使用 HiveFlutter 自动处理平台路径，确保多平台兼容
+      // 使用 Hive CE Flutter 自动处理平台路径，确保多平台兼容
       await _initHive();
       _box = await Hive.openBox(boxName);
-      _logger.info('Hive KV storage initialized');
+      _logger.info('Hive CE KV storage initialized');
     } catch (e, stackTrace) {
-      _logger.error('Failed to initialize Hive storage',
+      _logger.error('Failed to initialize Hive CE storage',
           error: e, stackTrace: stackTrace);
       rethrow;
     }

@@ -19,7 +19,7 @@ part 'app.g.dart';
 
 const bool kEnableFullStackProfile = bool.fromEnvironment(
   'ARMS_EXAMPLE_FULL_STACK',
-  defaultValue: false,
+  defaultValue: true,
 );
 
 /// 应用路由 Provider

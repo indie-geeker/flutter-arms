@@ -1,7 +1,7 @@
 // Storage module for FlutterArms
 //
 // Provides various module_storage implementations including:
-// - Key-Value module_storage (Hive)
+// - Key-Value module_storage (Hive CE)
 // - Utilities for serialization and migration
 // Module
 export 'src/storage_module.dart';
