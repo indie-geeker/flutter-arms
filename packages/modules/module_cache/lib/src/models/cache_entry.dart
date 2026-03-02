@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:interfaces/cache/cache_policy.dart';
@@ -81,8 +80,9 @@ class CacheEntry {
     dynamic serializedValue;
     String? valueType;
 
-    final registrySerializer =
-        value != null && registry != null ? registry.serializerForValue(value) : null;
+    final registrySerializer = value != null && registry != null
+        ? registry.serializerForValue(value)
+        : null;
     if (registrySerializer != null) {
       try {
         serializedValue = registrySerializer.toJson(value);
@@ -107,7 +107,7 @@ class CacheEntry {
     return {
       'key': key,
       'value': serializedValue,
-      'valueType': valueType,  // 使用注册表或序列化失败时非空
+      'valueType': valueType, // 使用注册表或序列化失败时非空
       'createdAt': createdAt.toIso8601String(),
       'expiresAt': expiresAt?.toIso8601String(),
       'policy': policy.name,
@@ -157,13 +157,13 @@ class CacheEntry {
 
     return CacheEntry(
       key: json['key'],
-      value: value,  // 可能为 null 如果原值无法序列化
+      value: value, // 可能为 null 如果原值无法序列化
       createdAt: DateTime.parse(json['createdAt']),
       expiresAt: json['expiresAt'] != null
           ? DateTime.parse(json['expiresAt'])
           : null,
       policy: CachePolicy.values.firstWhere(
-            (e) => e.name == json['policy'],
+        (e) => e.name == json['policy'],
         orElse: () => CachePolicy.normal,
       ),
     );

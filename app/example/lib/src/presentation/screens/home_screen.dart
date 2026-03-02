@@ -25,7 +25,10 @@ class HomeScreen extends ConsumerWidget {
         locator.isRegistered<ICacheManager>();
   }
 
-  void _handleNetworkDemoTap(BuildContext context, {required bool isAvailable}) {
+  void _handleNetworkDemoTap(
+    BuildContext context, {
+    required bool isAvailable,
+  }) {
     if (isAvailable) {
       context.router.push(const NetworkDemoRoute());
       return;

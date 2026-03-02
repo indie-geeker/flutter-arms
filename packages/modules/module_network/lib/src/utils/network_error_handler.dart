@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:interfaces/interfaces.dart';
 
@@ -55,9 +54,9 @@ class NetworkErrorHandler {
 
   /// 处理通用异常
   static NetworkException handleGenericException(
-      dynamic error,
-      StackTrace? stackTrace,
-      ) {
+    dynamic error,
+    StackTrace? stackTrace,
+  ) {
     String message;
 
     if (error is FormatException) {
@@ -151,7 +150,10 @@ class NetworkErrorHandler {
   }
 
   /// 判断错误是否可重试
-  static bool isRetryable(NetworkException exception, Set<int> retryableStatusCodes) {
+  static bool isRetryable(
+    NetworkException exception,
+    Set<int> retryableStatusCodes,
+  ) {
     // 超时错误可重试
     if (exception.isTimeout) {
       return true;

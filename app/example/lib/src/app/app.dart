@@ -90,13 +90,10 @@ class ArmsApp extends StatelessWidget {
 
 List<IModule> buildBootstrapModules({
   bool enableFullStackProfile = kEnableFullStackProfile,
-  bool enableSecureStorage = true,
 }) {
   final modules = <IModule>[
     LoggerModule(initialLevel: LogLevel.debug),
-    StorageModule(
-      config: StorageConfig(enableSecureStorage: enableSecureStorage),
-    ),
+    StorageModule(),
   ];
 
   if (enableFullStackProfile) {

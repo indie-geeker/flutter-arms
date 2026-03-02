@@ -27,13 +27,15 @@ class ThemeNotifier extends _$ThemeNotifier {
       final themeModeIndex = await _storage.getInt(StorageKeys.themeMode);
       final colorSchemeIndex = await _storage.getInt(StorageKeys.colorScheme);
 
-      final themeMode = themeModeIndex != null &&
+      final themeMode =
+          themeModeIndex != null &&
               themeModeIndex >= 0 &&
               themeModeIndex < ThemeMode.values.length
           ? ThemeMode.values[themeModeIndex]
           : ThemeMode.system;
 
-      final colorScheme = colorSchemeIndex != null &&
+      final colorScheme =
+          colorSchemeIndex != null &&
               colorSchemeIndex >= 0 &&
               colorSchemeIndex < AppColorScheme.values.length
           ? AppColorScheme.values[colorSchemeIndex]

@@ -1,4 +1,3 @@
-
 import 'package:get_it/get_it.dart';
 import 'package:interfaces/core/i_service_locator.dart';
 
@@ -18,18 +17,14 @@ class ServiceLocator implements IServiceLocator {
   }
 
   @override
-  void registerLazySingleton<T extends Object>(
-      T Function() factoryFunc,
-      ) {
+  void registerLazySingleton<T extends Object>(T Function() factoryFunc) {
     if (!_getIt.isRegistered<T>()) {
       _getIt.registerLazySingleton<T>(factoryFunc);
     }
   }
 
   @override
-  void registerFactory<T extends Object>(
-      T Function() factoryFunc,
-      ) {
+  void registerFactory<T extends Object>(T Function() factoryFunc) {
     if (!_getIt.isRegistered<T>()) {
       _getIt.registerFactory<T>(factoryFunc);
     }

@@ -46,19 +46,19 @@ void main() {
       expect(repository.lastMode, DemoCacheMode.cacheFirst);
     });
 
-    test('returns unavailable state when full-stack dependencies are absent', () async {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
+    test(
+      'returns unavailable state when full-stack dependencies are absent',
+      () async {
+        final container = ProviderContainer();
+        addTearDown(container.dispose);
 
-      await container.read(networkDemoProvider.notifier).fetch();
+        await container.read(networkDemoProvider.notifier).fetch();
 
-      final state = container.read(networkDemoProvider);
-      expect(state.available, isFalse);
-      expect(
-        state.errorMessage,
-        contains('ARMS_EXAMPLE_FULL_STACK=true'),
-      );
-    });
+        final state = container.read(networkDemoProvider);
+        expect(state.available, isFalse);
+        expect(state.errorMessage, contains('ARMS_EXAMPLE_FULL_STACK=true'));
+      },
+    );
   });
 }
 

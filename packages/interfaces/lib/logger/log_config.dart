@@ -78,20 +78,19 @@ class LogOutputConfig {
   factory LogOutputConfig.production({
     required String logFilePath,
     String? remoteEndpoint,
-  }) =>
-      LogOutputConfig(
-        enabled: true,
-        minLevel: LogLevel.info,
-        enableConsole: false,
-        enableFile: true,
-        logFilePath: logFilePath,
-        maxFileSize: 10 * 1024 * 1024, // 10MB
-        retentionDays: 7,
-        enableMemory: false,
-        enableRemote: remoteEndpoint != null,
-        remoteEndpoint: remoteEndpoint,
-        enableColors: false,
-      );
+  }) => LogOutputConfig(
+    enabled: true,
+    minLevel: LogLevel.info,
+    enableConsole: false,
+    enableFile: true,
+    logFilePath: logFilePath,
+    maxFileSize: 10 * 1024 * 1024, // 10MB
+    retentionDays: 7,
+    enableMemory: false,
+    enableRemote: remoteEndpoint != null,
+    remoteEndpoint: remoteEndpoint,
+    enableColors: false,
+  );
 
   /// 测试环境配置
   factory LogOutputConfig.test() => const LogOutputConfig(

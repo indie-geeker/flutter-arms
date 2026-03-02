@@ -3,7 +3,6 @@ import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/logger/log_level.dart';
 import 'package:interfaces/logger/log_output.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
-import 'package:interfaces/storage/i_secure_storage.dart';
 import 'package:module_storage/src/storage_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -16,42 +15,28 @@ void main() {
       expect(module.provides, [IKeyValueStorage]);
     });
 
-    test('should expose secure storage when enabled', () {
-      final module = StorageModule(
-        config: StorageConfig(enableSecureStorage: true),
-      );
-
-      expect(module.provides, contains(IKeyValueStorage));
-      expect(module.provides, contains(ISecureStorage));
-    });
-
     test('StorageConfig should provide expected defaults', () {
       final config = StorageConfig();
 
       expect(config.kvStorageBoxName, 'app_storage');
       expect(config.baseDir, isNull);
-      expect(config.enableSecureStorage, isFalse);
       expect(config.enableRelationalStorage, isFalse);
       expect(config.databaseName, 'app.db');
     });
 
     test('should register storages created by injected builders', () async {
       final keyValueStorage = _NoopKeyValueStorage();
-      final secureStorage = _NoopSecureStorage();
       final locator = _SimpleServiceLocator(_NoopLogger());
 
       final module = StorageModule(
-        config: StorageConfig(enableSecureStorage: true),
         keyValueStorageBuilder: ({required logger, required config}) {
           return keyValueStorage;
         },
-        secureStorageBuilder: () => secureStorage,
       );
 
       await module.register(locator);
 
       expect(locator.get<IKeyValueStorage>(), same(keyValueStorage));
-      expect(locator.get<ISecureStorage>(), same(secureStorage));
     });
   });
 }
@@ -214,39 +199,4 @@ class _NoopKeyValueStorage implements IKeyValueStorage {
 
   @override
   Future<void> setStringList(String key, List<String> value) async {}
-}
-
-class _NoopSecureStorage implements ISecureStorage {
-  @override
-  Future<void> clear() async {}
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  Future<bool> containsKey(String key) async => false;
-
-  @override
-  Future<void> delete(String key) async {}
-
-  @override
-  Future<void> deleteAll() async {}
-
-  @override
-  Future<Set<String>> getKeys() async => <String>{};
-
-  @override
-  Future<int> getSize() async => 0;
-
-  @override
-  Future<void> init() async {}
-
-  @override
-  Future<String?> read(String key) async => null;
-
-  @override
-  Future<Map<String, String>> readAll() async => <String, String>{};
-
-  @override
-  Future<void> write(String key, String value) async {}
 }

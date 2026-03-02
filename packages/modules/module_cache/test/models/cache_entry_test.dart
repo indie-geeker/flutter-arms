@@ -41,7 +41,7 @@ void main() {
         final complexValue = {
           'name': 'John',
           'age': 30,
-          'tags': ['developer', 'flutter']
+          'tags': ['developer', 'flutter'],
         };
 
         final entry = CacheEntry(
@@ -131,28 +131,41 @@ void main() {
         );
         final afterCreation = DateTime.now();
 
-        expect(entry.lastAccessedAt.isAfter(beforeCreation) ||
-            entry.lastAccessedAt.isAtSameMomentAs(beforeCreation), true);
-        expect(entry.lastAccessedAt.isBefore(afterCreation) ||
-            entry.lastAccessedAt.isAtSameMomentAs(afterCreation), true);
-      });
-
-      test('should update lastAccessedAt when updateAccessTime is called', () async {
-        final entry = CacheEntry(
-          key: 'test',
-          value: 'value',
-          createdAt: DateTime.now(),
-          policy: CachePolicy.normal,
+        expect(
+          entry.lastAccessedAt.isAfter(beforeCreation) ||
+              entry.lastAccessedAt.isAtSameMomentAs(beforeCreation),
+          true,
         );
-
-        final initialAccessTime = entry.lastAccessedAt;
-        await Future.delayed(Duration(milliseconds: 50)); // Increased delay for reliability
-        entry.updateAccessTime();
-
-        // Check if time has advanced (may be same in very fast execution)
-        final timeDifference = entry.lastAccessedAt.difference(initialAccessTime).inMicroseconds;
-        expect(timeDifference >= 0, true);
+        expect(
+          entry.lastAccessedAt.isBefore(afterCreation) ||
+              entry.lastAccessedAt.isAtSameMomentAs(afterCreation),
+          true,
+        );
       });
+
+      test(
+        'should update lastAccessedAt when updateAccessTime is called',
+        () async {
+          final entry = CacheEntry(
+            key: 'test',
+            value: 'value',
+            createdAt: DateTime.now(),
+            policy: CachePolicy.normal,
+          );
+
+          final initialAccessTime = entry.lastAccessedAt;
+          await Future.delayed(
+            Duration(milliseconds: 50),
+          ); // Increased delay for reliability
+          entry.updateAccessTime();
+
+          // Check if time has advanced (may be same in very fast execution)
+          final timeDifference = entry.lastAccessedAt
+              .difference(initialAccessTime)
+              .inMicroseconds;
+          expect(timeDifference >= 0, true);
+        },
+      );
     });
 
     group('Serialization', () {

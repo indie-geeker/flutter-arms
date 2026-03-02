@@ -16,6 +16,5 @@ import 'log_entity.dart';
 /// }
 /// ```
 abstract class LogOutput {
-
   void write(LogEntry entry);
 }

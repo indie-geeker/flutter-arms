@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
@@ -42,8 +41,9 @@ class DioFormDataAdapter implements FormData {
     // 添加文件
     for (final entry in _files.entries) {
       final file = entry.value;
-      final contentType =
-          file.contentType != null ? MediaType.parse(file.contentType!) : null;
+      final contentType = file.contentType != null
+          ? MediaType.parse(file.contentType!)
+          : null;
 
       if (file.hasBytes) {
         formDataMap[entry.key] = dio.MultipartFile.fromBytes(

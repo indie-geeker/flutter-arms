@@ -509,31 +509,33 @@ void main() {
       expect(await File(testFilePath).exists(), true);
     });
 
-    test('should keep write ordering and drain pending logs on dispose', () async {
-      final output = FileOutput(
-        testFilePath,
-        maxFileSize: 1024 * 1024,
-      );
+    test(
+      'should keep write ordering and drain pending logs on dispose',
+      () async {
+        final output = FileOutput(testFilePath, maxFileSize: 1024 * 1024);
 
-      const total = 300;
-      for (int i = 0; i < total; i++) {
-        output.write(LogEntry(level: LogLevel.info, message: 'burst-$i'));
-      }
+        const total = 300;
+        for (int i = 0; i < total; i++) {
+          output.write(LogEntry(level: LogLevel.info, message: 'burst-$i'));
+        }
 
-      await output.dispose();
+        await output.dispose();
 
-      final lines = await File(testFilePath).readAsLines();
-      final burstLines = lines.where((line) => line.contains('burst-')).toList();
-      expect(burstLines.length, total);
+        final lines = await File(testFilePath).readAsLines();
+        final burstLines = lines
+            .where((line) => line.contains('burst-'))
+            .toList();
+        expect(burstLines.length, total);
 
-      final sequence = burstLines.map((line) {
-        final match = RegExp(r'burst-(\d+)$').firstMatch(line);
-        expect(match, isNotNull);
-        return int.parse(match!.group(1)!);
-      }).toList();
+        final sequence = burstLines.map((line) {
+          final match = RegExp(r'burst-(\d+)$').firstMatch(line);
+          expect(match, isNotNull);
+          return int.parse(match!.group(1)!);
+        }).toList();
 
-      expect(sequence, List<int>.generate(total, (i) => i));
-    });
+        expect(sequence, List<int>.generate(total, (i) => i));
+      },
+    );
 
     test('should handle write errors gracefully', () async {
       // Use an invalid path

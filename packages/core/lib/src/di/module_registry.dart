@@ -1,4 +1,3 @@
-
 import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart'; // IModule 接口
 import 'service_locator.dart';
@@ -14,7 +13,7 @@ class ModuleRegistry {
   /// Falls back to the global [ServiceLocator] singleton when omitted,
   /// preserving backward compatibility.
   ModuleRegistry({IServiceLocator? locator})
-      : _locator = locator ?? ServiceLocator();
+    : _locator = locator ?? ServiceLocator();
 
   /// 注册模块
   void registerModule(IModule module) {
@@ -24,10 +23,7 @@ class ModuleRegistry {
   }
 
   /// 批量注册模块
-  void registerModules(
-    List<IModule> modules, {
-    bool replace = false,
-  }) {
+  void registerModules(List<IModule> modules, {bool replace = false}) {
     if (replace) {
       _modules.clear();
     }
@@ -37,7 +33,7 @@ class ModuleRegistry {
   }
 
   /// 按优先级排序并初始化所有模块
-  /// 
+  ///
   /// 此方法委托给 [initializeAllWithProgress]，不带进度回调
   Future<void> initializeAll() async {
     await initializeAllWithProgress(null);
@@ -88,8 +84,9 @@ class ModuleRegistry {
   /// 销毁所有模块
   Future<void> disposeAll() async {
     // 反向销毁
-    final modulesToDispose =
-        _initializedModules.isNotEmpty ? _initializedModules : _modules;
+    final modulesToDispose = _initializedModules.isNotEmpty
+        ? _initializedModules
+        : _modules;
     for (final module in modulesToDispose.reversed) {
       await module.dispose();
     }

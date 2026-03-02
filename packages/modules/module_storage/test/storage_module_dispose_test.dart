@@ -3,7 +3,6 @@ import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/logger/log_level.dart';
 import 'package:interfaces/logger/log_output.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
-import 'package:interfaces/storage/i_secure_storage.dart';
 import 'package:module_storage/src/storage_module.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -22,25 +21,6 @@ void main() {
       await module.dispose();
 
       expect(keyValueStorage.closeCount, 1);
-    });
-
-    test('dispose should close key-value and secure storage when enabled', () async {
-      final keyValueStorage = RecordingKeyValueStorage();
-      final secureStorage = RecordingSecureStorage();
-      final locator = RecordingServiceLocator(logger: NoopLogger());
-      final module = StorageModule(
-        config: StorageConfig(enableSecureStorage: true),
-        keyValueStorageBuilder: ({required logger, required config}) {
-          return keyValueStorage;
-        },
-        secureStorageBuilder: () => secureStorage,
-      );
-
-      await module.register(locator);
-      await module.dispose();
-
-      expect(keyValueStorage.closeCount, 1);
-      expect(secureStorage.closeCount, 1);
     });
   });
 }
@@ -207,43 +187,4 @@ class RecordingKeyValueStorage implements IKeyValueStorage {
 
   @override
   Future<void> setStringList(String key, List<String> value) async {}
-}
-
-class RecordingSecureStorage implements ISecureStorage {
-  int closeCount = 0;
-
-  @override
-  Future<void> clear() async {}
-
-  @override
-  Future<void> close() async {
-    closeCount += 1;
-  }
-
-  @override
-  Future<bool> containsKey(String key) async => false;
-
-  @override
-  Future<void> delete(String key) async {}
-
-  @override
-  Future<void> deleteAll() async {}
-
-  @override
-  Future<Set<String>> getKeys() async => <String>{};
-
-  @override
-  Future<int> getSize() async => 0;
-
-  @override
-  Future<void> init() async {}
-
-  @override
-  Future<String?> read(String key) async => null;
-
-  @override
-  Future<Map<String, String>> readAll() async => <String, String>{};
-
-  @override
-  Future<void> write(String key, String value) async {}
 }

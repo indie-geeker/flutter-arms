@@ -25,16 +25,14 @@ class LocaleNotifier extends _$LocaleNotifier {
     try {
       final localeIndex = await _storage.getInt(StorageKeys.locale);
 
-      final appLocale = localeIndex != null &&
+      final appLocale =
+          localeIndex != null &&
               localeIndex >= 0 &&
               localeIndex < AppLocale.values.length
           ? AppLocale.values[localeIndex]
           : AppLocale.english;
 
-      state = LocaleState(
-        isLoading: false,
-        appLocale: appLocale,
-      );
+      state = LocaleState(isLoading: false, appLocale: appLocale);
     } catch (_) {
       state = const LocaleState(isLoading: false);
     }

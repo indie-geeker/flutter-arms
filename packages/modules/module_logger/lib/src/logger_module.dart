@@ -1,4 +1,3 @@
-
 import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/logger/i_logger.dart';
@@ -15,10 +14,7 @@ class LoggerModule implements IModule {
   final LogLevel initialLevel;
   final List<LogOutput> outputs;
 
-  LoggerModule({
-    this.initialLevel = LogLevel.debug,
-    this.outputs = const [],
-  });
+  LoggerModule({this.initialLevel = LogLevel.debug, this.outputs = const []});
 
   @override
   String get name => 'LoggerModule';

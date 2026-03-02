@@ -1,4 +1,3 @@
-
 /// 请求取消令牌
 ///
 /// 用于取消正在进行的网络请求
@@ -84,15 +83,11 @@ class FormFile {
   /// 内容类型（可选）
   final String? contentType;
 
-  FormFile({
-    this.filePath,
-    this.bytes,
-    this.filename,
-    this.contentType,
-  }) : assert(
-          (filePath != null && filePath != '') || bytes != null,
-          'Either filePath or bytes must be provided.',
-        );
+  FormFile({this.filePath, this.bytes, this.filename, this.contentType})
+    : assert(
+        (filePath != null && filePath != '') || bytes != null,
+        'Either filePath or bytes must be provided.',
+      );
 
   /// 是否包含文件路径
   bool get hasFilePath => filePath != null && filePath!.isNotEmpty;
@@ -102,10 +97,10 @@ class FormFile {
 
   /// 从文件路径创建
   factory FormFile.fromPath(
-      String filePath, {
-        String? filename,
-        String? contentType,
-      }) {
+    String filePath, {
+    String? filename,
+    String? contentType,
+  }) {
     return FormFile(
       filePath: filePath,
       filename: filename,
@@ -119,10 +114,6 @@ class FormFile {
     String? filename,
     String? contentType,
   }) {
-    return FormFile(
-      bytes: bytes,
-      filename: filename,
-      contentType: contentType,
-    );
+    return FormFile(bytes: bytes, filename: filename, contentType: contentType);
   }
 }

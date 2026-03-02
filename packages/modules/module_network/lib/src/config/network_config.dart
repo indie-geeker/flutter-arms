@@ -1,4 +1,3 @@
-
 /// 网络配置
 class NetworkConfig {
   /// 基础 URL
@@ -48,9 +47,7 @@ class NetworkConfig {
   });
 
   /// 创建开发环境配置
-  factory NetworkConfig.development({
-    required String baseUrl,
-  }) {
+  factory NetworkConfig.development({required String baseUrl}) {
     return NetworkConfig(
       baseUrl: baseUrl,
       enableLogging: true,
@@ -60,9 +57,7 @@ class NetworkConfig {
   }
 
   /// 创建生产环境配置
-  factory NetworkConfig.production({
-    required String baseUrl,
-  }) {
+  factory NetworkConfig.production({required String baseUrl}) {
     return NetworkConfig(
       baseUrl: baseUrl,
       enableLogging: false,

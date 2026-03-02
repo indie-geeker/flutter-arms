@@ -79,12 +79,14 @@ class _NetworkDemoBody extends StatelessWidget {
                         onFetch(cacheMode: mode);
                       }
                     },
-              items: DemoCacheMode.values.map((mode) {
-                return DropdownMenuItem<DemoCacheMode>(
-                  value: mode,
-                  child: Text(_labelForMode(mode)),
-                );
-              }).toList(growable: false),
+              items: DemoCacheMode.values
+                  .map((mode) {
+                    return DropdownMenuItem<DemoCacheMode>(
+                      value: mode,
+                      child: Text(_labelForMode(mode)),
+                    );
+                  })
+                  .toList(growable: false),
             ),
           ],
         ),
@@ -95,9 +97,7 @@ class _NetworkDemoBody extends StatelessWidget {
               state.fromCache ? Icons.inventory_2_outlined : Icons.public,
               size: 18,
             ),
-            label: Text(
-              state.fromCache ? 'Source: cache' : 'Source: network',
-            ),
+            label: Text(state.fromCache ? 'Source: cache' : 'Source: network'),
           ),
         const SizedBox(height: 12),
         if (state.errorMessage != null)

@@ -420,10 +420,7 @@ class DioHttpClient implements IHttpClient, DioRequestConverter {
   }
 
   @override
-  void applyNetworkRequest(
-    dio.RequestOptions options,
-    NetworkRequest request,
-  ) {
+  void applyNetworkRequest(dio.RequestOptions options, NetworkRequest request) {
     options.path = request.path;
     options.method = request.method;
     options.queryParameters =

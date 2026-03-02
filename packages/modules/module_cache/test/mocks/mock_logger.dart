@@ -12,7 +12,12 @@ class MockLogger implements ILogger {
   }
 
   @override
-  void debug(String message, {dynamic error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {
+  void debug(
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
     logs.add(LogEntry('debug', message, error, stackTrace));
   }
 
@@ -22,22 +27,43 @@ class MockLogger implements ILogger {
   }
 
   @override
-  void warning(String message, {dynamic error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {
+  void warning(
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
     logs.add(LogEntry('warning', message, error, stackTrace));
   }
 
   @override
-  void error(String message, {dynamic error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {
+  void error(
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
     logs.add(LogEntry('error', message, error, stackTrace));
   }
 
   @override
-  void fatal(String message, {dynamic error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {
+  void fatal(
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
     logs.add(LogEntry('fatal', message, error, stackTrace));
   }
 
   @override
-  void log(LogLevel level, String message, {dynamic error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {
+  void log(
+    LogLevel level,
+    String message, {
+    dynamic error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {
     logs.add(LogEntry(level.toString(), message, error, stackTrace));
   }
 
@@ -53,8 +79,10 @@ class MockLogger implements ILogger {
 
   /// Test helper to check if a log exists
   bool hasLog(String level, String messageContains) {
-    return logs.any((entry) =>
-        entry.level == level && entry.message.contains(messageContains));
+    return logs.any(
+      (entry) =>
+          entry.level == level && entry.message.contains(messageContains),
+    );
   }
 
   /// Test helper to clear logs

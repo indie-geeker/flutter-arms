@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/logger/i_logger.dart';
@@ -110,8 +109,8 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
       });
 
       _updateProgress(
-        'Initialization completed', 
-        widget.modules.length, 
+        'Initialization completed',
+        widget.modules.length,
         widget.modules.length,
       );
     } catch (e, stackTrace) {
@@ -128,8 +127,9 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
   }
 
   void _updateProgress(String message, int current, int total) {
-    final percentage =
-        total > 0 ? ((current / total) * 100).toStringAsFixed(1) : '0.0';
+    final percentage = total > 0
+        ? ((current / total) * 100).toStringAsFixed(1)
+        : '0.0';
     debugPrint('[Init] $message ($current/$total) - $percentage%');
     if (mounted) {
       setState(() {
@@ -173,9 +173,7 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(
-                value: _progress.percentage,
-              ),
+              CircularProgressIndicator(value: _progress.percentage),
               SizedBox(height: 16),
               Text(
                 _progress.message,

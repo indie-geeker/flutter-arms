@@ -15,8 +15,7 @@ class MockKeyValueStorage implements IKeyValueStorage {
   }
 
   @override
-  Future<void> init() async {
-  }
+  Future<void> init() async {}
 
   @override
   Future<void> setString(String key, String value) async {

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
@@ -28,8 +27,11 @@ class HiveKeyValueStorage implements IKeyValueStorage {
       _box = await Hive.openBox(boxName);
       _logger.info('Hive KV storage initialized');
     } catch (e, stackTrace) {
-      _logger.error('Failed to initialize Hive storage',
-          error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Failed to initialize Hive storage',
+        error: e,
+        stackTrace: stackTrace,
+      );
       rethrow;
     }
   }
@@ -148,5 +150,4 @@ class HiveKeyValueStorage implements IKeyValueStorage {
   Future<void> setStringList(String key, List<String> value) async {
     await _box.put(key, value);
   }
-
 }

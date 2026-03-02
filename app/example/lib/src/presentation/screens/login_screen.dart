@@ -141,14 +141,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 formState: formState,
                 isLoading: isLoading,
                 onUsernameChanged: (value) {
-                  ref
-                      .read(loginFormProvider.notifier)
-                      .updateUsername(value);
+                  ref.read(loginFormProvider.notifier).updateUsername(value);
                 },
                 onPasswordChanged: (value) {
-                  ref
-                      .read(loginFormProvider.notifier)
-                      .updatePassword(value);
+                  ref.read(loginFormProvider.notifier).updatePassword(value);
                 },
                 onTogglePasswordVisibility: () {
                   ref

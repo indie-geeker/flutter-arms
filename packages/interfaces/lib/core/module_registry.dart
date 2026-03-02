@@ -1,4 +1,3 @@
-
 import 'i_service_locator.dart';
 
 /// 模块注册接口
@@ -51,7 +50,7 @@ abstract class IModule {
   Future<void> dispose();
 }
 
-class InitPriorities{
+class InitPriorities {
   static const int logger = 0;
   static const int storage = 10;
   static const int cache = 30;

@@ -30,7 +30,10 @@ void main() {
       test('should initialize successfully', () async {
         await cacheManager.init();
 
-        expect(mockLogger.hasLog('info', 'Multi-level cache initialized'), true);
+        expect(
+          mockLogger.hasLog('info', 'Multi-level cache initialized'),
+          true,
+        );
       });
 
       test('should be able to use cache after initialization', () async {
@@ -65,7 +68,11 @@ void main() {
       });
 
       test('should not store in disk with memoryOnly policy', () async {
-        await cacheManager.put('key1', 'value1', policy: CachePolicy.memoryOnly);
+        await cacheManager.put(
+          'key1',
+          'value1',
+          policy: CachePolicy.memoryOnly,
+        );
 
         // Check disk storage was NOT called
         final diskValue = await mockStorage.getJson('cache:key1');
@@ -73,7 +80,11 @@ void main() {
       });
 
       test('should store in disk with persistent policy', () async {
-        await cacheManager.put('key1', 'value1', policy: CachePolicy.persistent);
+        await cacheManager.put(
+          'key1',
+          'value1',
+          policy: CachePolicy.persistent,
+        );
 
         final diskValue = await mockStorage.getJson('cache:key1');
         expect(diskValue, isNotNull);
@@ -159,8 +170,12 @@ void main() {
         final expiredEntry = {
           'key': 'expired',
           'value': 'old_value',
-          'createdAt': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
-          'expiresAt': DateTime.now().subtract(Duration(hours: 1)).toIso8601String(),
+          'createdAt': DateTime.now()
+              .subtract(Duration(hours: 2))
+              .toIso8601String(),
+          'expiresAt': DateTime.now()
+              .subtract(Duration(hours: 1))
+              .toIso8601String(),
           'policy': 'normal',
         };
         await mockStorage.setJson('cache:expired', expiredEntry);
@@ -207,7 +222,10 @@ void main() {
 
         final result = await cacheManager.get<String>('key1');
         expect(result, isNull);
-        expect(mockLogger.hasLog('error', 'Failed to read cache from storage'), true);
+        expect(
+          mockLogger.hasLog('error', 'Failed to read cache from storage'),
+          true,
+        );
       });
     });
 
@@ -224,7 +242,10 @@ void main() {
       });
 
       test('should return default value if not exists', () async {
-        final result = await cacheManager.getOrDefault('nonexistent', 'default_value');
+        final result = await cacheManager.getOrDefault(
+          'nonexistent',
+          'default_value',
+        );
         expect(result, 'default_value');
       });
 
@@ -232,13 +253,20 @@ void main() {
         final expiredEntry = {
           'key': 'expired',
           'value': 'old_value',
-          'createdAt': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
-          'expiresAt': DateTime.now().subtract(Duration(hours: 1)).toIso8601String(),
+          'createdAt': DateTime.now()
+              .subtract(Duration(hours: 2))
+              .toIso8601String(),
+          'expiresAt': DateTime.now()
+              .subtract(Duration(hours: 1))
+              .toIso8601String(),
           'policy': 'normal',
         };
         await mockStorage.setJson('cache:expired', expiredEntry);
 
-        final result = await cacheManager.getOrDefault('expired', 'default_value');
+        final result = await cacheManager.getOrDefault(
+          'expired',
+          'default_value',
+        );
         expect(result, 'default_value');
       });
     });
@@ -347,9 +375,11 @@ void main() {
 
       test('should return false for expired key in memory', () async {
         // Put an item that expires very quickly (memoryOnly so it's not on disk)
-        await cacheManager.put('expired', 'value',
+        await cacheManager.put(
+          'expired',
+          'value',
           duration: Duration(microseconds: 1),
-          policy: CachePolicy.memoryOnly
+          policy: CachePolicy.memoryOnly,
         );
         await Future.delayed(Duration(milliseconds: 10)); // Wait for expiry
 
@@ -361,8 +391,12 @@ void main() {
         final expiredEntry = {
           'key': 'expired_disk',
           'value': 'old_value',
-          'createdAt': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
-          'expiresAt': DateTime.now().subtract(Duration(hours: 1)).toIso8601String(),
+          'createdAt': DateTime.now()
+              .subtract(Duration(hours: 2))
+              .toIso8601String(),
+          'expiresAt': DateTime.now()
+              .subtract(Duration(hours: 1))
+              .toIso8601String(),
           'policy': 'normal',
         };
         await mockStorage.setJson('cache:expired_disk', expiredEntry);
@@ -377,18 +411,21 @@ void main() {
         await cacheManager.init();
       });
 
-      test('should evict least recently used items when memory limit exceeded', () async {
-        // Add more items than max (10)
-        for (int i = 0; i < 15; i++) {
-          await cacheManager.put('key$i', 'value$i');
-          await Future.delayed(Duration(milliseconds: 1));
-        }
+      test(
+        'should evict least recently used items when memory limit exceeded',
+        () async {
+          // Add more items than max (10)
+          for (int i = 0; i < 15; i++) {
+            await cacheManager.put('key$i', 'value$i');
+            await Future.delayed(Duration(milliseconds: 1));
+          }
 
-        final stats = await cacheManager.getStats();
+          final stats = await cacheManager.getStats();
 
-        // Memory cache should be limited
-        expect(stats.memoryKeys <= 10, true);
-      });
+          // Memory cache should be limited
+          expect(stats.memoryKeys <= 10, true);
+        },
+      );
 
       test('should keep most recently accessed items', () async {
         // Fill cache
@@ -504,7 +541,11 @@ void main() {
         await cacheManager.put('valid', 'value', duration: Duration(hours: 1));
 
         // Add expired entry directly
-        await cacheManager.put('expired', 'value', duration: Duration(microseconds: 1));
+        await cacheManager.put(
+          'expired',
+          'value',
+          duration: Duration(microseconds: 1),
+        );
         await Future.delayed(Duration(milliseconds: 10));
 
         await cacheManager.clearExpired();
@@ -517,8 +558,12 @@ void main() {
         final expiredEntry = {
           'key': 'expired',
           'value': 'old_value',
-          'createdAt': DateTime.now().subtract(Duration(hours: 2)).toIso8601String(),
-          'expiresAt': DateTime.now().subtract(Duration(hours: 1)).toIso8601String(),
+          'createdAt': DateTime.now()
+              .subtract(Duration(hours: 2))
+              .toIso8601String(),
+          'expiresAt': DateTime.now()
+              .subtract(Duration(hours: 1))
+              .toIso8601String(),
           'policy': 'normal',
         };
         await mockStorage.setJson('cache:expired', expiredEntry);
@@ -530,8 +575,16 @@ void main() {
       });
 
       test('should keep non-expired entries', () async {
-        await cacheManager.put('valid1', 'value1', duration: Duration(hours: 1));
-        await cacheManager.put('valid2', 'value2', duration: Duration(hours: 1));
+        await cacheManager.put(
+          'valid1',
+          'value1',
+          duration: Duration(hours: 1),
+        );
+        await cacheManager.put(
+          'valid2',
+          'value2',
+          duration: Duration(hours: 1),
+        );
 
         await cacheManager.clearExpired();
 
@@ -556,8 +609,11 @@ void main() {
         mockStorage.disableErrorMode();
 
         // Either logged warning or threw exception - both are acceptable error handling
-        expect(mockLogger.hasLog('warning', 'Failed to check expiry') ||
-               mockLogger.logs.isNotEmpty, true);
+        expect(
+          mockLogger.hasLog('warning', 'Failed to check expiry') ||
+              mockLogger.logs.isNotEmpty,
+          true,
+        );
       });
     });
 
@@ -576,7 +632,11 @@ void main() {
 
       test('should deduplicate total keys across memory and disk', () async {
         await cacheManager.put('shared', 'value', policy: CachePolicy.normal);
-        await cacheManager.put('memory_only', 'value', policy: CachePolicy.memoryOnly);
+        await cacheManager.put(
+          'memory_only',
+          'value',
+          policy: CachePolicy.memoryOnly,
+        );
 
         final stats = await cacheManager.getStats();
         expect(stats.memoryKeys, 2);

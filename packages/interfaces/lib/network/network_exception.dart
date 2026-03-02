@@ -1,4 +1,3 @@
-
 /// 网络异常类型
 enum NetworkExceptionType {
   /// 超时

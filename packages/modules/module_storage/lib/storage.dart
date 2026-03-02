@@ -9,7 +9,6 @@ export 'src/storage_module.dart';
 
 // Implementations
 export 'src/impl/hive_kv_storage.dart';
-export 'src/impl/secure_storage.dart';
 
 // Utilities
 export 'src/utils/storage_serializer.dart';

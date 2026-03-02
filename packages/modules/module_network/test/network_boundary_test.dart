@@ -25,7 +25,9 @@ void main() {
           (_) => dio.ResponseBody.fromString(
             '',
             200,
-            headers: {'content-type': ['application/json']},
+            headers: {
+              'content-type': ['application/json'],
+            },
           ),
         );
         final dioClient = dio.Dio()
@@ -48,7 +50,9 @@ void main() {
           (_) => dio.ResponseBody.fromString(
             'null',
             200,
-            headers: {'content-type': ['application/json']},
+            headers: {
+              'content-type': ['application/json'],
+            },
           ),
         );
         final dioClient = dio.Dio()
@@ -128,7 +132,9 @@ void main() {
           (_) => dio.ResponseBody.fromString(
             '{"deleted":true}',
             204,
-            headers: {'content-type': ['application/json']},
+            headers: {
+              'content-type': ['application/json'],
+            },
           ),
         );
         final dioClient = dio.Dio()
@@ -239,7 +245,7 @@ void main() {
     });
 
     test('double-cancel does not throw', () {
-      final token = manager.trackToken(null);
+      manager.trackToken(null);
       manager.cancelAll();
       // Second cancel should be idempotent
       manager.cancelAll();
@@ -268,7 +274,9 @@ _FakeAdapter _jsonOkAdapter() => _FakeAdapter(
   (_) => dio.ResponseBody.fromString(
     '{"ok":true}',
     200,
-    headers: {'content-type': ['application/json']},
+    headers: {
+      'content-type': ['application/json'],
+    },
   ),
 );
 
@@ -295,26 +303,47 @@ class _FakeLogger implements ILogger {
   @override
   void addOutput(LogOutput output) {}
   @override
-  void debug(String message,
-      {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void debug(
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
   @override
-  void error(String message,
-      {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void error(
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
   @override
-  void fatal(String message,
-      {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void fatal(
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
   @override
   void info(String message, {Map<String, dynamic>? extras}) {}
   @override
   void init({LogLevel level = LogLevel.debug, List<LogOutput>? outputs}) {}
   @override
-  void log(LogLevel level, String message,
-      {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void log(
+    LogLevel level,
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
   @override
   void setLevel(LogLevel level) {}
   @override
-  void warning(String message,
-      {error, StackTrace? stackTrace, Map<String, dynamic>? extras}) {}
+  void warning(
+    String message, {
+    error,
+    StackTrace? stackTrace,
+    Map<String, dynamic>? extras,
+  }) {}
 }
 
 class _FakeCacheManager implements ICacheManager {
@@ -332,18 +361,22 @@ class _FakeCacheManager implements ICacheManager {
   Future<T> getOrDefault<T>(String key, T defaultValue) async => defaultValue;
   @override
   Future<CacheStats> getStats() async => CacheStats(
-        totalKeys: 0,
-        memoryKeys: 0,
-        diskKeys: 0,
-        totalSize: 0,
-        hitCount: 0,
-        missCount: 0,
-      );
+    totalKeys: 0,
+    memoryKeys: 0,
+    diskKeys: 0,
+    totalSize: 0,
+    hitCount: 0,
+    missCount: 0,
+  );
   @override
   Future<void> init() async {}
   @override
-  Future<void> put<T>(String key, T value,
-      {Duration? duration, CachePolicy policy = CachePolicy.normal}) async {}
+  Future<void> put<T>(
+    String key,
+    T value, {
+    Duration? duration,
+    CachePolicy policy = CachePolicy.normal,
+  }) async {}
   @override
   Future<void> remove(String key) async {}
 }

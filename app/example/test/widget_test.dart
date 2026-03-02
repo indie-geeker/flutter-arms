@@ -95,7 +95,10 @@ void main() {
         LoginFormContent(
           usernameController: usernameController,
           passwordController: passwordController,
-          formState: const LoginFormState(username: 'alice', password: 'secret'),
+          formState: const LoginFormState(
+            username: 'alice',
+            password: 'secret',
+          ),
           isLoading: false,
           onUsernameChanged: (_) {},
           onPasswordChanged: (_) {},
@@ -112,7 +115,9 @@ void main() {
     expect(enabledButton.onPressed, isNotNull);
   });
 
-  testWidgets('UserInfoCard shows username and triggers logout', (tester) async {
+  testWidgets('UserInfoCard shows username and triggers logout', (
+    tester,
+  ) async {
     var logoutCalled = false;
     final user = UserEntity(
       id: '1',

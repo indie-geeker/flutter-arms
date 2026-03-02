@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:interfaces/logger/log_output.dart';
 import 'package:interfaces/logger/log_entity.dart';
@@ -23,11 +22,11 @@ class ConsoleOutput implements LogOutput {
   String _colorize(String text, LogLevel level) {
     const reset = '\x1B[0m';
     final color = switch (level) {
-      LogLevel.debug => '\x1B[37m',    // 白色
-      LogLevel.info => '\x1B[36m',     // 青色
-      LogLevel.warning => '\x1B[33m',  // 黄色
-      LogLevel.error => '\x1B[31m',    // 红色
-      LogLevel.fatal => '\x1B[35m',    // 紫色
+      LogLevel.debug => '\x1B[37m', // 白色
+      LogLevel.info => '\x1B[36m', // 青色
+      LogLevel.warning => '\x1B[33m', // 黄色
+      LogLevel.error => '\x1B[31m', // 红色
+      LogLevel.fatal => '\x1B[35m', // 紫色
     };
     return '$color$text$reset';
   }

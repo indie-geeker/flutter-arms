@@ -1,4 +1,3 @@
-
 import 'package:interfaces/cache/i_cache_manager.dart';
 import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
@@ -13,10 +12,7 @@ class CacheModule implements IModule {
   final int maxMemoryItems;
   final CacheValueRegistry? valueRegistry;
 
-  CacheModule({
-    this.maxMemoryItems = 100,
-    this.valueRegistry,
-  });
+  CacheModule({this.maxMemoryItems = 100, this.valueRegistry});
 
   @override
   String get name => 'CacheModule';
@@ -42,7 +38,7 @@ class CacheModule implements IModule {
     final storage = locator.get<IKeyValueStorage>(); // 依赖 Storage
 
     final cacheManager = MultiLevelCacheManager(
-      storage: storage,  // 注入 Storage 接口
+      storage: storage, // 注入 Storage 接口
       logger: logger,
       maxMemoryItems: maxMemoryItems,
       valueRegistry: valueRegistry,

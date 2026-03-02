@@ -15,22 +15,25 @@ void main() {
       expect(options.useHashKey, isFalse);
     });
 
-    test('NetworkException helper flags should reflect status code and type', () {
-      final server = NetworkException(
-        message: 'server',
-        type: NetworkExceptionType.serverError,
-        statusCode: 503,
-      );
-      final timeout = NetworkException(
-        message: 'timeout',
-        type: NetworkExceptionType.timeout,
-      );
+    test(
+      'NetworkException helper flags should reflect status code and type',
+      () {
+        final server = NetworkException(
+          message: 'server',
+          type: NetworkExceptionType.serverError,
+          statusCode: 503,
+        );
+        final timeout = NetworkException(
+          message: 'timeout',
+          type: NetworkExceptionType.timeout,
+        );
 
-      expect(server.isServerError, isTrue);
-      expect(server.isClientError, isFalse);
-      expect(timeout.isTimeout, isTrue);
-      expect(timeout.isConnectionError, isFalse);
-    });
+        expect(server.isServerError, isTrue);
+        expect(server.isClientError, isFalse);
+        expect(timeout.isTimeout, isTrue);
+        expect(timeout.isConnectionError, isFalse);
+      },
+    );
 
     test('CacheStats should compute hit rate correctly', () {
       final stats = CacheStats(

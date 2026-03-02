@@ -121,60 +121,72 @@ void main() {
     });
 
     group('module registration', () {
-      test('should deduplicate modules with same name when registered twice', () async {
-        final first = _CountingModule(
-          name: 'DuplicateModule',
-          priority: 10,
-          dependencies: const [],
-          provides: const [],
-        );
-        final second = _CountingModule(name: 'DuplicateModule');
+      test(
+        'should deduplicate modules with same name when registered twice',
+        () async {
+          final first = _CountingModule(
+            name: 'DuplicateModule',
+            priority: 10,
+            dependencies: const [],
+            provides: const [],
+          );
+          final second = _CountingModule(name: 'DuplicateModule');
 
-        registry.registerModule(first);
-        registry.registerModule(second);
-        await registry.initializeAll();
+          registry.registerModule(first);
+          registry.registerModule(second);
+          await registry.initializeAll();
 
-        expect(first.initCount, 0);
-        expect(second.initCount, 1);
-      });
+          expect(first.initCount, 0);
+          expect(second.initCount, 1);
+        },
+      );
 
-      test('should replace previously registered modules when replace is true', () async {
-        final original = _CountingModule(name: 'Original');
-        final replacement = _CountingModule(name: 'Replacement');
+      test(
+        'should replace previously registered modules when replace is true',
+        () async {
+          final original = _CountingModule(name: 'Original');
+          final replacement = _CountingModule(name: 'Replacement');
 
-        registry.registerModules([original]);
-        registry.registerModules([replacement], replace: true);
-        await registry.initializeAll();
+          registry.registerModules([original]);
+          registry.registerModules([replacement], replace: true);
+          await registry.initializeAll();
 
-        expect(original.initCount, 0);
-        expect(replacement.initCount, 1);
-      });
+          expect(original.initCount, 0);
+          expect(replacement.initCount, 1);
+        },
+      );
 
-      test('should not duplicate same module across repeated registerModules calls', () async {
-        final module = _CountingModule(name: 'RepeatRegister');
+      test(
+        'should not duplicate same module across repeated registerModules calls',
+        () async {
+          final module = _CountingModule(name: 'RepeatRegister');
 
-        registry.registerModules([module]);
-        registry.registerModules([module]);
-        await registry.initializeAll();
+          registry.registerModules([module]);
+          registry.registerModules([module]);
+          await registry.initializeAll();
 
-        expect(module.initCount, 1);
-      });
+          expect(module.initCount, 1);
+        },
+      );
     });
 
     group('dependency validation', () {
-      test('should succeed when dependencies are registered in order', () async {
-        final logger = MockLoggerModule();
-        final network = MockNetworkModule();
+      test(
+        'should succeed when dependencies are registered in order',
+        () async {
+          final logger = MockLoggerModule();
+          final network = MockNetworkModule();
 
-        // Logger (priority 0) 先于 Network (priority 40) 注册
-        registry.registerModules([logger, network]);
+          // Logger (priority 0) 先于 Network (priority 40) 注册
+          registry.registerModules([logger, network]);
 
-        // 不应抛出异常
-        await registry.initializeAll();
+          // 不应抛出异常
+          await registry.initializeAll();
 
-        expect(logger.registered, true);
-        expect(network.registered, true);
-      });
+          expect(logger.registered, true);
+          expect(network.registered, true);
+        },
+      );
 
       test('should throw when dependency is not registered', () async {
         // 只注册 Network，不注册它依赖的 Logger
@@ -183,11 +195,13 @@ void main() {
 
         expect(
           () => registry.initializeAll(),
-          throwsA(isA<StateError>().having(
-            (e) => e.message,
-            'message',
-            contains('No module provides MockLoggerModule'),
-          )),
+          throwsA(
+            isA<StateError>().having(
+              (e) => e.message,
+              'message',
+              contains('No module provides MockLoggerModule'),
+            ),
+          ),
         );
       });
     });
@@ -205,10 +219,7 @@ void main() {
           progressLog.add('${module.name}: $current/$total');
         });
 
-        expect(progressLog, [
-          'MockLogger: 1/2',
-          'MockNetwork: 2/2',
-        ]);
+        expect(progressLog, ['MockLogger: 1/2', 'MockNetwork: 2/2']);
       });
 
       test('should work without progress callback (null)', () async {

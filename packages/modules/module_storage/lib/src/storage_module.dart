@@ -2,10 +2,7 @@ import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
-import 'package:interfaces/storage/i_secure_storage.dart';
-
 import 'impl/hive_kv_storage.dart';
-import 'impl/secure_storage.dart';
 
 typedef KeyValueStorageBuilder =
     IKeyValueStorage Function({
@@ -13,23 +10,17 @@ typedef KeyValueStorageBuilder =
       required StorageConfig config,
     });
 
-typedef SecureStorageBuilder = ISecureStorage Function();
-
 /// 存储模块
 class StorageModule implements IModule {
   final StorageConfig config;
   final KeyValueStorageBuilder _keyValueStorageBuilder;
-  final SecureStorageBuilder _secureStorageBuilder;
 
   StorageModule({
     StorageConfig? config,
     KeyValueStorageBuilder? keyValueStorageBuilder,
-    SecureStorageBuilder? secureStorageBuilder,
   }) : config = config ?? StorageConfig(),
        _keyValueStorageBuilder =
-           keyValueStorageBuilder ?? _defaultKeyValueStorageBuilder,
-       _secureStorageBuilder =
-           secureStorageBuilder ?? _defaultSecureStorageBuilder;
+           keyValueStorageBuilder ?? _defaultKeyValueStorageBuilder;
 
   @override
   String get name => 'StorageModule';
@@ -43,9 +34,6 @@ class StorageModule implements IModule {
   @override
   List<Type> get provides {
     final provided = <Type>[IKeyValueStorage];
-    if (config.enableSecureStorage) {
-      provided.add(ISecureStorage);
-    }
     return provided;
   }
 
@@ -60,28 +48,15 @@ class StorageModule implements IModule {
     final logger = locator.get<ILogger>();
 
     // 注册 KV 存储
-    final kvStorage = _keyValueStorageBuilder(
-      logger: logger,
-      config: config,
-    );
+    final kvStorage = _keyValueStorageBuilder(logger: logger, config: config);
     locator.registerSingleton<IKeyValueStorage>(kvStorage);
     // Reserved extension point: relational/document storage can be registered here.
-
-    // 注册安全存储（可选）
-    if (config.enableSecureStorage) {
-      final secureStorage = _secureStorageBuilder();
-      locator.registerSingleton<ISecureStorage>(secureStorage);
-    }
   }
 
   @override
   Future<void> init() async {
     final kvStorage = _locator.get<IKeyValueStorage>();
     await kvStorage.init();
-    if (_locator.isRegistered<ISecureStorage>()) {
-      final secureStorage = _locator.get<ISecureStorage>();
-      await secureStorage.init();
-    }
   }
 
   @override
@@ -89,10 +64,6 @@ class StorageModule implements IModule {
     if (_locator.isRegistered<IKeyValueStorage>()) {
       final kvStorage = _locator.get<IKeyValueStorage>();
       await kvStorage.close();
-    }
-    if (_locator.isRegistered<ISecureStorage>()) {
-      final secureStorage = _locator.get<ISecureStorage>();
-      await secureStorage.close();
     }
   }
 }
@@ -108,8 +79,6 @@ IKeyValueStorage _defaultKeyValueStorageBuilder({
   );
 }
 
-ISecureStorage _defaultSecureStorageBuilder() => FlutterSecureStorageImpl();
-
 /// 存储配置
 class StorageConfig {
   final String kvStorageBoxName;
@@ -117,14 +86,12 @@ class StorageConfig {
   /// Hive base directory. Absolute path uses Hive.init; relative uses initFlutter subDir.
   final String? baseDir;
   final bool enableRelationalStorage;
-  final bool enableSecureStorage;
   final String databaseName;
 
   StorageConfig({
     this.kvStorageBoxName = 'app_storage',
     this.baseDir,
     this.enableRelationalStorage = false,
-    this.enableSecureStorage = false,
     this.databaseName = 'app.db',
   });
 }

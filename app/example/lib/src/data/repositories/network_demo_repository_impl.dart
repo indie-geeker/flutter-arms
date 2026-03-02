@@ -81,16 +81,18 @@ class NetworkDemoRepositoryImpl implements INetworkDemoRepository {
       return null;
     }
 
-    return decoded.map<DemoPostEntity>((dynamic item) {
-      if (item is! Map) {
-        throw const FormatException('Invalid cached post item.');
-      }
-      return _toEntity(
-        item.map<String, dynamic>(
-          (dynamic key, dynamic value) => MapEntry(key.toString(), value),
-        ),
-      );
-    }).toList(growable: false);
+    return decoded
+        .map<DemoPostEntity>((dynamic item) {
+          if (item is! Map) {
+            throw const FormatException('Invalid cached post item.');
+          }
+          return _toEntity(
+            item.map<String, dynamic>(
+              (dynamic key, dynamic value) => MapEntry(key.toString(), value),
+            ),
+          );
+        })
+        .toList(growable: false);
   }
 
   DemoPostEntity _toEntity(Map<String, dynamic> json) {

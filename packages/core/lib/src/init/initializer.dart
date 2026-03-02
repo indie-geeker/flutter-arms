@@ -1,4 +1,3 @@
-
 import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
 
@@ -12,7 +11,7 @@ class AppInitializer {
   ///
   /// When omitted, defaults to the global [ServiceLocator] singleton.
   AppInitializer({IServiceLocator? locator})
-      : _registry = ModuleRegistry(locator: locator);
+    : _registry = ModuleRegistry(locator: locator);
 
   /// Initializes the application with the given [modules].
   Future<void> initialize({

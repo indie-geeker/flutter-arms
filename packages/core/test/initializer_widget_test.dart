@@ -6,7 +6,9 @@ import 'package:interfaces/core/module_registry.dart';
 
 void main() {
   group('AppInitializerWidget lifecycle', () {
-    testWidgets('controller shutdown disposes modules predictably', (tester) async {
+    testWidgets('controller shutdown disposes modules predictably', (
+      tester,
+    ) async {
       final controller = AppInitializerController();
       final module = _WidgetTestModule('LifecycleModule');
 
@@ -34,7 +36,9 @@ void main() {
       expect(module.disposeCount, 1);
     });
 
-    testWidgets('unmount does not trigger async dispose implicitly', (tester) async {
+    testWidgets('unmount does not trigger async dispose implicitly', (
+      tester,
+    ) async {
       final controller = AppInitializerController();
       final module = _WidgetTestModule('UnmountModule');
 

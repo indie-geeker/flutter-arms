@@ -37,9 +37,8 @@ void configureProxy(
   final existingOnHttpClientCreate = adapter.onHttpClientCreate;
 
   adapter.createHttpClient = () {
-    final baseClient =
-        existingCreateHttpClient?.call() ??
-        HttpClient()..idleTimeout = const Duration(seconds: 3);
+    final baseClient = existingCreateHttpClient?.call() ?? HttpClient()
+      ..idleTimeout = const Duration(seconds: 3);
 
     // Keep backward compatibility for users still configuring deprecated callback.
     // ignore: deprecated_member_use_from_same_package, deprecated_member_use

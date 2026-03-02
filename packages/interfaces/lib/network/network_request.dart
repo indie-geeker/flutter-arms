@@ -1,4 +1,3 @@
-
 import 'network_cache_options.dart';
 
 /// 网络请求封装
@@ -44,12 +43,12 @@ class NetworkRequest {
 
   /// 创建 GET 请求
   factory NetworkRequest.get(
-      String path, {
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        NetworkCacheOptions? cacheOptions,
-      }) {
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    NetworkCacheOptions? cacheOptions,
+  }) {
     return NetworkRequest(
       path: path,
       method: 'GET',
@@ -62,13 +61,13 @@ class NetworkRequest {
 
   /// 创建 POST 请求
   factory NetworkRequest.post(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        NetworkCacheOptions? cacheOptions,
-      }) {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    NetworkCacheOptions? cacheOptions,
+  }) {
     return NetworkRequest(
       path: path,
       method: 'POST',
@@ -82,13 +81,13 @@ class NetworkRequest {
 
   /// 创建 PUT 请求
   factory NetworkRequest.put(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        NetworkCacheOptions? cacheOptions,
-      }) {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    NetworkCacheOptions? cacheOptions,
+  }) {
     return NetworkRequest(
       path: path,
       method: 'PUT',
@@ -102,13 +101,13 @@ class NetworkRequest {
 
   /// 创建 DELETE 请求
   factory NetworkRequest.delete(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        NetworkCacheOptions? cacheOptions,
-      }) {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    NetworkCacheOptions? cacheOptions,
+  }) {
     return NetworkRequest(
       path: path,
       method: 'DELETE',

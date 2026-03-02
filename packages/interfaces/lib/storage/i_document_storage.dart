@@ -1,4 +1,3 @@
-
 import 'i_storage.dart';
 
 /// 文档存储接口（类似 NoSQL）

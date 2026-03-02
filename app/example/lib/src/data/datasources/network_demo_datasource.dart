@@ -30,17 +30,19 @@ class NetworkDemoDataSource {
       throw const FormatException('Unexpected response payload.');
     }
 
-    return data.map<Map<String, dynamic>>((dynamic item) {
-      if (item is Map<String, dynamic>) {
-        return Map<String, dynamic>.from(item);
-      }
-      if (item is Map) {
-        return item.map<String, dynamic>(
-          (dynamic key, dynamic value) => MapEntry(key.toString(), value),
-        );
-      }
-      throw const FormatException('Unexpected post item.');
-    }).toList(growable: false);
+    return data
+        .map<Map<String, dynamic>>((dynamic item) {
+          if (item is Map<String, dynamic>) {
+            return Map<String, dynamic>.from(item);
+          }
+          if (item is Map) {
+            return item.map<String, dynamic>(
+              (dynamic key, dynamic value) => MapEntry(key.toString(), value),
+            );
+          }
+          throw const FormatException('Unexpected post item.');
+        })
+        .toList(growable: false);
   }
 
   NetworkCacheOptions _cacheOptionsFor(DemoCacheMode cacheMode) {

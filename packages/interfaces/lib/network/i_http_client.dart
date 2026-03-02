@@ -1,4 +1,3 @@
-
 import 'i_network_interceptor.dart';
 import 'network_cache_options.dart';
 import 'network_response.dart';
@@ -8,78 +7,78 @@ import 'network_types.dart';
 abstract class IHttpClient {
   /// 发起 GET 请求
   Future<NetworkResponse<T>> get<T>(
-      String path, {
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      });
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  });
 
   /// 发起 POST 请求
   Future<NetworkResponse<T>> post<T>(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      });
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  });
 
   /// 发起 PUT 请求
   Future<NetworkResponse<T>> put<T>(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      });
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  });
 
   /// 发起 DELETE 请求
   Future<NetworkResponse<T>> delete<T>(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      });
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  });
 
   /// 文件上传
   Future<NetworkResponse<T>> upload<T>(
-      String path,
-      FormData formData, {
-        ProgressCallback? onSendProgress,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      });
+    String path,
+    FormData formData, {
+    ProgressCallback? onSendProgress,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  });
 
   /// 文件下载
   Future<NetworkResponse> download(
-      String urlPath,
-      String savePath, {
-        ProgressCallback? onReceiveProgress,
-        Map<String, dynamic>? extra,
-        Duration? connectTimeout,
-        Duration? receiveTimeout,
-        NetworkCacheOptions? cacheOptions,
-        CancelToken? cancelToken,
-      });
+    String urlPath,
+    String savePath, {
+    ProgressCallback? onReceiveProgress,
+    Map<String, dynamic>? extra,
+    Duration? connectTimeout,
+    Duration? receiveTimeout,
+    NetworkCacheOptions? cacheOptions,
+    CancelToken? cancelToken,
+  });
 
   /// 添加拦截器
   void addInterceptor(INetworkInterceptor interceptor);

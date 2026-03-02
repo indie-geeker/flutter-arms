@@ -1,4 +1,3 @@
-
 import 'dart:math' show max;
 
 import 'package:interfaces/cache/cache_policy.dart';
@@ -12,7 +11,7 @@ import '../models/cache_entry.dart';
 /// 多级缓存管理器（内存 + 磁盘）
 /// 关键：基于 IKeyValueStorage 实现持久化
 class MultiLevelCacheManager implements ICacheManager {
-  final IKeyValueStorage _storage;  // 依赖 Storage 接口
+  final IKeyValueStorage _storage; // 依赖 Storage 接口
   final ILogger _logger;
   final CacheValueRegistry? _valueRegistry;
   final Map<String, CacheEntry> _memoryCache = {};
@@ -26,10 +25,10 @@ class MultiLevelCacheManager implements ICacheManager {
     required ILogger logger,
     int maxMemoryItems = 100,
     CacheValueRegistry? valueRegistry,
-  })  : _storage = storage,
-        _logger = logger,
-        _valueRegistry = valueRegistry,
-        _maxMemoryItems = maxMemoryItems;
+  }) : _storage = storage,
+       _logger = logger,
+       _valueRegistry = valueRegistry,
+       _maxMemoryItems = maxMemoryItems;
 
   @override
   Future<void> init() async {
@@ -40,11 +39,11 @@ class MultiLevelCacheManager implements ICacheManager {
 
   @override
   Future<void> put<T>(
-      String key,
-      T value, {
-        Duration? duration,
-        CachePolicy policy = CachePolicy.normal,
-      }) async {
+    String key,
+    T value, {
+    Duration? duration,
+    CachePolicy policy = CachePolicy.normal,
+  }) async {
     final entry = CacheEntry(
       key: key,
       value: value,
@@ -67,8 +66,11 @@ class MultiLevelCacheManager implements ICacheManager {
           entry.toJson(registry: _valueRegistry),
         );
       } catch (e, stackTrace) {
-        _logger.error('Failed to persist cache',
-            error: e, stackTrace: stackTrace);
+        _logger.error(
+          'Failed to persist cache',
+          error: e,
+          stackTrace: stackTrace,
+        );
       }
     }
   }
@@ -105,8 +107,11 @@ class MultiLevelCacheManager implements ICacheManager {
         }
       }
     } catch (e, stackTrace) {
-      _logger.error('Failed to read cache from storage',
-          error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Failed to read cache from storage',
+        error: e,
+        stackTrace: stackTrace,
+      );
     }
 
     _missCount++;
@@ -176,8 +181,11 @@ class MultiLevelCacheManager implements ICacheManager {
 
       return true;
     } catch (e, stackTrace) {
-      _logger.error('Failed to check cache key existence',
-          error: e, stackTrace: stackTrace);
+      _logger.error(
+        'Failed to check cache key existence',
+        error: e,
+        stackTrace: stackTrace,
+      );
       return false;
     }
   }
@@ -236,7 +244,9 @@ class MultiLevelCacheManager implements ICacheManager {
     if (_memoryCache.length > _maxMemoryItems) {
       // 找出最久未使用的项
       final sortedEntries = _memoryCache.entries.toList()
-        ..sort((a, b) => a.value.lastAccessedAt.compareTo(b.value.lastAccessedAt));
+        ..sort(
+          (a, b) => a.value.lastAccessedAt.compareTo(b.value.lastAccessedAt),
+        );
 
       // 删除最久未使用的 10%，至少删除 1 项 (修复 maxMemoryItems < 10 时的边界条件)
       final toRemove = max(1, (_maxMemoryItems * 0.1).toInt());

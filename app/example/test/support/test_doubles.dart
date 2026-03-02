@@ -3,7 +3,6 @@ import 'package:example/src/domain/entities/user_entity.dart';
 import 'package:example/src/domain/failures/auth_failure.dart';
 import 'package:example/src/domain/repositories/i_auth_repository.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
-import 'package:interfaces/storage/i_secure_storage.dart';
 
 class InMemoryKeyValueStorage implements IKeyValueStorage {
   final Map<String, Object?> _store = <String, Object?>{};
@@ -136,48 +135,6 @@ class ThrowingKeyValueStorage extends InMemoryKeyValueStorage {
     }
     return super.containsKey(key);
   }
-}
-
-class InMemorySecureStorage implements ISecureStorage {
-  final Map<String, String> _store = <String, String>{};
-
-  @override
-  Future<void> init() async {}
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  Future<void> clear() async => _store.clear();
-
-  @override
-  Future<int> getSize() async => _store.length;
-
-  @override
-  Future<void> write(String key, String value) async {
-    _store[key] = value;
-  }
-
-  @override
-  Future<String?> read(String key) async => _store[key];
-
-  @override
-  Future<void> delete(String key) async {
-    _store.remove(key);
-  }
-
-  @override
-  Future<bool> containsKey(String key) async => _store.containsKey(key);
-
-  @override
-  Future<Set<String>> getKeys() async => _store.keys.toSet();
-
-  @override
-  Future<Map<String, String>> readAll() async =>
-      Map<String, String>.from(_store);
-
-  @override
-  Future<void> deleteAll() async => _store.clear();
 }
 
 class FakeAuthRepository implements IAuthRepository {

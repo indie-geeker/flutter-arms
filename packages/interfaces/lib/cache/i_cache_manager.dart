@@ -1,4 +1,3 @@
-
 import 'cache_policy.dart';
 import 'cache_stats.dart';
 
@@ -14,11 +13,11 @@ abstract class ICacheManager {
   /// [duration] 过期时间（null 表示使用默认时间）
   /// [policy] 缓存策略
   Future<void> put<T>(
-      String key,
-      T value, {
-        Duration? duration,
-        CachePolicy policy = CachePolicy.normal,
-      });
+    String key,
+    T value, {
+    Duration? duration,
+    CachePolicy policy = CachePolicy.normal,
+  });
 
   /// 从缓存获取数据
   Future<T?> get<T>(String key);

@@ -1,11 +1,10 @@
-
 import 'package:dio/dio.dart';
 import 'package:interfaces/interfaces.dart';
 
 /// 网络请求重试拦截器
 class RetryInterceptor extends Interceptor {
   final ILogger _logger;
-  final Dio _dio;  // 使用原始 Dio 实例进行重试
+  final Dio _dio; // 使用原始 Dio 实例进行重试
   final int maxRetries;
   final Duration retryDelay;
   final bool exponentialBackoff;
@@ -47,7 +46,9 @@ class RetryInterceptor extends Interceptor {
         : retryDelay;
     await Future.delayed(delay);
 
-    _logger.info('Retrying request (${retryCount + 1}/$maxRetries): ${err.requestOptions.uri}');
+    _logger.info(
+      'Retrying request (${retryCount + 1}/$maxRetries): ${err.requestOptions.uri}',
+    );
 
     // 更新重试次数
     err.requestOptions.extra['retry_count'] = retryCount + 1;

@@ -12,10 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Example bootstrap profiles', () {
     test('minimal profile initializes logger and storage only', () {
-      final modules = buildBootstrapModules(
-        enableFullStackProfile: false,
-        enableSecureStorage: false,
-      );
+      final modules = buildBootstrapModules(enableFullStackProfile: false);
 
       expect(modules.map((m) => m.runtimeType).toList(), [
         LoggerModule,
@@ -30,13 +27,13 @@ void main() {
     });
 
     test('full-stack profile includes cache and network providers', () {
-      final modules = buildBootstrapModules(
-        enableFullStackProfile: true,
-        enableSecureStorage: false,
-      );
+      final modules = buildBootstrapModules(enableFullStackProfile: true);
 
       final moduleTypes = modules.map((m) => m.runtimeType).toSet();
-      expect(moduleTypes, containsAll({LoggerModule, StorageModule, CacheModule, NetworkModule}));
+      expect(
+        moduleTypes,
+        containsAll({LoggerModule, StorageModule, CacheModule, NetworkModule}),
+      );
 
       final networkModule = modules.whereType<NetworkModule>().single;
       expect(networkModule.enableCache, isTrue);
@@ -44,7 +41,10 @@ void main() {
       expect(networkModule.dependencies, containsAll([ILogger, ICacheManager]));
 
       final providedTypes = modules.expand((m) => m.provides).toSet();
-      expect(providedTypes, containsAll([ILogger, IKeyValueStorage, ICacheManager, IHttpClient]));
+      expect(
+        providedTypes,
+        containsAll([ILogger, IKeyValueStorage, ICacheManager, IHttpClient]),
+      );
     });
   });
 }

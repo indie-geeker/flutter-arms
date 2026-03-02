@@ -241,10 +241,7 @@ class StorageMigration {
   }
 
   /// 备份当前数据
-  Future<void> _backup(
-    StorageMigrationContext context,
-    int version,
-  ) async {
+  Future<void> _backup(StorageMigrationContext context, int version) async {
     final data = await context.getData();
     final snapshot = Map<String, dynamic>.from(data);
     final dataWithBackup = Map<String, dynamic>.from(data)

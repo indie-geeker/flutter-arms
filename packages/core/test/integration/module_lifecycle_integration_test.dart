@@ -102,11 +102,7 @@ void main() {
       events.clear();
       await registry.disposeAll();
 
-      expect(events, [
-        'Cache:dispose',
-        'Storage:dispose',
-        'Logger:dispose',
-      ]);
+      expect(events, ['Cache:dispose', 'Storage:dispose', 'Logger:dispose']);
     });
 
     test('progress callback reports correct counts', () async {
@@ -168,55 +164,57 @@ void main() {
 
       registry.registerModules([logger, failingStorage]);
 
-      expect(
-        () => registry.initializeAll(),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => registry.initializeAll(), throwsA(isA<StateError>()));
 
       // Logger should have been rolled back (disposed)
       await pumpEventQueue();
-      expect(events, containsAllInOrder([
-        'Logger:register',
-        'Logger:init',
-        'Storage:register',
-        'Logger:dispose',
-      ]));
-    });
-
-    test('register failure rolls back previously initialized modules',
-        () async {
-      final events = <String>[];
-
-      final logger = _TrackingModule(
-        'Logger',
-        priority: 0,
-        dependencies: [],
-        provides: [_LoggerService],
-        events: events,
-      );
-      final failingStorage = _TrackingModule(
-        'Storage',
-        priority: 10,
-        dependencies: [_LoggerService],
-        provides: [_StorageService],
-        events: events,
-        failOnRegister: true,
-      );
-
-      registry.registerModules([logger, failingStorage]);
-
       expect(
-        () => registry.initializeAll(),
-        throwsA(isA<StateError>()),
+        events,
+        containsAllInOrder([
+          'Logger:register',
+          'Logger:init',
+          'Storage:register',
+          'Logger:dispose',
+        ]),
       );
-
-      await pumpEventQueue();
-      expect(events, containsAllInOrder([
-        'Logger:register',
-        'Logger:init',
-        'Logger:dispose',
-      ]));
     });
+
+    test(
+      'register failure rolls back previously initialized modules',
+      () async {
+        final events = <String>[];
+
+        final logger = _TrackingModule(
+          'Logger',
+          priority: 0,
+          dependencies: [],
+          provides: [_LoggerService],
+          events: events,
+        );
+        final failingStorage = _TrackingModule(
+          'Storage',
+          priority: 10,
+          dependencies: [_LoggerService],
+          provides: [_StorageService],
+          events: events,
+          failOnRegister: true,
+        );
+
+        registry.registerModules([logger, failingStorage]);
+
+        expect(() => registry.initializeAll(), throwsA(isA<StateError>()));
+
+        await pumpEventQueue();
+        expect(
+          events,
+          containsAllInOrder([
+            'Logger:register',
+            'Logger:init',
+            'Logger:dispose',
+          ]),
+        );
+      },
+    );
 
     test('missing dependency throws descriptive error', () async {
       final network = _TrackingModule(
@@ -298,10 +296,7 @@ void main() {
       registry.registerModules([logger, storage]);
 
       // First attempt should fail
-      expect(
-        () => registry.initializeAll(),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => registry.initializeAll(), throwsA(isA<StateError>()));
 
       await pumpEventQueue();
       events.clear();
@@ -342,10 +337,10 @@ class _TrackingModule implements IModule {
     this.failOnInit = false,
     this.failOnRegister = false,
     this.initCallback,
-  })  : _priority = priority,
-        _dependencies = dependencies,
-        _provides = provides,
-        _events = events ?? [];
+  }) : _priority = priority,
+       _dependencies = dependencies,
+       _provides = provides,
+       _events = events ?? [];
 
   final String _name;
   final int _priority;

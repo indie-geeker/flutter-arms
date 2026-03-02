@@ -33,10 +33,7 @@ void main() {
 
     group('concurrent operations', () {
       test('parallel puts do not corrupt cache state', () async {
-        final futures = List.generate(
-          20,
-          (i) => cache.put('key$i', 'value$i'),
-        );
+        final futures = List.generate(20, (i) => cache.put('key$i', 'value$i'));
         await Future.wait(futures);
 
         final stats = await cache.getStats();
@@ -153,8 +150,7 @@ void main() {
     group('error resilience', () {
       test('storage error during put still caches in memory', () async {
         storage.enableErrorMode();
-        await cache.put('memory_fallback', 'value',
-            policy: CachePolicy.normal);
+        await cache.put('memory_fallback', 'value', policy: CachePolicy.normal);
         storage.disableErrorMode();
 
         // Should still be in memory even though disk write failed
@@ -171,8 +167,7 @@ void main() {
           'key': 'disk_item',
           'value': 'value',
           'createdAt': DateTime.now().toIso8601String(),
-          'expiresAt':
-              DateTime.now().add(Duration(hours: 1)).toIso8601String(),
+          'expiresAt': DateTime.now().add(Duration(hours: 1)).toIso8601String(),
           'policy': 'normal',
         });
 

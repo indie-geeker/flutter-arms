@@ -11,10 +11,7 @@ class FileOutput implements LogOutput, DisposableLogOutput {
   final String filePath;
   final int maxFileSize; // bytes
 
-  FileOutput(
-    this.filePath, {
-    this.maxFileSize = 10 * 1024 * 1024,
-  });
+  FileOutput(this.filePath, {this.maxFileSize = 10 * 1024 * 1024});
 
   @override
   void write(LogEntry entry) {

@@ -81,7 +81,10 @@ void main() {
         await module.register(locator);
         await module.init();
 
-        expect(mockLogger.hasLog('info', 'Multi-level cache initialized'), true);
+        expect(
+          mockLogger.hasLog('info', 'Multi-level cache initialized'),
+          true,
+        );
       });
 
       test('should make cache manager ready for use', () async {
@@ -130,8 +133,16 @@ void main() {
         await module.init();
 
         final cacheManager = locator.get<ICacheManager>();
-        await cacheManager.put('key1', 'value1', policy: CachePolicy.memoryOnly);
-        await cacheManager.put('key2', 'value2', policy: CachePolicy.memoryOnly);
+        await cacheManager.put(
+          'key1',
+          'value1',
+          policy: CachePolicy.memoryOnly,
+        );
+        await cacheManager.put(
+          'key2',
+          'value2',
+          policy: CachePolicy.memoryOnly,
+        );
 
         await module.dispose();
 
@@ -146,7 +157,11 @@ void main() {
         await module.init();
 
         final cacheManager = locator.get<ICacheManager>();
-        await cacheManager.put('memory', 'value1', policy: CachePolicy.memoryOnly);
+        await cacheManager.put(
+          'memory',
+          'value1',
+          policy: CachePolicy.memoryOnly,
+        );
         await cacheManager.put('disk', 'value2', policy: CachePolicy.normal);
 
         await module.dispose();
@@ -158,21 +173,28 @@ void main() {
     });
 
     group('Full Module Lifecycle', () {
-      test('should complete full register -> init -> dispose lifecycle', () async {
-        // Register
-        await module.register(locator);
-        expect(locator.isRegistered<ICacheManager>(), true);
+      test(
+        'should complete full register -> init -> dispose lifecycle',
+        () async {
+          // Register
+          await module.register(locator);
+          expect(locator.isRegistered<ICacheManager>(), true);
 
-        // Init
-        await module.init();
-        final cacheManager = locator.get<ICacheManager>();
-        await cacheManager.put('test', 'value', policy: CachePolicy.memoryOnly);
-        expect(await cacheManager.get<String>('test'), 'value');
+          // Init
+          await module.init();
+          final cacheManager = locator.get<ICacheManager>();
+          await cacheManager.put(
+            'test',
+            'value',
+            policy: CachePolicy.memoryOnly,
+          );
+          expect(await cacheManager.get<String>('test'), 'value');
 
-        // Dispose
-        await module.dispose();
-        expect(await cacheManager.get<String>('test'), isNull);
-      });
+          // Dispose
+          await module.dispose();
+          expect(await cacheManager.get<String>('test'), isNull);
+        },
+      );
 
       test('should handle multiple register calls', () async {
         await module.register(locator);
@@ -188,7 +210,11 @@ void main() {
         await module.init();
 
         final cacheManager = locator.get<ICacheManager>();
-        await cacheManager.put('test', 'value1', policy: CachePolicy.memoryOnly);
+        await cacheManager.put(
+          'test',
+          'value1',
+          policy: CachePolicy.memoryOnly,
+        );
 
         await module.dispose();
         await module.init();
@@ -205,10 +231,7 @@ void main() {
         badLocator.registerSingleton<IKeyValueStorage>(mockStorage);
         // ILogger not registered
 
-        expect(
-          () async => await module.register(badLocator),
-          throwsException,
-        );
+        expect(() async => await module.register(badLocator), throwsException);
       });
 
       test('should fail if IKeyValueStorage not registered', () async {
@@ -216,10 +239,7 @@ void main() {
         badLocator.registerSingleton<ILogger>(mockLogger);
         // IKeyValueStorage not registered
 
-        expect(
-          () async => await module.register(badLocator),
-          throwsException,
-        );
+        expect(() async => await module.register(badLocator), throwsException);
       });
 
       test('should use injected dependencies', () async {
@@ -251,8 +271,16 @@ void main() {
         expect(cacheManager, isNotNull);
 
         // Add a few items and verify they work
-        await cacheManager.put('key1', 'value1', policy: CachePolicy.memoryOnly);
-        await cacheManager.put('key2', 'value2', policy: CachePolicy.memoryOnly);
+        await cacheManager.put(
+          'key1',
+          'value1',
+          policy: CachePolicy.memoryOnly,
+        );
+        await cacheManager.put(
+          'key2',
+          'value2',
+          policy: CachePolicy.memoryOnly,
+        );
 
         expect(await cacheManager.get<String>('key1'), 'value1');
         expect(await cacheManager.get<String>('key2'), 'value2');
@@ -285,10 +313,18 @@ void main() {
         // Test various operations
         await cacheManager.put('user:1', {'name': 'John', 'age': 30});
         await cacheManager.put('user:2', {'name': 'Jane', 'age': 25});
-        await cacheManager.put('config', {'theme': 'dark'}, policy: CachePolicy.persistent);
+        await cacheManager.put('config', {
+          'theme': 'dark',
+        }, policy: CachePolicy.persistent);
 
-        expect(await cacheManager.get<Map>('user:1'), {'name': 'John', 'age': 30});
-        expect(await cacheManager.get<Map>('user:2'), {'name': 'Jane', 'age': 25});
+        expect(await cacheManager.get<Map>('user:1'), {
+          'name': 'John',
+          'age': 30,
+        });
+        expect(await cacheManager.get<Map>('user:2'), {
+          'name': 'Jane',
+          'age': 25,
+        });
         expect(await cacheManager.get<Map>('config'), {'theme': 'dark'});
 
         await cacheManager.remove('user:1');
@@ -303,7 +339,11 @@ void main() {
         await module.init();
 
         final cacheManager = locator.get<ICacheManager>();
-        await cacheManager.put('persistent', 'data', policy: CachePolicy.persistent);
+        await cacheManager.put(
+          'persistent',
+          'data',
+          policy: CachePolicy.persistent,
+        );
 
         // Verify it's in storage before disposal
         final diskValueBefore = await mockStorage.getJson('cache:persistent');

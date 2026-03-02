@@ -93,9 +93,7 @@ void main() {
 
     group('Migration Execution', () {
       test('should migrate from version 0 to version 1', () async {
-        migration.registerMigration(
-          AddUserNameMigration(),
-        );
+        migration.registerMigration(AddUserNameMigration());
 
         mockStorage = {'user_id': 123};
 
@@ -285,9 +283,7 @@ void main() {
 
         mockStorage = {'original_value': 123};
 
-        failingMigration.registerMigration(
-          FailingMigrationScript(),
-        );
+        failingMigration.registerMigration(FailingMigrationScript());
 
         try {
           await failingMigration.migrate(context);
@@ -299,55 +295,55 @@ void main() {
         expect(mockStorage.containsKey('original_value'), isTrue);
       });
 
-      test('should restore full snapshot when migration fails mid-chain', () async {
-        final replaceStorage = <String, dynamic>{
-          'foo': 'bar',
-          StorageMigration.versionKey: 0,
-        };
-        final replaceContext = StorageMigrationContext(
-          getData: () async => Map<String, dynamic>.from(replaceStorage),
-          setData: (data) async {
-            replaceStorage
-              ..clear()
-              ..addAll(data);
-          },
-          deleteKey: (key) async => replaceStorage.remove(key),
-          hasKey: (key) async => replaceStorage.containsKey(key),
-          getKeys: () async => replaceStorage.keys.toSet(),
-          clear: () async => replaceStorage.clear(),
-        );
-
-        migration.registerMigrations([
-          TestMigrationScript(
-            fromVersion: 0,
-            toVersion: 1,
-            description: 'v0 -> v1',
-            onMigrate: (ctx) async {
-              final data = await ctx.getData();
-              data['step1'] = true;
-              await ctx.setData(data);
-            },
-          ),
-          FailingStepMigrationScript(
-            fromVersion: 1,
-            toVersion: 2,
-            description: 'v1 -> v2 fail',
-          ),
-        ]);
-
-        await expectLater(
-          migration.migrate(replaceContext),
-          throwsA(isA<MigrationException>()),
-        );
-
-        expect(
-          replaceStorage,
-          equals({
+      test(
+        'should restore full snapshot when migration fails mid-chain',
+        () async {
+          final replaceStorage = <String, dynamic>{
             'foo': 'bar',
             StorageMigration.versionKey: 0,
-          }),
-        );
-      });
+          };
+          final replaceContext = StorageMigrationContext(
+            getData: () async => Map<String, dynamic>.from(replaceStorage),
+            setData: (data) async {
+              replaceStorage
+                ..clear()
+                ..addAll(data);
+            },
+            deleteKey: (key) async => replaceStorage.remove(key),
+            hasKey: (key) async => replaceStorage.containsKey(key),
+            getKeys: () async => replaceStorage.keys.toSet(),
+            clear: () async => replaceStorage.clear(),
+          );
+
+          migration.registerMigrations([
+            TestMigrationScript(
+              fromVersion: 0,
+              toVersion: 1,
+              description: 'v0 -> v1',
+              onMigrate: (ctx) async {
+                final data = await ctx.getData();
+                data['step1'] = true;
+                await ctx.setData(data);
+              },
+            ),
+            FailingStepMigrationScript(
+              fromVersion: 1,
+              toVersion: 2,
+              description: 'v1 -> v2 fail',
+            ),
+          ]);
+
+          await expectLater(
+            migration.migrate(replaceContext),
+            throwsA(isA<MigrationException>()),
+          );
+
+          expect(
+            replaceStorage,
+            equals({'foo': 'bar', StorageMigration.versionKey: 0}),
+          );
+        },
+      );
 
       test('should cleanup backup data after successful migration', () async {
         mockStorage = {'foo': 'bar'};

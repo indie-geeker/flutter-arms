@@ -1,4 +1,3 @@
-
 import 'network_exception.dart';
 
 /// 网络响应封装
@@ -21,11 +20,11 @@ class NetworkResponse<T> {
 
   /// 创建成功响应
   factory NetworkResponse.success(
-      T data, {
-        int statusCode = 200,
-        String? statusMessage,
-        Map<String, dynamic>? headers,
-      }) {
+    T data, {
+    int statusCode = 200,
+    String? statusMessage,
+    Map<String, dynamic>? headers,
+  }) {
     return NetworkResponse(
       data: data,
       statusCode: statusCode,
@@ -37,10 +36,10 @@ class NetworkResponse<T> {
 
   /// 创建失败响应
   factory NetworkResponse.failure(
-      NetworkException error, {
-        int statusCode = 500,
-        String? statusMessage,
-      }) {
+    NetworkException error, {
+    int statusCode = 500,
+    String? statusMessage,
+  }) {
     return NetworkResponse(
       statusCode: statusCode,
       statusMessage: statusMessage,

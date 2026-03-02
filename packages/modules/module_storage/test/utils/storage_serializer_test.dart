@@ -57,8 +57,9 @@ void main() {
       test('should serialize and deserialize Map', () {
         final value = {'name': 'John', 'age': 30, 'active': true};
         final serialized = serializer.serialize(value);
-        final deserialized =
-            serializer.deserialize<Map<String, dynamic>>(serialized);
+        final deserialized = serializer.deserialize<Map<String, dynamic>>(
+          serialized,
+        );
         expect(deserialized, equals(value));
       });
 
@@ -69,14 +70,12 @@ void main() {
             'name': 'John Doe',
             'tags': ['admin', 'user'],
           },
-          'metadata': {
-            'created': '2024-01-01',
-            'active': true,
-          },
+          'metadata': {'created': '2024-01-01', 'active': true},
         };
         final serialized = serializer.serialize(value);
-        final deserialized =
-            serializer.deserialize<Map<String, dynamic>>(serialized);
+        final deserialized = serializer.deserialize<Map<String, dynamic>>(
+          serialized,
+        );
         expect(deserialized, equals(value));
       });
     });
@@ -143,12 +142,7 @@ void main() {
 
     group('Batch Operations', () {
       test('should serialize batch of data', () {
-        final data = {
-          'name': 'John',
-          'age': 30,
-          'active': true,
-          'score': 98.5,
-        };
+        final data = {'name': 'John', 'age': 30, 'active': true, 'score': 98.5};
 
         final serialized = serializer.serializeBatch(data);
 
@@ -206,11 +200,7 @@ class User {
   final String name;
   final String email;
 
-  User({
-    required this.id,
-    required this.name,
-    required this.email,
-  });
+  User({required this.id, required this.name, required this.email});
 }
 
 class UserSerializer implements ISerializer<User> {
@@ -222,10 +212,6 @@ class UserSerializer implements ISerializer<User> {
   @override
   User deserialize(String value) {
     final parts = value.split('|');
-    return User(
-      id: int.parse(parts[0]),
-      name: parts[1],
-      email: parts[2],
-    );
+    return User(id: int.parse(parts[0]), name: parts[1], email: parts[2]);
   }
 }

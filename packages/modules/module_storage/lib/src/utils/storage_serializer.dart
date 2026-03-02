@@ -71,9 +71,7 @@ class StorageSerializer {
         'Type $T is not supported. Register a custom serializer.',
       );
     } catch (e) {
-      throw SerializationException(
-        'Failed to serialize value of type $T: $e',
-      );
+      throw SerializationException('Failed to serialize value of type $T: $e');
     }
   }
 
@@ -155,9 +153,7 @@ class StorageSerializer {
       return value as T;
     }
 
-    throw DeserializationException(
-      'Cannot cast value to type $T',
-    );
+    throw DeserializationException('Cannot cast value to type $T');
   }
 
   /// 批量序列化

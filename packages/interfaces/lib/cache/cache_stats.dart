@@ -1,4 +1,3 @@
-
 /// 缓存统计信息
 class CacheStats {
   /// 总键数
@@ -30,7 +29,5 @@ class CacheStats {
 
   /// 命中率
   double get hitRate =>
-      hitCount + missCount > 0
-          ? hitCount / (hitCount + missCount)
-          : 0.0;
+      hitCount + missCount > 0 ? hitCount / (hitCount + missCount) : 0.0;
 }
