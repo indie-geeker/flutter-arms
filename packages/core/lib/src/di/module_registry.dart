@@ -1,12 +1,20 @@
 
+import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart'; // IModule 接口
 import 'service_locator.dart';
 
-/// 模块注册中心
+/// Module registry that coordinates module lifecycle.
 class ModuleRegistry {
   final List<IModule> _modules = [];
-  final ServiceLocator _locator = ServiceLocator();
+  final IServiceLocator _locator;
   final List<IModule> _initializedModules = [];
+
+  /// Creates a registry with an optional [locator].
+  ///
+  /// Falls back to the global [ServiceLocator] singleton when omitted,
+  /// preserving backward compatibility.
+  ModuleRegistry({IServiceLocator? locator})
+      : _locator = locator ?? ServiceLocator();
 
   /// 注册模块
   void registerModule(IModule module) {

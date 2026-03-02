@@ -17,8 +17,17 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           # Keep this pinned version aligned with .fvmrc and README.
-          flutter-version: 3.35.6
+          flutter-version: 3.41.2
           channel: stable
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            .dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
 
       - name: Setup Melos
         run: |
@@ -45,8 +54,8 @@ jobs:
 
       - name: Coverage Gate
         env:
-          MIN_TOTAL_COVERAGE: 60
-          MIN_PACKAGE_COVERAGE: 50
+          MIN_TOTAL_COVERAGE: 65
+          MIN_PACKAGE_COVERAGE: 60
         run: |
           chmod +x scripts/check_coverage.sh
           scripts/check_coverage.sh

@@ -1,18 +1,20 @@
 
+import 'package:interfaces/core/i_service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
 
 import '../di/module_registry.dart';
 
-/// 应用初始化器 (纯 Dart 场景)
-///
-/// 适用于 CLI 工具、后端服务、单元测试等非 UI 场景
+/// Application initializer for non-UI scenarios (CLI, tests, backend).
 class AppInitializer {
-  final ModuleRegistry _registry = ModuleRegistry();
+  final ModuleRegistry _registry;
 
-  /// 初始化应用
+  /// Creates an initializer with an optional [locator] for DI.
   ///
-  /// [modules] 需要初始化的模块列表
-  /// [onProgress] 可选的进度回调
+  /// When omitted, defaults to the global [ServiceLocator] singleton.
+  AppInitializer({IServiceLocator? locator})
+      : _registry = ModuleRegistry(locator: locator);
+
+  /// Initializes the application with the given [modules].
   Future<void> initialize({
     required List<IModule> modules,
     void Function(String)? onProgress,
@@ -23,7 +25,7 @@ class AppInitializer {
     });
   }
 
-  /// 销毁应用
+  /// Disposes all modules.
   Future<void> dispose() async {
     await _registry.disposeAll();
   }

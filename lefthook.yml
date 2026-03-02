@@ -1,0 +1,12 @@
+# lefthook manages git hooks for this repository.
+# Install: dart pub global activate lefthook && lefthook install
+
+pre-commit:
+  parallel: true
+  commands:
+    format-check:
+      glob: "*.dart"
+      run: dart format --set-exit-if-changed {staged_files}
+    analyze:
+      run: |
+        melos exec --concurrency=1 -- flutter analyze --no-pub

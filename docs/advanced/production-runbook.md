@@ -5,8 +5,8 @@ It focuses on environment consistency, module composition, runtime safety, and i
 
 ## 1. Deployment Baseline
 
-- Flutter SDK: `3.35.6` (aligned with `.fvmrc` and CI)
-- Dart SDK: `^3.9.2`
+- Flutter SDK: `3.41.2` (aligned with `.fvmrc` and CI)
+- Dart SDK: `^3.11.0`
 - Workspace bootstrapping: `melos bootstrap`
 - Codegen (example app):
   - `cd app/example`

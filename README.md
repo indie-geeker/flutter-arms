@@ -2,7 +2,7 @@
 
 > A modular, extensible Flutter framework for rapid multi-platform application development
 
-[![Flutter Version](https://img.shields.io/badge/Flutter-3.35.6-02569B?logo=flutter)](https://flutter.dev)
+[![Flutter Version](https://img.shields.io/badge/Flutter-3.41.2-02569B?logo=flutter)](https://flutter.dev)
 [![Melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg)](https://github.com/invertase/melos)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -128,8 +128,8 @@ flutter-arms/
 
 ### Prerequisites
 
-- [Flutter 3.35.6](https://flutter.dev/docs/get-started/install) (recommended via FVM)
-- Dart SDK ^3.9.2 (included with Flutter)
+- [Flutter 3.41.2](https://flutter.dev/docs/get-started/install) (recommended via FVM)
+- Dart SDK ^3.11.0 (included with Flutter)
 
 ### Installation
 
@@ -422,8 +422,8 @@ dart run build_runner clean
 ## Tech Stack
 
 ### Core Framework
-- **Flutter** 3.35.6 - UI framework
-- **Dart** 3.9.2+ - Programming language
+- **Flutter** 3.41.2 - UI framework
+- **Dart** 3.11.0+ - Programming language
 
 ### State Management & Architecture
 - **Riverpod** - State management and dependency injection

@@ -4,8 +4,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-MIN_TOTAL_COVERAGE="${MIN_TOTAL_COVERAGE:-60}"
-MIN_PACKAGE_COVERAGE="${MIN_PACKAGE_COVERAGE:-50}"
+MIN_TOTAL_COVERAGE="${MIN_TOTAL_COVERAGE:-65}"
+MIN_PACKAGE_COVERAGE="${MIN_PACKAGE_COVERAGE:-60}"
 COVERAGE_EXCLUDE_REGEX="${COVERAGE_EXCLUDE_REGEX:-(\\.g\\.dart$|\\.freezed\\.dart$|\\.gr\\.dart$|\\.mocks\\.dart$|\\.config\\.dart$|/generated/|/l10n/)}"
 
 if [[ $# -gt 0 ]]; then
