@@ -59,6 +59,9 @@ melos:
     lint:arch:
       description: Enforce architecture dependency boundaries for app/example.
       run: scripts/check_architecture_deps.sh
+    create:app:
+      description: Scaffold a workspace app from templates.
+      run: dart run scripts/create_app.dart
     verify:
       description: Bootstrap workspace, then run analyze and test scripts.
       run: |

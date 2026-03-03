@@ -308,6 +308,40 @@ class MyWidget extends ConsumerWidget {
 
 ## Development
 
+### Scaffolding New App (Templates)
+
+Use the built-in scaffold command to generate a workspace app under `app/<name>`:
+
+```bash
+melos run create:app -- --name demo_app
+```
+
+Common options:
+
+```bash
+# Only apply templates (skip flutter create)
+melos run create:app -- --name demo_app --template-only
+
+# Keep workspace unchanged for local experiments
+melos run create:app -- --name demo_app --no-workspace-registration
+
+# Generate with optional modules
+melos run create:app -- --name demo_app --with-feature --with-tests
+```
+
+The scaffold generates architecture-aligned structure under `lib/src/`:
+
+- `app/` app shell
+- `features/` feature-slice code
+- `di/` provider facade
+- `router/` route wiring (when enabled)
+
+For command details:
+
+```bash
+dart run scripts/create_app.dart --help
+```
+
 ### Adding New Modules
 
 1. **Define the interface** in `packages/interfaces/lib/`
