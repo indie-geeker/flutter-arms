@@ -1,4 +1,4 @@
-import 'package:example/src/app/app.dart';
+import 'package:example/src/bootstrap/module_composition.dart';
 import 'package:interfaces/cache/i_cache_manager.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/network/i_http_client.dart';

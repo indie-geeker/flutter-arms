@@ -1,26 +1,17 @@
 import 'package:core/core.dart';
+import 'package:example/src/bootstrap/module_composition.dart';
+import 'package:example/src/bootstrap/module_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:interfaces/core/module_registry.dart';
-import 'package:interfaces/logger/log_level.dart';
-import 'package:module_cache/module_cache.dart';
-import 'package:module_logger/module_logger.dart';
-import 'package:module_network/module_network.dart';
-import 'package:module_storage/storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../l10n/app_localizations.dart';
-import '../presentation/notifiers/locale_notifier.dart';
-import '../presentation/notifiers/theme_notifier.dart';
-import '../presentation/state/locale_state.dart';
-import '../router/app_router.dart';
+import 'package:example/src/features/settings/presentation/notifiers/locale_notifier.dart';
+import 'package:example/src/features/settings/presentation/notifiers/theme_notifier.dart';
+import 'package:example/src/features/settings/presentation/state/locale_state.dart';
+import 'package:example/src/router/app_router.dart';
 
 part 'app.g.dart';
-
-const bool kEnableFullStackProfile = bool.fromEnvironment(
-  'ARMS_EXAMPLE_FULL_STACK',
-  defaultValue: false,
-);
 
 /// 应用路由 Provider
 ///
@@ -86,28 +77,6 @@ class ArmsApp extends StatelessWidget {
       child: const ProviderScope(child: _ArmsMainApp()),
     );
   }
-}
-
-List<IModule> buildBootstrapModules({
-  bool enableFullStackProfile = kEnableFullStackProfile,
-}) {
-  final modules = <IModule>[
-    LoggerModule(initialLevel: LogLevel.debug),
-    StorageModule(),
-  ];
-
-  if (enableFullStackProfile) {
-    modules.addAll([
-      CacheModule(),
-      NetworkModule(
-        baseUrl: 'https://jsonplaceholder.typicode.com',
-        enableCache: true,
-        connectTimeout: const Duration(seconds: 30),
-      ),
-    ]);
-  }
-
-  return modules;
 }
 
 /// 应用主体（在模块初始化后显示）

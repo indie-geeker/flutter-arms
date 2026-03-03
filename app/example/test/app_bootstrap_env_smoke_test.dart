@@ -1,4 +1,5 @@
-import 'package:example/src/app/app.dart';
+import 'package:example/src/bootstrap/module_composition.dart';
+import 'package:example/src/bootstrap/module_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:module_cache/module_cache.dart';
 import 'package:module_logger/module_logger.dart';
