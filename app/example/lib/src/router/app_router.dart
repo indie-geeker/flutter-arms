@@ -1,8 +1,8 @@
 import 'package:auto_route/auto_route.dart';
-import '../presentation/screens/home_screen.dart';
-import '../presentation/screens/login_screen.dart';
-import '../presentation/screens/network_demo_screen.dart';
-import '../presentation/screens/settings_screen.dart';
+import 'package:example/src/features/authentication/presentation/screens/home_screen.dart';
+import 'package:example/src/features/authentication/presentation/screens/login_screen.dart';
+import 'package:example/src/features/network_demo/presentation/screens/network_demo_screen.dart';
+import 'package:example/src/features/settings/presentation/screens/settings_screen.dart';
 
 part 'app_router.gr.dart';
 

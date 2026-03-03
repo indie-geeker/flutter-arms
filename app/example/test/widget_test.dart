@@ -1,10 +1,10 @@
 import 'package:example/l10n/app_localizations.dart';
-import 'package:example/src/domain/entities/user_entity.dart';
-import 'package:example/src/presentation/screens/home_screen.dart';
-import 'package:example/src/presentation/screens/login_screen.dart';
-import 'package:example/src/presentation/state/login_state.dart';
-import 'package:example/src/presentation/widgets/custom_button.dart';
-import 'package:example/src/presentation/widgets/loading_overlay.dart';
+import 'package:example/src/features/authentication/domain/entities/user_entity.dart';
+import 'package:example/src/features/authentication/presentation/screens/home_screen.dart';
+import 'package:example/src/features/authentication/presentation/screens/login_screen.dart';
+import 'package:example/src/features/authentication/presentation/state/login_state.dart';
+import 'package:example/src/features/authentication/presentation/widgets/custom_button.dart';
+import 'package:example/src/features/authentication/presentation/widgets/loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

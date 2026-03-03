@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
-import 'package:example/src/domain/entities/user_entity.dart';
-import 'package:example/src/domain/failures/auth_failure.dart';
-import 'package:example/src/domain/repositories/i_auth_repository.dart';
+import 'package:example/src/features/authentication/domain/entities/user_entity.dart';
+import 'package:example/src/features/authentication/domain/failures/auth_failure.dart';
+import 'package:example/src/features/authentication/domain/repositories/i_auth_repository.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
 
 class InMemoryKeyValueStorage implements IKeyValueStorage {
