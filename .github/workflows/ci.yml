@@ -50,6 +50,9 @@ jobs:
           flutter test test/app_bootstrap_env_smoke_test.dart --dart-define=ARMS_EXPECT_FULL_STACK=false
           flutter test test/app_bootstrap_env_smoke_test.dart --dart-define=ARMS_EXAMPLE_FULL_STACK=true --dart-define=ARMS_EXPECT_FULL_STACK=true
 
+      - name: Architecture Dependency Guard
+        run: melos run lint:arch
+
       - name: Analyze Workspace
         run: |
           melos exec --concurrency=1 -- flutter analyze

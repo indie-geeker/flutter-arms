@@ -56,6 +56,9 @@ melos:
     test:coverage:
       description: Run flutter test --coverage across all workspace packages.
       run: melos exec --concurrency=1 -- flutter test --coverage
+    lint:arch:
+      description: Enforce architecture dependency boundaries for app/example.
+      run: scripts/check_architecture_deps.sh
     verify:
       description: Bootstrap workspace, then run analyze and test scripts.
       run: |

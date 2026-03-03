@@ -115,13 +115,31 @@ flutter-arms/
 │       └── module_storage/  # Storage module
 │
 ├── app/
-│   └── example/             # Example Flutter application
+│   └── example/
 │       ├── lib/
+│       │   └── src/
+│       │       ├── app/                    # App shell
+│       │       ├── bootstrap/              # Module composition and profile flags
+│       │       ├── core/                   # Shared constants/entities
+│       │       ├── di/                     # Provider export facade
+│       │       ├── features/
+│       │       │   ├── authentication/     # data/domain/presentation/di
+│       │       │   ├── network_demo/       # data/domain/presentation/di
+│       │       │   └── settings/           # presentation-focused feature
+│       │       └── router/                 # AutoRoute wiring
 │       ├── test/
+│       │   └── features/                   # Feature-aligned tests
 │       └── pubspec.yaml
 │
 ├── melos.yaml               # Melos workspace configuration
 └── README.md
+```
+
+Dependency boundaries are documented in
+[`docs/architecture-rules.md`](docs/architecture-rules.md) and enforced by:
+
+```bash
+melos run lint:arch
 ```
 
 ## Getting Started

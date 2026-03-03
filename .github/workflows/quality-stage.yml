@@ -42,6 +42,9 @@ jobs:
           cd app/example
           dart run build_runner build --delete-conflicting-outputs
 
+      - name: Architecture Dependency Guard
+        run: melos run lint:arch
+
       - name: Collect Coverage Reports
         run: |
           melos exec --scope="core" -- flutter test --coverage
