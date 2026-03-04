@@ -1,6 +1,7 @@
 import 'package:core/core.dart';
 import 'package:example/src/bootstrap/module_composition.dart';
 import 'package:example/src/bootstrap/module_profile.dart';
+import 'package:example/src/core/theme/app_theme_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -106,8 +107,8 @@ class _ArmsMainApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'FlutterArms Example',
       debugShowCheckedModeBanner: false,
-      theme: _buildTheme(themeState.colorScheme.color, Brightness.light),
-      darkTheme: _buildTheme(themeState.colorScheme.color, Brightness.dark),
+      theme: AppThemeFactory.light(themeState.colorScheme),
+      darkTheme: AppThemeFactory.dark(themeState.colorScheme),
       themeMode: themeState.themeMode,
       locale: localeState.appLocale.locale,
       supportedLocales: AppLocale.values.map((e) => e.locale),
@@ -118,20 +119,6 @@ class _ArmsMainApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       routerConfig: appRouter.config(),
-    );
-  }
-
-  ThemeData _buildTheme(Color seedColor, Brightness brightness) {
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: seedColor,
-        brightness: brightness,
-      ),
-      cardTheme: CardThemeData(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
     );
   }
 }

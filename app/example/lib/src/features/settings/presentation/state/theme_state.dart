@@ -1,21 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:example/src/core/theme/app_color_scheme.dart';
 
 part 'theme_state.freezed.dart';
-
-/// 配色方案枚举
-enum AppColorScheme {
-  blue(Colors.blue, 'blue'),
-  green(Colors.green, 'green'),
-  purple(Colors.purple, 'purple'),
-  orange(Colors.orange, 'orange'),
-  teal(Colors.teal, 'teal');
-
-  const AppColorScheme(this.color, this.name);
-
-  final Color color;
-  final String name;
-}
 
 /// 主题状态
 ///

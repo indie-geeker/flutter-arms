@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:core/core.dart';
 import 'package:example/src/core/constants/storage_keys.dart';
+import 'package:example/src/core/theme/app_color_scheme.dart';
 import 'package:example/src/features/settings/presentation/notifiers/locale_notifier.dart';
 import 'package:example/src/features/settings/presentation/notifiers/theme_notifier.dart';
 import 'package:example/src/features/settings/presentation/state/locale_state.dart';
@@ -87,8 +88,10 @@ void main() {
   group('ThemeNotifier', () {
     test('loads theme preferences and persists theme updates', () async {
       final storage = InMemoryKeyValueStorage();
-      await storage.setInt(StorageKeys.themeMode, ThemeMode.dark.index);
-      await storage.setInt(StorageKeys.colorScheme, AppColorScheme.green.index);
+      await storage.setJson(StorageKeys.themePreferences, {
+        'themeMode': ThemeMode.dark.name,
+        'colorScheme': AppColorScheme.green.name,
+      });
 
       final container = ProviderContainer(
         overrides: [kvStorageProvider.overrideWithValue(storage)],
@@ -111,14 +114,10 @@ void main() {
       final updated = container.read(themeProvider);
       expect(updated.themeMode, ThemeMode.light);
       expect(updated.colorScheme, AppColorScheme.orange);
-      expect(
-        await storage.getInt(StorageKeys.themeMode),
-        ThemeMode.light.index,
-      );
-      expect(
-        await storage.getInt(StorageKeys.colorScheme),
-        AppColorScheme.orange.index,
-      );
+      expect(await storage.getJson(StorageKeys.themePreferences), {
+        'themeMode': ThemeMode.light.name,
+        'colorScheme': AppColorScheme.orange.name,
+      });
     });
   });
 }
