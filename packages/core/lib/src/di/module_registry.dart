@@ -81,6 +81,18 @@ class ModuleRegistry {
     }
   }
 
+  /// 查询所有已初始化模块的健康状态
+  Map<String, bool> checkHealth() {
+    return {
+      for (final module in _initializedModules)
+        module.name: module.isHealthy,
+    };
+  }
+
+  /// 获取已初始化模块名称列表（调试/日志用）
+  List<String> get initializedModuleNames =>
+      _initializedModules.map((m) => m.name).toList();
+
   /// 销毁所有模块
   Future<void> disposeAll() async {
     // 反向销毁

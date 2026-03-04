@@ -1,36 +1,36 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import '../failures/auth_failure.dart';
 
-/// 用户名值对象
+/// Username value object
 ///
-/// 封装用户名的验证逻辑和业务规则
+/// Encapsulates username validation logic and business rules
 class Username {
   final String value;
 
   const Username._(this.value);
 
-  /// 创建用户名（带验证）
+  /// Create a username (with validation)
   factory Username.create(String input) {
     return Username._(input);
   }
 
-  /// 验证用户名
+  /// Validate the username
   ///
-  /// 规则：长度 >= 3
-  Either<AuthFailure, Username> validate() {
+  /// Rule: length >= 3
+  Result<AuthFailure, Username> validate() {
     if (value.isEmpty) {
-      return left(const AuthFailure.emptyUsername());
+      return const Failure(AuthFailure.emptyUsername());
     }
 
     if (value.length < 3) {
-      return left(
-        const AuthFailure.invalidUsername(
+      return const Failure(
+        AuthFailure.invalidUsername(
           'Username must be at least 3 characters',
         ),
       );
     }
 
-    return right(this);
+    return Success(this);
   }
 
   @override

@@ -1,40 +1,40 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import '../failures/auth_failure.dart';
 
-/// 密码值对象
+/// Password value object
 ///
-/// 封装密码的验证逻辑和业务规则
+/// Encapsulates password validation logic and business rules
 class Password {
   final String value;
 
   const Password._(this.value);
 
-  /// 创建密码（带验证）
+  /// Create a password (with validation)
   factory Password.create(String input) {
     return Password._(input);
   }
 
-  /// 验证密码
+  /// Validate the password
   ///
-  /// 规则：长度 >= 3
-  Either<AuthFailure, Password> validate() {
+  /// Rule: length >= 3
+  Result<AuthFailure, Password> validate() {
     if (value.isEmpty) {
-      return left(const AuthFailure.emptyPassword());
+      return const Failure(AuthFailure.emptyPassword());
     }
 
     if (value.length < 3) {
-      return left(
-        const AuthFailure.invalidPassword(
+      return const Failure(
+        AuthFailure.invalidPassword(
           'Password must be at least 3 characters',
         ),
       );
     }
 
-    return right(this);
+    return Success(this);
   }
 
   @override
-  String toString() => '***'; // 隐藏密码内容
+  String toString() => '***'; // Hide password content
 
   @override
   bool operator ==(Object other) =>

@@ -83,13 +83,13 @@ flutter-arms follows a layered architecture with clear separation of concerns:
    - Swappable based on requirements
 
 3. **core** - Aggregation & coordination
-   - Dependency injection setup
-   - Module registration and initialization
-   - Unified API facade for application layer
+   - Dependency injection setup (GetIt-based ServiceLocator)
+   - Module registration, lifecycle management, and health checks
+   - State-management-agnostic (no Riverpod dependency)
 
 4. **app** - Application layer
    - Business logic and UI
-   - Depends only on core and interfaces
+   - Provider bridge (GetIt → Riverpod) lives here
    - Platform-specific implementations
 
 ## Project Structure
@@ -120,13 +120,16 @@ flutter-arms/
 │       │   └── src/
 │       │       ├── app/                    # App shell
 │       │       ├── bootstrap/              # Module composition and profile flags
-│       │       ├── core/                   # Shared constants/entities
-│       │       ├── di/                     # Provider export facade
+│       │       ├── shared/                 # Cross-feature business shared layer
+│       │       │   ├── constants/          # App-wide constants
+│       │       │   ├── theme/              # Design tokens & theme data
+│       │       │   └── auth/               # Global auth session state & interceptor
+│       │       ├── di/                     # Provider export facade (GetIt → Riverpod bridge)
 │       │       ├── features/
-│       │       │   ├── authentication/     # data/domain/presentation/di
+│       │       │   ├── authentication/     # data/domain/presentation/di (login feature)
 │       │       │   ├── network_demo/       # data/domain/presentation/di
 │       │       │   └── settings/           # presentation-focused feature
-│       │       └── router/                 # AutoRoute wiring
+│       │       └── router/                 # AutoRoute wiring & auth guard
 │       ├── test/
 │       │   └── features/                   # Feature-aligned tests
 │       └── pubspec.yaml
@@ -229,9 +232,7 @@ class MyApp extends StatelessWidget {
         // Logger Module - initialize first
         LoggerModule(initialLevel: LogLevel.debug),
         // Storage Module - for persistence
-        StorageModule(
-          config: StorageConfig(enableSecureStorage: true),
-        ),
+        StorageModule(),
         // Cache Module - optional
         CacheModule(),
         // Network Module - optional
@@ -273,27 +274,33 @@ When you have an app-level shutdown hook that supports `await`, call:
 await initializerController.shutdown();
 ```
 
-3. **Use infrastructure services via Riverpod providers**
+3. **Bridge infrastructure to your state management** (app layer)
 
 ```dart
+// lib/src/di/providers.dart — Provider bridge (GetIt → Riverpod)
+import 'package:core/core.dart' show ServiceLocator;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:core/core.dart';
+import 'package:interfaces/logger/i_logger.dart';
+import 'package:interfaces/storage/i_kv_storage.dart';
 
-// Create a provider that uses infrastructure services
+final loggerProvider = Provider<ILogger>((ref) {
+  return ServiceLocator().get<ILogger>();
+});
+
+final kvStorageProvider = Provider<IKeyValueStorage>((ref) {
+  return ServiceLocator().get<IKeyValueStorage>();
+});
+```
+
+4. **Use in features**
+
+```dart
+import 'package:example/src/di/providers.dart';
+
 @riverpod
 MyDataSource myDataSource(Ref ref) {
   final storage = ref.watch(kvStorageProvider);
-  final logger = ref.watch(loggerProvider);
-  return MyDataSource(storage, logger);
-}
-
-// Use in widgets with ConsumerWidget
-class MyWidget extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final dataSource = ref.watch(myDataSourceProvider);
-    // Use dataSource...
-  }
+  return MyDataSource(storage);
 }
 ```
 
@@ -361,36 +368,35 @@ cd packages/modules
 flutter create --template=package module_analytics
 ```
 
-3. **Implement the interface**
+3. **Implement the module using `BaseModule`**
 
 ```dart
-// packages/modules/module_analytics/lib/analytics_impl.dart
-import 'package:interfaces/analytics/i_analytics.dart';
+// packages/modules/module_analytics/lib/src/analytics_module.dart
+import 'package:interfaces/interfaces.dart';
+import 'analytics_impl.dart';
 
-class AnalyticsImpl implements IAnalytics {
+class AnalyticsModule extends BaseModule {
   @override
-  Future<void> logEvent(String name, Map<String, dynamic> params) async {
-    // Implementation using Firebase Analytics, Mixpanel, etc.
-  }
+  String get name => 'Analytics';
 
   @override
-  Future<void> setUserId(String userId) async {
-    // Implementation
+  int get priority => InitPriorities.network + 10;
+
+  @override
+  List<Type> get provides => [IAnalytics];
+
+  @override
+  Future<void> onRegister(IServiceLocator locator) async {
+    locator.registerLazySingleton<IAnalytics>(() => AnalyticsImpl());
   }
 }
 ```
 
-4. **Register in core** DI container
+> `BaseModule` provides defaults for `dependencies`, `provides`, `isHealthy`,
+> and manages the `locator` reference automatically.
+> You can also implement `IModule` directly for full control.
 
-```dart
-// In core/lib/di/service_locator.dart
-getIt.registerLazySingleton<IAnalytics>(() => AnalyticsImpl());
-```
-
-> When implementing `IModule`, make sure to declare both `dependencies` and `provides`
-> so the module registry can order initialization correctly.
-
-5. **Bootstrap and use**
+4. **Bootstrap and use**
 
 ```bash
 melos bootstrap
@@ -404,10 +410,10 @@ melos bootstrap
   - `httpClient.get('/users', cacheOptions: const NetworkCacheOptions(enabled: true, duration: Duration(minutes: 5)))`
 - **Custom cache serializers**
   - `CacheModule(valueRegistry: CacheValueRegistry()..register(MySerializer()))`
-- **Enable secure storage**
-  - `StorageModule(config: StorageConfig(enableSecureStorage: true))`
 - **Customize storage base directory**
   - `StorageModule(config: StorageConfig(baseDir: '/path/to/hive'))`
+- **Module health checks**
+  - `registry.checkHealth()` — returns `Map<String, bool>` of all module statuses
 
 ### Running Tests
 
@@ -478,8 +484,9 @@ dart run build_runner clean
 - **Dart** 3.11.0+ - Programming language
 
 ### State Management & Architecture
-- **Riverpod** - State management and dependency injection
-- **GetIt** - Service locator for core DI
+- **Riverpod** - State management (app layer only)
+- **GetIt** - Service locator for infrastructure DI (core layer)
+- **Result** - Dart 3 sealed class for typed success/failure (replaces dartz Either)
 
 ### Routing
 - **AutoRoute** - Type-safe navigation
@@ -489,7 +496,7 @@ dart run build_runner clean
 - **json_serializable** - JSON serialization
 
 ### Functional Programming
-- **Dartz** - Functional programming utilities
+- **Dartz** - Functional programming utilities (legacy, migrating to Result)
 
 ### Development Tools
 - **Melos** - Monorepo management

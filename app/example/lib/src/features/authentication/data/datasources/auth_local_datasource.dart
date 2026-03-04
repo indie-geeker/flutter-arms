@@ -1,25 +1,26 @@
-
-
 import 'package:interfaces/storage/i_kv_storage.dart';
 
 import '../models/user_model.dart';
+import 'i_auth_local_datasource.dart';
 
 /// 认证本地数据源
 ///
 /// 负责用户认证数据的本地持久化
 /// 基于 FlutterArms 的 Storage 模块
-class AuthLocalDataSource {
+class AuthLocalDataSource implements IAuthLocalDataSource {
   final IKeyValueStorage _storage;
 
   static const String _currentUserKey = 'current_user';
   const AuthLocalDataSource(this._storage);
 
   /// 保存当前用户
+  @override
   Future<void> saveCurrentUser(UserModel user) async {
     await _storage.setJson(_currentUserKey, user.toJson());
   }
 
   /// 获取当前用户
+  @override
   Future<UserModel?> getCurrentUser() async {
     final json = await _storage.getJson(_currentUserKey);
     if (json == null) {
@@ -36,11 +37,13 @@ class AuthLocalDataSource {
   }
 
   /// 清除当前用户
+  @override
   Future<void> clearCurrentUser() async {
     await _storage.remove(_currentUserKey);
   }
 
   /// 检查是否有已登录用户
+  @override
   Future<bool> hasCurrentUser() async {
     return await _storage.containsKey(_currentUserKey);
   }

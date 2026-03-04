@@ -29,6 +29,13 @@ abstract class IModule {
   /// 例如 LoggerModule 提供 ILogger，StorageModule 提供 IKeyValueStorage。
   List<Type> get provides;
 
+  /// 模块健康状态
+  ///
+  /// 模块可实现此 getter 报告运行时健康状态，
+  /// 例如网络模块检测连通性，存储模块检测文件系统可用性。
+  /// 使用 [BaseModule] 或 `with ModuleDefaults` 可获得默认值 `true`。
+  bool get isHealthy;
+
   /// 注册模块服务
   ///
   /// 将模块提供的服务注册到服务定位器中。
@@ -48,6 +55,47 @@ abstract class IModule {
   /// 清理模块资源（如关闭数据库、取消网络请求等）。
   /// 应用退出时按优先级逆序调用。
   Future<void> dispose();
+}
+
+/// 模块基类，减少样板代码
+///
+/// 子类只需实现 [onRegister] 和可选的 [onInit] / [onDispose]。
+/// [locator] 在 register 阶段自动保存，后续可直接使用。
+abstract class BaseModule implements IModule {
+  late IServiceLocator _locator;
+
+  /// 受保护的 locator 访问器，仅在 register 后可用
+  IServiceLocator get locator => _locator;
+
+  @override
+  List<Type> get dependencies => [];
+
+  @override
+  List<Type> get provides => [];
+
+  @override
+  bool get isHealthy => true;
+
+  @override
+  Future<void> register(IServiceLocator locator) async {
+    _locator = locator;
+    await onRegister(locator);
+  }
+
+  @override
+  Future<void> init() async => onInit();
+
+  @override
+  Future<void> dispose() async => onDispose();
+
+  /// 子类实现：注册服务到 locator
+  Future<void> onRegister(IServiceLocator locator);
+
+  /// 子类可选重写：初始化逻辑
+  Future<void> onInit() async {}
+
+  /// 子类可选重写：清理逻辑
+  Future<void> onDispose() async {}
 }
 
 class InitPriorities {

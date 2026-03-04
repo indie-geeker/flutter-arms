@@ -1,4 +1,4 @@
-import 'package:example/src/core/theme/app_color_scheme.dart';
+import 'package:example/src/shared/theme/app_color_scheme.dart';
 import 'package:flutter/material.dart';
 
 /// Persisted theme preferences.

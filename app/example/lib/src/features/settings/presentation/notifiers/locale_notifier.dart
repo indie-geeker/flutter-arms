@@ -1,7 +1,7 @@
-import 'package:core/core.dart';
+import 'package:example/src/di/providers.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:example/src/core/constants/storage_keys.dart';
+import 'package:example/src/shared/constants/storage_keys.dart';
 import 'package:example/src/features/settings/presentation/state/locale_state.dart';
 
 part 'locale_notifier.g.dart';

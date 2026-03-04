@@ -1,20 +1,20 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import '../entities/user_entity.dart';
 import '../failures/auth_failure.dart';
 import '../repositories/i_auth_repository.dart';
 
-/// 获取当前用户用例
+/// Get current user use case
 ///
-/// 封装获取当前登录用户的业务逻辑
+/// Encapsulates the business logic for retrieving the currently logged-in user.
 class GetCurrentUserUseCase {
   final IAuthRepository _repository;
 
   const GetCurrentUserUseCase(this._repository);
 
-  /// 执行获取当前用户
+  /// Execute get current user
   ///
-  /// 返回 Either<失败, 用户实体或null>
-  Future<Either<AuthFailure, UserEntity?>> call() async {
+  /// Returns Result<failure, user entity or null>
+  Future<Result<AuthFailure, UserEntity?>> call() async {
     return await _repository.getCurrentUser();
   }
 }

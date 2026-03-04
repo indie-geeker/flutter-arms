@@ -1,51 +1,60 @@
+import 'package:interfaces/core/result.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:example/src/di/providers.dart';
+import 'package:example/src/features/authentication/di/auth_providers.dart';
 import 'package:example/src/features/authentication/domain/usecases/login_usecase.dart';
+import 'package:example/src/shared/auth/auth_shared.dart';
 import '../state/login_state.dart';
 
 part 'login_notifier.g.dart';
 
-/// 登录状态管理器
+/// Login state manager
 ///
-/// 使用 Riverpod annotation 定义状态管理
+/// Uses Riverpod annotation for state management
 @riverpod
 class LoginNotifier extends _$LoginNotifier {
   late final LoginUseCase _loginUseCase;
 
   @override
   LoginState build() {
-    // 从依赖注入获取 UseCase
+    // Get UseCase from dependency injection
     _loginUseCase = ref.read(loginUseCaseProvider);
     return const LoginState.initial();
   }
 
-  /// 执行登录
+  /// Execute login
   Future<void> login(String username, String password) async {
-    // 1. 设置加载状态
+    // 1. Set loading state
     state = const LoginState.loading();
 
-    // 2. 调用用例执行登录
+    // 2. Call use case to execute login
     final result = await _loginUseCase(
       usernameStr: username,
       passwordStr: password,
     );
 
-    // 3. 处理结果
-    result.fold(
-      (failure) => state = LoginState.failure(failure),
-      (_) => state = const LoginState.success(),
-    );
+    // 3. Handle result
+    switch (result) {
+      case Failure(:final error):
+        state = LoginState.failure(error);
+      case Success(:final value):
+        // Login success: write to global session state
+        ref.read(authSessionProvider.notifier).setAuthenticated(
+              userId: value.id,
+              username: value.username,
+            );
+        state = const LoginState.success();
+    }
   }
 
-  /// 重置状态
+  /// Reset state
   void reset() {
     state = const LoginState.initial();
   }
 }
 
-/// 登录表单状态管理器
+/// Login form state manager
 ///
-/// 管理表单输入和验证
+/// Manages form input and validation
 @riverpod
 class LoginFormNotifier extends _$LoginFormNotifier {
   @override
@@ -53,27 +62,27 @@ class LoginFormNotifier extends _$LoginFormNotifier {
     return const LoginFormState();
   }
 
-  /// 更新用户名
+  /// Update username
   void updateUsername(String username) {
     state = state.copyWith(username: username, usernameError: null);
   }
 
-  /// 更新密码
+  /// Update password
   void updatePassword(String password) {
     state = state.copyWith(password: password, passwordError: null);
   }
 
-  /// 切换密码可见性
+  /// Toggle password visibility
   void togglePasswordVisibility() {
     state = state.copyWith(obscurePassword: !state.obscurePassword);
   }
 
-  /// 清除所有错误
+  /// Clear all errors
   void clearErrors() {
     state = state.clearErrors();
   }
 
-  /// 重置表单
+  /// Reset form
   void reset() {
     state = const LoginFormState();
   }

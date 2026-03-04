@@ -7,6 +7,9 @@ import 'package:interfaces/core/i_service_locator.dart';
 /// 测试用模块 - 无依赖
 class MockLoggerModule implements IModule {
   @override
+  bool get isHealthy => true;
+
+  @override
   String get name => 'MockLogger';
 
   @override
@@ -38,6 +41,9 @@ class MockLoggerModule implements IModule {
 
 /// 测试用模块 - 有依赖
 class MockNetworkModule implements IModule {
+  @override
+  bool get isHealthy => true;
+
   @override
   String get name => 'MockNetwork';
 
@@ -254,6 +260,9 @@ void main() {
 
 /// 辅助类：追踪初始化/销毁顺序
 class _OrderTrackingModule implements IModule {
+  @override
+  bool get isHealthy => true;
+
   final String _name;
   final int _priority;
   final List<String> _initOrder;
@@ -293,6 +302,9 @@ class _OrderTrackingModule implements IModule {
 }
 
 class _ProviderModule implements IModule {
+  @override
+  bool get isHealthy => true;
+
   final List<String> _initOrder;
 
   _ProviderModule(this._initOrder);
@@ -324,6 +336,9 @@ class _ProviderModule implements IModule {
 }
 
 class _ConsumerModule implements IModule {
+  @override
+  bool get isHealthy => true;
+
   final List<String> _initOrder;
 
   _ConsumerModule(this._initOrder);
@@ -355,6 +370,9 @@ class _ConsumerModule implements IModule {
 }
 
 class _CountingModule implements IModule {
+  @override
+  bool get isHealthy => true;
+
   _CountingModule({
     required this.name,
     this.priority = 0,

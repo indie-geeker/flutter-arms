@@ -1,4 +1,4 @@
-import 'package:core/core.dart';
+import 'package:example/src/di/providers.dart';
 import 'package:example/src/features/settings/data/repositories/theme_preferences_repository_impl.dart';
 import 'package:example/src/features/settings/domain/repositories/theme_preferences_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

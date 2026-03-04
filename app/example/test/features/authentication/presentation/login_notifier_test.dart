@@ -1,5 +1,5 @@
-import 'package:dartz/dartz.dart';
-import 'package:example/src/di/providers.dart';
+import 'package:interfaces/core/result.dart';
+import 'package:example/src/features/authentication/di/auth_providers.dart';
 import 'package:example/src/features/authentication/domain/entities/user_entity.dart';
 import 'package:example/src/features/authentication/domain/failures/auth_failure.dart';
 import 'package:example/src/features/authentication/domain/usecases/login_usecase.dart';
@@ -19,7 +19,7 @@ void main() {
         loginTime: DateTime(2026, 1, 1),
       );
       final repository = FakeAuthRepository()
-        ..onLogin = (username, password) async => right(user);
+        ..onLogin = (username, password) async => Success(user);
       final container = ProviderContainer(
         overrides: [
           loginUseCaseProvider.overrideWithValue(LoginUseCase(repository)),
@@ -46,7 +46,7 @@ void main() {
     test('emits failure when login usecase returns failure', () async {
       final repository = FakeAuthRepository()
         ..onLogin = (username, password) async =>
-            left(const AuthFailure.invalidCredentials());
+            const Failure(AuthFailure.invalidCredentials());
       final container = ProviderContainer(
         overrides: [
           loginUseCaseProvider.overrideWithValue(LoginUseCase(repository)),
@@ -65,7 +65,7 @@ void main() {
     test('reset moves state back to initial', () async {
       final repository = FakeAuthRepository()
         ..onLogin = (username, password) async =>
-            left(const AuthFailure.invalidCredentials());
+            const Failure(AuthFailure.invalidCredentials());
       final container = ProviderContainer(
         overrides: [
           loginUseCaseProvider.overrideWithValue(LoginUseCase(repository)),

@@ -1,4 +1,5 @@
-import 'package:core/core.dart';
+import 'package:core/core.dart' show ServiceLocator;
+import 'package:example/src/di/providers.dart';
 import 'package:example/src/features/network_demo/data/datasources/network_demo_datasource.dart';
 import 'package:example/src/features/network_demo/data/repositories/network_demo_repository_impl.dart';
 import 'package:example/src/features/network_demo/domain/repositories/i_network_demo_repository.dart';

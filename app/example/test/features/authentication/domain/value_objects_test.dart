@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import 'package:example/src/features/authentication/domain/failures/auth_failure.dart';
 import 'package:example/src/features/authentication/domain/value_objects/password.dart';
 import 'package:example/src/features/authentication/domain/value_objects/username.dart';
@@ -9,18 +9,21 @@ void main() {
     test('returns emptyUsername failure for empty input', () {
       final result = Username.create('').validate();
 
-      expect(result, left(const AuthFailure.emptyUsername()));
+      expect(result, isA<Failure<AuthFailure, Username>>());
+      expect(
+        (result as Failure<AuthFailure, Username>).error,
+        const AuthFailure.emptyUsername(),
+      );
     });
 
     test('returns invalidUsername failure for short input', () {
       final result = Username.create('ab').validate();
 
+      expect(result, isA<Failure<AuthFailure, Username>>());
       expect(
-        result,
-        left(
-          const AuthFailure.invalidUsername(
-            'Username must be at least 3 characters',
-          ),
+        (result as Failure<AuthFailure, Username>).error,
+        const AuthFailure.invalidUsername(
+          'Username must be at least 3 characters',
         ),
       );
     });
@@ -28,9 +31,9 @@ void main() {
     test('returns validated username for valid input', () {
       final result = Username.create('alice').validate();
 
-      expect(result.isRight(), isTrue);
+      expect(result, isA<Success<AuthFailure, Username>>());
       expect(
-        result.getOrElse(() => Username.create('')),
+        (result as Success<AuthFailure, Username>).value,
         Username.create('alice'),
       );
     });
@@ -40,18 +43,21 @@ void main() {
     test('returns emptyPassword failure for empty input', () {
       final result = Password.create('').validate();
 
-      expect(result, left(const AuthFailure.emptyPassword()));
+      expect(result, isA<Failure<AuthFailure, Password>>());
+      expect(
+        (result as Failure<AuthFailure, Password>).error,
+        const AuthFailure.emptyPassword(),
+      );
     });
 
     test('returns invalidPassword failure for short input', () {
       final result = Password.create('12').validate();
 
+      expect(result, isA<Failure<AuthFailure, Password>>());
       expect(
-        result,
-        left(
-          const AuthFailure.invalidPassword(
-            'Password must be at least 3 characters',
-          ),
+        (result as Failure<AuthFailure, Password>).error,
+        const AuthFailure.invalidPassword(
+          'Password must be at least 3 characters',
         ),
       );
     });
@@ -60,7 +66,7 @@ void main() {
       final password = Password.create('secret');
       final result = password.validate();
 
-      expect(result.isRight(), isTrue);
+      expect(result, isA<Success<AuthFailure, Password>>());
       expect(password.toString(), '***');
     });
   });

@@ -1,6 +1,6 @@
-import 'package:example/src/core/theme/app_color_scheme.dart';
-import 'package:example/src/core/theme/app_theme_factory.dart';
-import 'package:example/src/core/theme/app_theme_tokens.dart';
+import 'package:example/src/shared/theme/app_color_scheme.dart';
+import 'package:example/src/shared/theme/app_theme_factory.dart';
+import 'package:example/src/shared/theme/app_theme_tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

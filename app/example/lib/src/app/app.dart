@@ -1,24 +1,24 @@
 import 'package:core/core.dart';
 import 'package:example/src/bootstrap/module_composition.dart';
 import 'package:example/src/bootstrap/module_profile.dart';
-import 'package:example/src/core/theme/app_theme_factory.dart';
+import 'package:example/src/features/authentication/di/auth_providers.dart';
+import 'package:example/src/shared/theme/app_theme_factory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../l10n/app_localizations.dart';
-import 'package:example/src/features/settings/presentation/notifiers/locale_notifier.dart';
-import 'package:example/src/features/settings/presentation/notifiers/theme_notifier.dart';
-import 'package:example/src/features/settings/presentation/state/locale_state.dart';
+import 'package:example/src/features/settings/settings.dart';
 import 'package:example/src/router/app_router.dart';
 
 part 'app.g.dart';
 
 /// 应用路由 Provider
 ///
-/// 确保整个应用生命周期内只有一个 AppRouter 实例
+/// 将 ref 传给 AppRouter，使 AuthGuard 可读取全局认证状态。
+/// keepAlive: true 确保整个应用生命周期内只有一个 AppRouter 实例。
 @Riverpod(keepAlive: true)
-AppRouter appRouter(Ref ref) => AppRouter();
+AppRouter appRouter(Ref ref) => AppRouter(ref);
 
 /// FlutterArms 示例应用
 ///
@@ -86,6 +86,9 @@ class _ArmsMainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // 启动时恢复认证状态（仅执行一次）
+    ref.watch(sessionRestoreProvider);
+
     final appRouter = ref.watch(appRouterProvider);
     final themeState = ref.watch(themeProvider);
     final localeState = ref.watch(localeProvider);

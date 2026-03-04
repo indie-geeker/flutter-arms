@@ -1,4 +1,4 @@
-import 'package:example/src/di/providers.dart';
+import 'package:example/src/features/network_demo/di/network_demo_providers.dart';
 import 'package:example/src/features/network_demo/domain/entities/demo_post_entity.dart';
 import 'package:example/src/features/network_demo/domain/repositories/i_network_demo_repository.dart';
 import 'package:example/src/features/network_demo/domain/usecases/fetch_demo_posts_usecase.dart';

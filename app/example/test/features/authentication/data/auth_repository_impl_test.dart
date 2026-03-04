@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import 'package:example/src/features/authentication/data/datasources/auth_local_datasource.dart';
 import 'package:example/src/features/authentication/data/models/user_model.dart';
 import 'package:example/src/features/authentication/data/repositories/auth_repository_impl.dart';
@@ -22,9 +22,9 @@ void main() {
         );
         final persisted = await dataSource.getCurrentUser();
 
-        expect(result.isRight(), isTrue);
+        expect(result, isA<Success>());
         expect(
-          result.getOrElse(() => throw StateError('expected success')).username,
+          (result as Success).value.username,
           'ab',
         );
         expect(persisted?.username, 'ab');
@@ -44,9 +44,9 @@ void main() {
         );
         final persisted = await dataSource.getCurrentUser();
 
-        expect(result.isRight(), isTrue);
+        expect(result, isA<Success>());
         expect(
-          result.getOrElse(() => throw StateError('expected success')).username,
+          (result as Success).value.username,
           'alice',
         );
         expect(persisted?.username, 'alice');
@@ -64,9 +64,9 @@ void main() {
       );
       final persisted = await dataSource.getCurrentUser();
 
-      expect(result.isRight(), isTrue);
+      expect(result, isA<Success>());
       expect(
-        result.getOrElse(() => throw StateError('expected success')).username,
+        (result as Success).value.username,
         'alice',
       );
       expect(persisted?.username, 'alice');
@@ -81,9 +81,10 @@ void main() {
         password: 'secret',
       );
 
+      expect(result, isA<Failure>());
       expect(
-        result,
-        left(const AuthFailure.storageError('Bad state: setJson failed')),
+        (result as Failure).error,
+        const AuthFailure.storageError('Bad state: setJson failed'),
       );
     });
 
@@ -97,7 +98,7 @@ void main() {
 
       final result = await repository.logout();
 
-      expect(result, right<AuthFailure, Unit>(unit));
+      expect(result, isA<Success>());
       expect(await dataSource.hasCurrentUser(), isFalse);
     });
 
@@ -107,9 +108,10 @@ void main() {
 
       final result = await repository.logout();
 
+      expect(result, isA<Failure>());
       expect(
-        result,
-        left(const AuthFailure.storageError('Bad state: remove failed')),
+        (result as Failure).error,
+        const AuthFailure.storageError('Bad state: remove failed'),
       );
     });
 
@@ -123,9 +125,9 @@ void main() {
 
       final result = await repository.getCurrentUser();
 
-      expect(result.isRight(), isTrue);
+      expect(result, isA<Success>());
       expect(
-        result.getOrElse(() => throw StateError('expected success'))?.username,
+        (result as Success).value?.username,
         'bob',
       );
     });
@@ -136,9 +138,10 @@ void main() {
 
       final result = await repository.getCurrentUser();
 
+      expect(result, isA<Failure>());
       expect(
-        result,
-        left(const AuthFailure.storageError('Bad state: getJson failed')),
+        (result as Failure).error,
+        const AuthFailure.storageError('Bad state: getJson failed'),
       );
     });
 

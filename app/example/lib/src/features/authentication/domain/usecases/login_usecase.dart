@@ -1,50 +1,49 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import '../entities/user_entity.dart';
 import '../failures/auth_failure.dart';
 import '../repositories/i_auth_repository.dart';
 import '../value_objects/password.dart';
 import '../value_objects/username.dart';
 
-/// 登录用例
+/// Login use case
 ///
-/// 封装登录业务逻辑，协调值对象验证和仓储调用
+/// Encapsulates login business logic, coordinating value object validation
+/// and repository calls.
 class LoginUseCase {
   final IAuthRepository _repository;
 
   const LoginUseCase(this._repository);
 
-  /// 执行登录
+  /// Execute login
   ///
-  /// [usernameStr] 用户名字符串
-  /// [passwordStr] 密码字符串
-  /// 返回 Either<失败, 用户实体>
-  Future<Either<AuthFailure, UserEntity>> call({
+  /// [usernameStr] Username string
+  /// [passwordStr] Password string
+  /// Returns Result<failure, user entity>
+  Future<Result<AuthFailure, UserEntity>> call({
     required String usernameStr,
     required String passwordStr,
   }) async {
-    // 1. 创建并验证用户名
+    // 1. Create and validate username
     final username = Username.create(usernameStr);
     final usernameValidation = username.validate();
-    final usernameFailure = usernameValidation.fold(
-      (failure) => failure,
-      (_) => null,
-    );
-    if (usernameFailure != null) {
-      return left(usernameFailure);
+    switch (usernameValidation) {
+      case Failure(:final error):
+        return Failure(error);
+      case Success():
+        break;
     }
 
-    // 2. 创建并验证密码
+    // 2. Create and validate password
     final password = Password.create(passwordStr);
     final passwordValidation = password.validate();
-    final passwordFailure = passwordValidation.fold(
-      (failure) => failure,
-      (_) => null,
-    );
-    if (passwordFailure != null) {
-      return left(passwordFailure);
+    switch (passwordValidation) {
+      case Failure(:final error):
+        return Failure(error);
+      case Success():
+        break;
     }
 
-    // 3. 调用仓储执行登录
+    // 3. Call repository to execute login
     return await _repository.login(
       username: usernameStr,
       password: passwordStr,

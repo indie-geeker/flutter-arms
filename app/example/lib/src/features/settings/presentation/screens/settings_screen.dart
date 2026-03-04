@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:example/l10n/app_localizations.dart';
-import 'package:example/src/core/theme/app_color_scheme.dart';
+import 'package:example/src/shared/theme/app_color_scheme.dart';
 import '../notifiers/locale_notifier.dart';
 import '../notifiers/theme_notifier.dart';
 import '../state/locale_state.dart';

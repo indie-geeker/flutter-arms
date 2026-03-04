@@ -11,7 +11,7 @@ import 'config/network_config.dart';
 import 'impl/dio_http_client.dart';
 
 /// 网络模块
-class NetworkModule implements IModule {
+class NetworkModule extends BaseModule {
   final String baseUrl;
   final Duration? connectTimeout;
   final Duration? receiveTimeout;
@@ -58,7 +58,7 @@ class NetworkModule implements IModule {
   String get name => 'NetworkModule';
 
   @override
-  int get priority => InitPriorities.network; // 在日志、存储、缓存之后初始化
+  int get priority => InitPriorities.network;
 
   @override
   List<Type> get dependencies =>
@@ -67,13 +67,8 @@ class NetworkModule implements IModule {
   @override
   List<Type> get provides => [IHttpClient];
 
-  // 保存 locator 引用以便在 init 中使用
-  late IServiceLocator _locator;
-
   @override
-  Future<void> register(IServiceLocator locator) async {
-    _locator = locator;
-
+  Future<void> onRegister(IServiceLocator locator) async {
     final logger = locator.get<ILogger>();
     final cacheManager = enableCache
         ? locator.get<ICacheManager>()
@@ -82,7 +77,7 @@ class NetworkModule implements IModule {
     final httpClient = DioHttpClient(
       baseUrl: baseUrl,
       logger: logger,
-      cacheManager: cacheManager, // 注入缓存管理器
+      cacheManager: cacheManager,
       connectTimeout: connectTimeout,
       receiveTimeout: receiveTimeout,
       sendTimeout: sendTimeout,
@@ -100,13 +95,8 @@ class NetworkModule implements IModule {
   }
 
   @override
-  Future<void> init() async {
-    // Network initialization if needed
-  }
-
-  @override
-  Future<void> dispose() async {
-    final httpClient = _locator.get<IHttpClient>();
+  Future<void> onDispose() async {
+    final httpClient = locator.get<IHttpClient>();
     httpClient.cancelAllRequests();
   }
 }

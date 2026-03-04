@@ -1,10 +1,11 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:example/src/features/authentication/di/auth_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:example/l10n/app_localizations.dart';
-import 'package:example/src/di/providers.dart';
 import 'package:example/src/features/authentication/domain/failures/auth_failure.dart';
 import 'package:example/src/router/app_router.dart';
+import 'package:example/src/shared/auth/auth_shared.dart';
 import '../notifiers/login_notifier.dart';
 import '../state/login_state.dart';
 import '../widgets/custom_button.dart';
@@ -22,14 +23,12 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   late final TextEditingController _usernameController;
   late final TextEditingController _passwordController;
-  bool _isRestoringSession = true;
 
   @override
   void initState() {
     super.initState();
     _usernameController = TextEditingController();
     _passwordController = TextEditingController();
-    _restoreSession();
   }
 
   @override
@@ -63,36 +62,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
-  Future<void> _restoreSession() async {
-    final getCurrentUser = ref.read(getCurrentUserUseCaseProvider);
-    final result = await getCurrentUser();
-    if (!mounted) return;
-
-    result.fold(
-      (_) {
-        setState(() {
-          _isRestoringSession = false;
-        });
-      },
-      (user) {
-        if (user != null) {
-          context.router.replace(const HomeRoute());
-          return;
-        }
-        setState(() {
-          _isRestoringSession = false;
-        });
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    if (_isRestoringSession) {
+    // 触发启动时的 session 恢复（keepAlive: true 保证只执行一次）
+    // 当 sessionRestoreProvider 完成后，authSessionNotifierProvider 的状态将更新，
+    // 若已认证，LoginScreen 应由路由守卫或监听跳转到首页。
+    final sessionRestoreAsync = ref.watch(sessionRestoreProvider);
+
+    // session 恢复期间显示加载界面
+    if (sessionRestoreAsync.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
+
+    // session 恢复成功且已认证时，跳转到首页
+    ref.listen<AuthSession>(authSessionProvider, (previous, next) {
+      if (next.isAuthenticated && mounted) {
+        context.router.replace(const HomeRoute());
+      }
+    });
 
     // 监听登录状态
     ref.listen<LoginState>(loginProvider, (previous, next) {

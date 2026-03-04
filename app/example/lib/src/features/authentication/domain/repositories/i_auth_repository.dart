@@ -1,30 +1,30 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import '../entities/user_entity.dart';
 import '../failures/auth_failure.dart';
 
-/// 认证仓储接口 - Domain Layer
+/// Authentication repository interface - Domain Layer
 ///
-/// 定义认证相关的业务操作契约
-/// Data Layer 负责实现此接口
+/// Defines the contract for authentication-related business operations.
+/// Data Layer is responsible for implementing this interface.
 abstract class IAuthRepository {
-  /// 用户登录
+  /// User login
   ///
-  /// [username] 用户名
-  /// [password] 密码
-  /// 返回 Either<失败, 用户实体>
-  Future<Either<AuthFailure, UserEntity>> login({
+  /// [username] Username
+  /// [password] Password
+  /// Returns Result<failure, user entity>
+  Future<Result<AuthFailure, UserEntity>> login({
     required String username,
     required String password,
   });
 
-  /// 用户登出
-  Future<Either<AuthFailure, Unit>> logout();
+  /// User logout
+  Future<Result<AuthFailure, void>> logout();
 
-  /// 获取当前登录用户
+  /// Get currently logged-in user
   ///
-  /// 如果未登录则返回 null
-  Future<Either<AuthFailure, UserEntity?>> getCurrentUser();
+  /// Returns null if not logged in
+  Future<Result<AuthFailure, UserEntity?>> getCurrentUser();
 
-  /// 检查是否已登录
+  /// Check if user is logged in
   Future<bool> isLoggedIn();
 }

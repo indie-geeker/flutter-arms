@@ -7,8 +7,8 @@ import 'package:interfaces/storage/i_kv_storage.dart';
 import 'impl/multi_level_cache.dart';
 import 'models/cache_entry.dart';
 
-/// 缓存模块
-class CacheModule implements IModule {
+/// Cache module
+class CacheModule extends BaseModule {
   final int maxMemoryItems;
   final CacheValueRegistry? valueRegistry;
 
@@ -18,7 +18,7 @@ class CacheModule implements IModule {
   String get name => 'CacheModule';
 
   @override
-  int get priority => InitPriorities.cache; // 在 Storage 之后初始化
+  int get priority => InitPriorities.cache;
 
   @override
   List<Type> get dependencies => [ILogger, IKeyValueStorage];
@@ -26,19 +26,13 @@ class CacheModule implements IModule {
   @override
   List<Type> get provides => [ICacheManager];
 
-  // 保存 locator 引用以便在 init 中使用
-  late IServiceLocator _locator;
-
   @override
-  Future<void> register(IServiceLocator locator) async {
-    // 注意：使用 IServiceLocator 接口，不依赖具体的 ServiceLocator 实现
-    _locator = locator; // 保存引用，供 init 方法使用
-
+  Future<void> onRegister(IServiceLocator locator) async {
     final logger = locator.get<ILogger>();
-    final storage = locator.get<IKeyValueStorage>(); // 依赖 Storage
+    final storage = locator.get<IKeyValueStorage>();
 
     final cacheManager = MultiLevelCacheManager(
-      storage: storage, // 注入 Storage 接口
+      storage: storage,
       logger: logger,
       maxMemoryItems: maxMemoryItems,
       valueRegistry: valueRegistry,
@@ -48,19 +42,18 @@ class CacheModule implements IModule {
   }
 
   @override
-  Future<void> init() async {
-    final cacheManager = _locator.get<ICacheManager>();
+  Future<void> onInit() async {
+    final cacheManager = locator.get<ICacheManager>();
     await cacheManager.init();
   }
 
   @override
-  Future<void> dispose() async {
-    final cacheManager = _locator.get<ICacheManager>();
+  Future<void> onDispose() async {
+    final cacheManager = locator.get<ICacheManager>();
     if (cacheManager is MultiLevelCacheManager) {
       await cacheManager.disposeMemory();
       return;
     }
-    // 回退路径：未知实现时保持原有语义（完整清理）。
     await cacheManager.clear();
   }
 }

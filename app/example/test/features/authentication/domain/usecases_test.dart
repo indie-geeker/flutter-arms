@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import 'package:example/src/features/authentication/domain/entities/user_entity.dart';
 import 'package:example/src/features/authentication/domain/failures/auth_failure.dart';
 import 'package:example/src/features/authentication/domain/usecases/get_current_user_usecase.dart';
@@ -20,7 +20,11 @@ void main() {
 
         final result = await useCase(usernameStr: '', passwordStr: 'secret');
 
-        expect(result, left(const AuthFailure.emptyUsername()));
+        expect(result, isA<Failure<AuthFailure, UserEntity>>());
+        expect(
+          (result as Failure<AuthFailure, UserEntity>).error,
+          const AuthFailure.emptyUsername(),
+        );
         expect(repository.loginCallCount, 0);
       },
     );
@@ -35,7 +39,11 @@ void main() {
 
         final result = await useCase(usernameStr: 'alice', passwordStr: '');
 
-        expect(result, left(const AuthFailure.emptyPassword()));
+        expect(result, isA<Failure<AuthFailure, UserEntity>>());
+        expect(
+          (result as Failure<AuthFailure, UserEntity>).error,
+          const AuthFailure.emptyPassword(),
+        );
         expect(repository.loginCallCount, 0);
       },
     );
@@ -50,12 +58,11 @@ void main() {
 
         final result = await useCase(usernameStr: 'ab', passwordStr: 'secret');
 
+        expect(result, isA<Failure<AuthFailure, UserEntity>>());
         expect(
-          result,
-          left(
-            const AuthFailure.invalidUsername(
-              'Username must be at least 3 characters',
-            ),
+          (result as Failure<AuthFailure, UserEntity>).error,
+          const AuthFailure.invalidUsername(
+            'Username must be at least 3 characters',
           ),
         );
         expect(repository.loginCallCount, 0);
@@ -72,12 +79,11 @@ void main() {
 
         final result = await useCase(usernameStr: 'alice', passwordStr: '12');
 
+        expect(result, isA<Failure<AuthFailure, UserEntity>>());
         expect(
-          result,
-          left(
-            const AuthFailure.invalidPassword(
-              'Password must be at least 3 characters',
-            ),
+          (result as Failure<AuthFailure, UserEntity>).error,
+          const AuthFailure.invalidPassword(
+            'Password must be at least 3 characters',
           ),
         );
         expect(repository.loginCallCount, 0);
@@ -91,12 +97,16 @@ void main() {
         loginTime: DateTime(2026, 1, 1),
       );
       final repository = FakeAuthRepository()
-        ..onLogin = (username, password) async => right(user);
+        ..onLogin = (username, password) async => Success(user);
       final useCase = LoginUseCase(repository);
 
       final result = await useCase(usernameStr: 'alice', passwordStr: 'secret');
 
-      expect(result, right<AuthFailure, UserEntity>(user));
+      expect(result, isA<Success<AuthFailure, UserEntity>>());
+      expect(
+        (result as Success<AuthFailure, UserEntity>).value,
+        user,
+      );
       expect(repository.loginCallCount, 1);
       expect(repository.lastUsername, 'alice');
       expect(repository.lastPassword, 'secret');
@@ -111,24 +121,28 @@ void main() {
         loginTime: DateTime(2026, 2, 2),
       );
       final repository = FakeAuthRepository()
-        ..onGetCurrentUser = () async => right(user);
+        ..onGetCurrentUser = () async => Success(user);
       final useCase = GetCurrentUserUseCase(repository);
 
       final result = await useCase();
 
-      expect(result, right<AuthFailure, UserEntity?>(user));
+      expect(result, isA<Success<AuthFailure, UserEntity?>>());
+      expect(
+        (result as Success<AuthFailure, UserEntity?>).value,
+        user,
+      );
     });
   });
 
   group('LogoutUseCase', () {
     test('returns repository result directly', () async {
       final repository = FakeAuthRepository()
-        ..onLogout = () async => right(unit);
+        ..onLogout = () async => const Success(null);
       final useCase = LogoutUseCase(repository);
 
       final result = await useCase();
 
-      expect(result, right<AuthFailure, Unit>(unit));
+      expect(result, isA<Success<AuthFailure, void>>());
     });
   });
 }

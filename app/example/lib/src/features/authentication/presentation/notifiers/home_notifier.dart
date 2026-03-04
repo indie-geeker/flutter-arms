@@ -1,14 +1,16 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:interfaces/core/result.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:example/src/di/providers.dart';
+import 'package:example/src/features/authentication/di/auth_providers.dart';
 import 'package:example/src/features/authentication/domain/entities/user_entity.dart';
 import 'package:example/src/features/authentication/domain/usecases/get_current_user_usecase.dart';
 import 'package:example/src/features/authentication/domain/usecases/logout_usecase.dart';
+import 'package:example/src/shared/auth/auth_shared.dart';
 
 part 'home_notifier.freezed.dart';
 part 'home_notifier.g.dart';
 
-/// 主页状态
+/// Home page state
 @freezed
 class HomeState with _$HomeState {
   const factory HomeState.loading() = _Loading;
@@ -17,7 +19,7 @@ class HomeState with _$HomeState {
   const factory HomeState.loggedOut() = _LoggedOut;
 }
 
-/// 主页状态管理器
+/// Home page state manager
 @riverpod
 class HomeNotifier extends _$HomeNotifier {
   late final GetCurrentUserUseCase _getCurrentUserUseCase;
@@ -31,26 +33,31 @@ class HomeNotifier extends _$HomeNotifier {
     return const HomeState.loading();
   }
 
-  /// 加载当前用户
+  /// Load current user
   Future<void> _loadUser() async {
     final result = await _getCurrentUserUseCase();
-    result.fold((failure) => state = HomeState.error(failure.toString()), (
-      user,
-    ) {
-      if (user != null) {
-        state = HomeState.loaded(user);
-      } else {
-        state = const HomeState.loggedOut();
-      }
-    });
+    switch (result) {
+      case Failure(:final error):
+        state = HomeState.error(error.toString());
+      case Success(:final value):
+        if (value != null) {
+          state = HomeState.loaded(value);
+        } else {
+          state = const HomeState.loggedOut();
+        }
+    }
   }
 
-  /// 登出
+  /// Logout
   Future<void> logout() async {
     final result = await _logoutUseCase();
-    result.fold(
-      (failure) => state = HomeState.error(failure.toString()),
-      (_) => state = const HomeState.loggedOut(),
-    );
+    switch (result) {
+      case Failure(:final error):
+        state = HomeState.error(error.toString());
+      case Success():
+        // Logout success: clear global session state
+        ref.read(authSessionProvider.notifier).setUnauthenticated();
+        state = const HomeState.loggedOut();
+    }
   }
 }

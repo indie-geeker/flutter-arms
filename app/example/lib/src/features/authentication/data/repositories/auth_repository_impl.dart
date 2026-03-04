@@ -1,62 +1,62 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/failures/auth_failure.dart';
 import '../../domain/repositories/i_auth_repository.dart';
-import '../datasources/auth_local_datasource.dart';
+import '../datasources/i_auth_local_datasource.dart';
 import '../models/user_model.dart';
 
-/// 认证仓储实现 - Data Layer
+/// Authentication repository implementation - Data Layer
 ///
-/// 实现 Domain Layer 的 IAuthRepository 接口
-/// 协调本地数据源和远程数据源（本示例仅使用本地）
+/// Implements the Domain Layer's IAuthRepository interface.
+/// Coordinates local and remote data sources (this example uses local only).
 class AuthRepositoryImpl implements IAuthRepository {
-  final AuthLocalDataSource _localDataSource;
+  final IAuthLocalDataSource _localDataSource;
 
   const AuthRepositoryImpl(this._localDataSource);
 
   @override
-  Future<Either<AuthFailure, UserEntity>> login({
+  Future<Result<AuthFailure, UserEntity>> login({
     required String username,
     required String password,
   }) async {
     try {
-      // 创建用户模型
+      // Create user model
       final userModel = UserModel(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         username: username,
         loginTime: DateTime.now(),
       );
 
-      // 保存到本地存储
+      // Save to local storage
       await _localDataSource.saveCurrentUser(userModel);
 
-      // 转换为 Domain Entity 并返回
-      return right(userModel.toDomain());
+      // Convert to Domain Entity and return
+      return Success(userModel.toDomain());
     } catch (e) {
-      return left(AuthFailure.storageError(e.toString()));
+      return Failure(AuthFailure.storageError(e.toString()));
     }
   }
 
   @override
-  Future<Either<AuthFailure, Unit>> logout() async {
+  Future<Result<AuthFailure, void>> logout() async {
     try {
       await _localDataSource.clearCurrentUser();
-      return right(unit);
+      return const Success(null);
     } catch (e) {
-      return left(AuthFailure.storageError(e.toString()));
+      return Failure(AuthFailure.storageError(e.toString()));
     }
   }
 
   @override
-  Future<Either<AuthFailure, UserEntity?>> getCurrentUser() async {
+  Future<Result<AuthFailure, UserEntity?>> getCurrentUser() async {
     try {
       final userModel = await _localDataSource.getCurrentUser();
       if (userModel == null) {
-        return right(null);
+        return const Success(null);
       }
-      return right(userModel.toDomain());
+      return Success(userModel.toDomain());
     } catch (e) {
-      return left(AuthFailure.storageError(e.toString()));
+      return Failure(AuthFailure.storageError(e.toString()));
     }
   }
 

@@ -328,6 +328,9 @@ abstract class _NetworkService {}
 
 /// Module that records lifecycle events and optionally fails.
 class _TrackingModule implements IModule {
+  @override
+  bool get isHealthy => true;
+
   _TrackingModule(
     this._name, {
     required int priority,

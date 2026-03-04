@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import 'package:example/src/features/authentication/domain/entities/user_entity.dart';
 import 'package:example/src/features/authentication/domain/failures/auth_failure.dart';
 import 'package:example/src/features/authentication/domain/repositories/i_auth_repository.dart';
@@ -138,9 +138,9 @@ class ThrowingKeyValueStorage extends InMemoryKeyValueStorage {
 }
 
 class FakeAuthRepository implements IAuthRepository {
-  Future<Either<AuthFailure, UserEntity>> Function(String, String)? onLogin;
-  Future<Either<AuthFailure, Unit>> Function()? onLogout;
-  Future<Either<AuthFailure, UserEntity?>> Function()? onGetCurrentUser;
+  Future<Result<AuthFailure, UserEntity>> Function(String, String)? onLogin;
+  Future<Result<AuthFailure, void>> Function()? onLogout;
+  Future<Result<AuthFailure, UserEntity?>> Function()? onGetCurrentUser;
   Future<bool> Function()? onIsLoggedIn;
 
   int loginCallCount = 0;
@@ -148,7 +148,7 @@ class FakeAuthRepository implements IAuthRepository {
   String? lastPassword;
 
   @override
-  Future<Either<AuthFailure, UserEntity>> login({
+  Future<Result<AuthFailure, UserEntity>> login({
     required String username,
     required String password,
   }) async {
@@ -159,25 +159,25 @@ class FakeAuthRepository implements IAuthRepository {
     if (loginHandler != null) {
       return loginHandler(username, password);
     }
-    return left(const AuthFailure.unexpected('Missing login stub'));
+    return const Failure(AuthFailure.unexpected('Missing login stub'));
   }
 
   @override
-  Future<Either<AuthFailure, Unit>> logout() async {
+  Future<Result<AuthFailure, void>> logout() async {
     final logoutHandler = onLogout;
     if (logoutHandler != null) {
       return logoutHandler();
     }
-    return right(unit);
+    return const Success(null);
   }
 
   @override
-  Future<Either<AuthFailure, UserEntity?>> getCurrentUser() async {
+  Future<Result<AuthFailure, UserEntity?>> getCurrentUser() async {
     final getCurrentUserHandler = onGetCurrentUser;
     if (getCurrentUserHandler != null) {
       return getCurrentUserHandler();
     }
-    return right(null);
+    return const Success(null);
   }
 
   @override

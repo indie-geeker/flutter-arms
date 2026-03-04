@@ -1,5 +1,5 @@
-import 'package:example/src/core/constants/storage_keys.dart';
-import 'package:example/src/core/theme/app_color_scheme.dart';
+import 'package:example/src/shared/constants/storage_keys.dart';
+import 'package:example/src/shared/theme/app_color_scheme.dart';
 import 'package:example/src/features/settings/domain/repositories/theme_preferences_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';

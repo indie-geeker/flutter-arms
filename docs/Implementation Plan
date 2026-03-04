@@ -1,0 +1,344 @@
+# Authentication Architecture Improvement Plan
+
+## Goal Description
+
+Refactor the authentication-related architecture in `flutter-arms` to cleanly separate **global authentication state** (tokens, session status, HTTP interceptor) from the **login feature** (UI, form validation, write-side use cases). This achieves two goals:
+
+1. Other features (e.g., `network_demo`) can read the current auth state without importing from `features/authentication/`.
+2. The `packages/` layer remains entirely domain-agnostic.
+
+The change introduces a `shared/auth/` sub-directory inside `app/example/lib/src/shared/`, consistent with the existing `shared/constants/` and `shared/theme/` pattern.
+
+---
+
+## Current State
+
+```
+app/example/lib/src/
+├── bootstrap/               # Module composition
+├── di/                      # GetIt → Riverpod bridge (infra providers)
+├── shared/
+│   ├── constants/           # App-wide constants
+│   └── theme/               # App theme tokens
+├── features/
+│   ├── authentication/      # Full auth domain + UI (currently monolithic)
+│   │   ├── data/
+│   │   │   ├── datasources/ # IAuthLocalDataSource, AuthLocalDataSource
+│   │   │   ├── models/      # UserModel
+│   │   │   └── repositories/ # AuthRepositoryImpl
+│   │   ├── domain/
+│   │   │   ├── entities/    # UserEntity
+│   │   │   ├── failures/    # AuthFailure
+│   │   │   ├── repositories/ # IAuthRepository ← only features/authentication uses this
+│   │   │   ├── usecases/    # LoginUseCase, LogoutUseCase, GetCurrentUserUseCase
+│   │   │   └── value_objects/ # Username, Password
+│   │   ├── presentation/
+│   │   │   ├── notifiers/   # LoginNotifier, HomeNotifier
+│   │   │   ├── screens/     # LoginScreen, HomeScreen
+│   │   │   ├── state/       # LoginState
+│   │   │   └── widgets/     # CustomButton, CustomTextField, LoadingOverlay
+│   │   └── di/              # auth_providers.dart
+│   ├── network_demo/
+│   └── settings/
+└── router/                  # app_router.dart
+```
+
+**Problem:** `HomeNotifier` and `LoginNotifier` hold session state locally. Any other feature needing to know "is user logged in?" or inject a token must cross feature boundaries or duplicate logic.
+
+---
+
+## Proposed Changes
+
+### Dependency Direction (after refactor)
+
+```
+features/authentication/  ──writes to──▶  shared/auth/  ◀──reads from──  features/network_demo/
+                                               │
+                                               ▼
+                                   di/ (providers.dart bridge)
+                                               │
+                                               ▼
+                                       packages/modules/*
+```
+
+---
+
+### 1. Add `shared/auth/` — Global Auth State Layer
+
+This is the **only new directory**. It is a thin state-holder layer with no full Clean Architecture sub-layering needed.
+
+#### [NEW] `app/example/lib/src/shared/auth/auth_status.dart`
+
+```dart
+/// 全局认证状态枚举
+enum AuthStatus { unknown, authenticated, unauthenticated }
+```
+
+#### [NEW] `app/example/lib/src/shared/auth/auth_session.dart`
+
+```dart
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'auth_status.dart';
+
+part 'auth_session.freezed.dart';
+
+/// 全局认证会话模型（不可变）
+@freezed
+class AuthSession with _$AuthSession {
+  const factory AuthSession({
+    @Default(AuthStatus.unknown) AuthStatus status,
+    String? userId,
+    String? username,
+    // 若后续接入真实 token，在此添加 token 字段
+  }) = _AuthSession;
+
+  /// 便捷判断：是否已认证
+  const AuthSession._();
+  bool get isAuthenticated => status == AuthStatus.authenticated;
+}
+```
+
+#### [NEW] `app/example/lib/src/shared/auth/auth_session_notifier.dart`
+
+```dart
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'auth_session.dart';
+import 'auth_status.dart';
+
+part 'auth_session_notifier.g.dart';
+
+/// 全局认证会话状态管理器
+///
+/// - features/authentication 在登录/登出成功后写入此 Notifier
+/// - 其他 feature 或路由守卫通过 read/watch 此 Provider 获取状态
+@riverpod
+class AuthSessionNotifier extends _$AuthSessionNotifier {
+  @override
+  AuthSession build() => const AuthSession();
+
+  /// 设置为已认证（登录成功后调用）
+  void setAuthenticated({required String userId, required String username}) {
+    state = AuthSession(
+      status: AuthStatus.authenticated,
+      userId: userId,
+      username: username,
+    );
+  }
+
+  /// 设置为未认证（登出或 session 过期后调用）
+  void setUnauthenticated() {
+    state = const AuthSession(status: AuthStatus.unauthenticated);
+  }
+}
+```
+
+#### [NEW] `app/example/lib/src/shared/auth/auth_interceptor.dart`
+
+```dart
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'auth_session_notifier.dart';
+
+/// HTTP 请求拦截器：自动注入认证凭据
+///
+/// 当后端接入真实 token 后，在此处将 token 写入请求头。
+/// 目前仅作为扩展入口保留，供 NetworkModule 配置时使用。
+class AuthInterceptor {
+  final Ref _ref;
+  const AuthInterceptor(this._ref);
+
+  /// 返回当前认证头，若未登录则返回 null
+  Map<String, String>? buildAuthHeaders() {
+    final session = _ref.read(authSessionNotifierProvider);
+    if (!session.isAuthenticated) return null;
+    // 示例：return {'Authorization': 'Bearer ${session.token}'};
+    return null; // 待真实 token 接入后填充
+  }
+}
+```
+
+#### [NEW] `app/example/lib/src/shared/auth/auth_shared.dart` (barrel file)
+
+```dart
+export 'auth_status.dart';
+export 'auth_session.dart';
+export 'auth_session_notifier.dart';
+export 'auth_interceptor.dart';
+```
+
+---
+
+### 2. Modify `features/authentication/` — 接入全局状态
+
+登录成功/登出后，通知 `AuthSessionNotifier`。**不移动** `IAuthRepository`、`LoginUseCase` 等，它们仍属于登录功能的内部实现。
+
+#### [MODIFY] `app/example/lib/src/features/authentication/presentation/notifiers/login_notifier.dart`
+
+在登录成功后调用 `authSessionNotifierProvider.notifier.setAuthenticated(...)`:
+
+```dart
+// 登录成功分支（示意，具体位置视现有代码结构调整）
+result.fold(
+  (failure) { /* 处理错误 */ },
+  (user) {
+    ref.read(authSessionNotifierProvider.notifier).setAuthenticated(
+      userId: user.id,
+      username: user.username,
+    );
+    // 跳转到首页
+  },
+);
+```
+
+#### [MODIFY] `app/example/lib/src/features/authentication/presentation/notifiers/home_notifier.dart`
+
+`HomeNotifier.logout()` 成功后调用 `authSessionNotifierProvider.notifier.setUnauthenticated()`:
+
+```dart
+Future<void> logout() async {
+  final result = await _logoutUseCase();
+  result.fold(
+    (failure) => state = HomeState.error(failure.toString()),
+    (_) {
+      ref.read(authSessionNotifierProvider.notifier).setUnauthenticated();
+      state = const HomeState.loggedOut();
+    },
+  );
+}
+```
+
+---
+
+### 3. Add Route Guard — 基于全局 AuthSession 的路由守卫
+
+#### [MODIFY] `app/example/lib/src/router/app_router.dart`
+
+```dart
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:example/src/shared/auth/auth_shared.dart';
+
+/// 认证路由守卫
+///
+/// 已认证用户访问登录页时自动重定向到首页；
+/// 未认证用户访问受保护页时重定向到登录页。
+class AuthGuard extends AutoRouteGuard {
+  final Ref _ref;
+  AuthGuard(this._ref);
+
+  @override
+  void onNavigation(NavigationResolver resolver, StackRouter router) {
+    final session = _ref.read(authSessionNotifierProvider);
+    if (session.isAuthenticated) {
+      resolver.next(true);
+    } else {
+      router.push(const LoginRoute());
+    }
+  }
+}
+```
+
+> 在 `AppRouter.routes` 中为受保护路由（如 `HomeRoute`）添加 `guards: [AuthGuard(ref)]`。
+
+---
+
+### 4. Session Restore on App Start — 启动时恢复认证状态
+
+在 bootstrap 阶段（模块初始化完成后），从本地存储恢复会话：
+
+#### [MODIFY] `app/example/lib/src/features/authentication/di/auth_providers.dart`
+
+新增一个 `sessionRestoreProvider`（`FutureProvider`），在 app 启动时由顶层 widget 触发：
+
+```dart
+/// 启动时恢复认证状态
+///
+/// 从本地存储读取上次登录的用户信息，并写入 AuthSessionNotifier。
+/// 在 AppInitializerWidget 完成后、主 UI 渲染前执行。
+@riverpod
+Future<void> sessionRestore(Ref ref) async {
+  final getCurrentUser = ref.read(getCurrentUserUseCaseProvider);
+  final result = await getCurrentUser();
+  result.fold(
+    (_) => ref.read(authSessionNotifierProvider.notifier).setUnauthenticated(),
+    (user) {
+      if (user != null) {
+        ref.read(authSessionNotifierProvider.notifier).setAuthenticated(
+          userId: user.id,
+          username: user.username,
+        );
+      } else {
+        ref.read(authSessionNotifierProvider.notifier).setUnauthenticated();
+      }
+    },
+  );
+}
+```
+
+在 app shell 的顶层 widget build 时触发：
+
+```dart
+// app/example/lib/src/app/app.dart（或主 widget）
+@override
+Widget build(BuildContext context, WidgetRef ref) {
+  // 启动时恢复认证状态（仅执行一次）
+  ref.watch(sessionRestoreProvider);
+  // ...
+}
+```
+
+---
+
+### 5. Code Generation
+
+所有新增 `.dart` 文件中使用了 `@freezed` 或 `@riverpod` 注解，需重新运行代码生成：
+
+```bash
+cd app/example
+dart run build_runner build --delete-conflicting-outputs
+```
+
+---
+
+## File Change Summary
+
+| 文件 | 操作 | 说明 |
+|------|------|------|
+| `shared/auth/auth_status.dart` | NEW | `AuthStatus` 枚举 |
+| `shared/auth/auth_session.dart` | NEW | 全局会话模型（freezed） |
+| `shared/auth/auth_session_notifier.dart` | NEW | 全局会话 Notifier（riverpod） |
+| `shared/auth/auth_interceptor.dart` | NEW | HTTP Token 注入扩展点 |
+| `shared/auth/auth_shared.dart` | NEW | Barrel file |
+| `features/authentication/presentation/notifiers/login_notifier.dart` | MODIFY | 登录成功后写入 AuthSessionNotifier |
+| `features/authentication/presentation/notifiers/home_notifier.dart` | MODIFY | 登出后写入 AuthSessionNotifier |
+| `features/authentication/di/auth_providers.dart` | MODIFY | 新增 sessionRestoreProvider |
+| `router/app_router.dart` | MODIFY | 添加 AuthGuard |
+
+**不变：** `IAuthRepository`、`AuthRepositoryImpl`、`LoginUseCase`、`LogoutUseCase`、`UserEntity`、`AuthLocalDataSource` 等全部保留在 `features/authentication/` 内部。
+
+---
+
+## Verification Plan
+
+### Automated Tests
+
+```bash
+# 全量分析 + 测试
+cd app/example
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze
+flutter test
+
+# 或通过 melos 执行全局验证
+melos run verify
+```
+
+新增测试用例：
+- **`test/shared/auth/auth_session_notifier_test.dart`** — 验证 `setAuthenticated` / `setUnauthenticated` 状态转换
+- **`test/features/authentication/session_restore_test.dart`** — Mock `GetCurrentUserUseCase`，验证启动时状态恢复逻辑
+
+### Manual Verification
+
+1. 启动 example app，验证登录流程（`AuthSession` 状态正确切换到 `authenticated`）
+2. 登出后验证 `AuthSession` 切换为 `unauthenticated`，路由守卫重定向到登录页
+3. 关闭 app 后重新打开，验证 `sessionRestore` 正确恢复已登录状态
+4. 在 network demo 页面发起请求，验证 `AuthInterceptor` 可读取到 session 状态（为后续 token 注入做好基础）

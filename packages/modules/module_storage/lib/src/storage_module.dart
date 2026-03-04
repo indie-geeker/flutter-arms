@@ -10,8 +10,8 @@ typedef KeyValueStorageBuilder =
       required StorageConfig config,
     });
 
-/// 存储模块
-class StorageModule implements IModule {
+/// Storage module
+class StorageModule extends BaseModule {
   final StorageConfig config;
   final KeyValueStorageBuilder _keyValueStorageBuilder;
 
@@ -26,7 +26,7 @@ class StorageModule implements IModule {
   String get name => 'StorageModule';
 
   @override
-  int get priority => InitPriorities.storage; // 在日志之后初始化
+  int get priority => InitPriorities.storage;
 
   @override
   List<Type> get dependencies => [ILogger];
@@ -37,32 +37,26 @@ class StorageModule implements IModule {
     return provided;
   }
 
-  // 保存 locator 引用以便在 init 中使用
-  late IServiceLocator _locator;
-
   @override
-  Future<void> register(IServiceLocator locator) async {
-    // 注意：使用 IServiceLocator 接口，不依赖具体的 ServiceLocator 实现
-    _locator = locator; // 保存引用，供 init 方法使用
-
+  Future<void> onRegister(IServiceLocator locator) async {
     final logger = locator.get<ILogger>();
 
-    // 注册 KV 存储
+    // Register KV storage
     final kvStorage = _keyValueStorageBuilder(logger: logger, config: config);
     locator.registerSingleton<IKeyValueStorage>(kvStorage);
     // Reserved extension point: relational/document storage can be registered here.
   }
 
   @override
-  Future<void> init() async {
-    final kvStorage = _locator.get<IKeyValueStorage>();
+  Future<void> onInit() async {
+    final kvStorage = locator.get<IKeyValueStorage>();
     await kvStorage.init();
   }
 
   @override
-  Future<void> dispose() async {
-    if (_locator.isRegistered<IKeyValueStorage>()) {
-      final kvStorage = _locator.get<IKeyValueStorage>();
+  Future<void> onDispose() async {
+    if (locator.isRegistered<IKeyValueStorage>()) {
+      final kvStorage = locator.get<IKeyValueStorage>();
       await kvStorage.close();
     }
   }
@@ -79,7 +73,7 @@ IKeyValueStorage _defaultKeyValueStorageBuilder({
   );
 }
 
-/// 存储配置
+/// Storage configuration
 class StorageConfig {
   final String kvStorageBoxName;
 

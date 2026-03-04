@@ -64,6 +64,9 @@ void main() {
 }
 
 class _WidgetTestModule implements IModule {
+  @override
+  bool get isHealthy => true;
+
   _WidgetTestModule(this.name);
 
   @override

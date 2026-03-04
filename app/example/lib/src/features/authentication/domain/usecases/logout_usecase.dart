@@ -1,17 +1,17 @@
-import 'package:dartz/dartz.dart';
+import 'package:interfaces/core/result.dart';
 import '../failures/auth_failure.dart';
 import '../repositories/i_auth_repository.dart';
 
-/// 登出用例
+/// Logout use case
 ///
-/// 封装登出业务逻辑
+/// Encapsulates logout business logic.
 class LogoutUseCase {
   final IAuthRepository _repository;
 
   const LogoutUseCase(this._repository);
 
-  /// 执行登出
-  Future<Either<AuthFailure, Unit>> call() async {
+  /// Execute logout
+  Future<Result<AuthFailure, void>> call() async {
     return await _repository.logout();
   }
 }

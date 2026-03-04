@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:core/core.dart';
-import 'package:example/src/core/constants/storage_keys.dart';
-import 'package:example/src/core/theme/app_color_scheme.dart';
+import 'package:example/src/di/providers.dart';
+import 'package:example/src/shared/constants/storage_keys.dart';
+import 'package:example/src/shared/theme/app_color_scheme.dart';
 import 'package:example/src/features/settings/presentation/notifiers/locale_notifier.dart';
 import 'package:example/src/features/settings/presentation/notifiers/theme_notifier.dart';
 import 'package:example/src/features/settings/presentation/state/locale_state.dart';

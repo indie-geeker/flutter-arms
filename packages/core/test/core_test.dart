@@ -40,6 +40,9 @@ void main() {
 }
 
 class _CoreTestModule implements IModule {
+  @override
+  bool get isHealthy => true;
+
   _CoreTestModule(this.name);
 
   @override
