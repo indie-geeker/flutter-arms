@@ -112,9 +112,6 @@ Future<GenerationResult> _writeEntrypoints({
   final appPath = '${config.appDirectoryPath}/lib/src/app/app.dart';
   final homePath =
       '${config.appDirectoryPath}/lib/src/features/home/presentation/screens/home_screen.dart';
-  final providersPath = '${config.appDirectoryPath}/lib/src/di/providers.dart';
-  final routerPath =
-      '${config.appDirectoryPath}/lib/src/router/app_router.dart';
 
   final mainContent = _buildMainDart(config);
   await writeManaged(mainPath, mainContent);
@@ -124,20 +121,6 @@ Future<GenerationResult> _writeEntrypoints({
 
   final homeContent = _buildHomeScreenDart(config);
   await writeManaged(homePath, homeContent);
-
-  if (_needsGeneratedProviders(config)) {
-    final providersContent = _buildProvidersDart(config);
-    await writeManaged(providersPath, providersContent);
-  } else if (overwrite) {
-    await _deleteIfExists(providersPath);
-  }
-
-  if (config.modules.router) {
-    final routerContent = _buildRouterDart(config);
-    await writeManaged(routerPath, routerContent);
-  } else if (overwrite) {
-    await _deleteIfExists(routerPath);
-  }
 
   return GenerationResult(written: written, skipped: skipped);
 }
@@ -172,22 +155,20 @@ String _buildAppDart(CreateAppConfig config) {
   final usesRouter = config.modules.router;
   final usesL10n = config.modules.l10n;
   final usesTheme = config.modules.theme;
+  final usesProviderState = usesProviders && (usesTheme || usesL10n);
 
   final imports = <String>{"import 'package:flutter/material.dart';"};
-  if (!usesRouter) {
+  if (usesRouter) {
+    imports.add("import '../router/app_router.dart';");
+  } else {
     imports.add(
       "import '../features/home/presentation/screens/home_screen.dart';",
     );
   }
 
-  if (_needsGeneratedProviders(config)) {
+  if (usesProviderState) {
     imports.add("import 'package:flutter_riverpod/flutter_riverpod.dart';");
     imports.add("import '../di/providers.dart';");
-  } else if (usesProviders) {
-    imports.add("import 'package:flutter_riverpod/flutter_riverpod.dart';");
-  }
-  if (usesRouter && !usesProviders) {
-    imports.add("import '../router/app_router.dart';");
   }
   if (usesL10n) {
     imports.add(
@@ -196,10 +177,10 @@ String _buildAppDart(CreateAppConfig config) {
     imports.add("import '../../l10n/app_localizations.dart';");
   }
 
-  final className = usesProviders
+  final className = usesProviderState
       ? 'class ArmsApp extends ConsumerWidget {'
       : 'class ArmsApp extends StatelessWidget {';
-  final buildSignature = usesProviders
+  final buildSignature = usesProviderState
       ? '@override\n  Widget build(BuildContext context, WidgetRef ref) {'
       : '@override\n  Widget build(BuildContext context) {';
 
@@ -211,13 +192,10 @@ String _buildAppDart(CreateAppConfig config) {
   lines.add('');
   lines.add('  $buildSignature');
 
-  if (usesProviders && usesRouter) {
-    lines.add('    final appRouter = ref.watch(appRouterProvider);');
-  }
-  if (usesProviders && usesTheme) {
+  if (usesProviderState && usesTheme) {
     lines.add('    final themeMode = ref.watch(themeModeProvider);');
   }
-  if (usesProviders && usesL10n) {
+  if (usesProviderState && usesL10n) {
     lines.add('    final locale = ref.watch(localeProvider);');
   }
 
@@ -236,12 +214,12 @@ String _buildAppDart(CreateAppConfig config) {
     '      darkTheme: ThemeData(useMaterial3: true, brightness: Brightness.dark),',
   );
 
-  if (usesTheme && usesProviders) {
+  if (usesTheme && usesProviderState) {
     lines.add('      themeMode: themeMode,');
   }
 
   if (usesL10n) {
-    if (usesProviders) {
+    if (usesProviderState) {
       lines.add('      locale: locale,');
     }
     lines.add('      localizationsDelegates: const [');
@@ -254,11 +232,7 @@ String _buildAppDart(CreateAppConfig config) {
   }
 
   if (usesRouter) {
-    if (usesProviders) {
-      lines.add('      routerConfig: appRouter.config(),');
-    } else {
-      lines.add('      routerConfig: AppRouter().config(),');
-    }
+    lines.add('      routerConfig: AppRouter().config(),');
   } else {
     lines.add('      home: const HomeScreen(),');
   }
@@ -302,64 +276,6 @@ String _buildHomeScreenDart(CreateAppConfig config) {
   return '${lines.join('\n')}\n';
 }
 
-String _buildProvidersDart(CreateAppConfig config) {
-  final usesRouter = config.modules.router;
-  final usesTheme = config.modules.theme;
-  final usesL10n = config.modules.l10n;
-
-  final imports = <String>{
-    "import 'package:flutter/material.dart';",
-    "import 'package:flutter_riverpod/flutter_riverpod.dart';",
-  };
-
-  if (usesRouter) {
-    imports.add("import '../router/app_router.dart';");
-  }
-
-  final lines = <String>[];
-  lines.addAll(imports.toList()..sort());
-  lines.add('');
-
-  final declarations = <String>[];
-  if (usesRouter) {
-    declarations.add(
-      'final appRouterProvider = Provider<AppRouter>((ref) => AppRouter());',
-    );
-  }
-  if (usesTheme) {
-    declarations.add(
-      'final themeModeProvider = Provider<ThemeMode>((ref) => ThemeMode.system);',
-    );
-  }
-  if (usesL10n) {
-    declarations.add(
-      'final localeProvider = Provider<Locale?>((ref) => null);',
-    );
-  }
-  if (declarations.isEmpty) {
-    declarations.add('// Add app-wide providers here.');
-  }
-
-  lines.addAll(declarations);
-  return '${lines.join('\n')}\n';
-}
-
-String _buildRouterDart(CreateAppConfig config) {
-  return '''import 'package:auto_route/auto_route.dart';
-import 'package:${config.appName}/src/features/home/presentation/screens/home_screen.dart';
-
-part 'app_router.gr.dart';
-
-@AutoRouterConfig(replaceInRouteName: 'Screen,Route')
-class AppRouter extends RootStackRouter {
-  @override
-  List<AutoRoute> get routes => [
-    AutoRoute(page: HomeRoute.page, path: '/', initial: true),
-  ];
-}
-''';
-}
-
 String _displayName(String appName) {
   return appName
       .split('_')
@@ -370,18 +286,4 @@ String _displayName(String appName) {
             (segment.length > 1 ? segment.substring(1) : ''),
       )
       .join(' ');
-}
-
-bool _needsGeneratedProviders(CreateAppConfig config) {
-  if (!config.modules.providers) {
-    return false;
-  }
-  return config.modules.router || config.modules.theme || config.modules.l10n;
-}
-
-Future<void> _deleteIfExists(String path) async {
-  final file = File(path);
-  if (await file.exists()) {
-    await file.delete();
-  }
 }

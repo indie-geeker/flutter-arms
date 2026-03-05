@@ -1,0 +1,11 @@
+import 'auth_status.dart';
+
+class AuthSession {
+  const AuthSession({required this.status});
+
+  final AuthStatus status;
+
+  bool get isAuthenticated => status == AuthStatus.authenticated;
+
+  bool get isUnknown => status == AuthStatus.unknown;
+}

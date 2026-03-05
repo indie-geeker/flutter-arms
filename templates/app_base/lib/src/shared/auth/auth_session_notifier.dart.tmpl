@@ -1,0 +1,16 @@
+import 'auth_session.dart';
+import 'auth_status.dart';
+
+class AuthSessionNotifier {
+  AuthSession _state = const AuthSession(status: AuthStatus.unknown);
+
+  AuthSession get state => _state;
+
+  void setAuthenticated() {
+    _state = const AuthSession(status: AuthStatus.authenticated);
+  }
+
+  void setUnauthenticated() {
+    _state = const AuthSession(status: AuthStatus.unauthenticated);
+  }
+}

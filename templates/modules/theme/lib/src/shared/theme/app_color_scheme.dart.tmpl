@@ -1,0 +1,14 @@
+import 'package:flutter/material.dart';
+
+enum AppColorScheme { indigo, teal }
+
+extension AppColorSchemeSeed on AppColorScheme {
+  Color get seedColor {
+    switch (this) {
+      case AppColorScheme.teal:
+        return Colors.teal;
+      case AppColorScheme.indigo:
+        return Colors.indigo;
+    }
+  }
+}

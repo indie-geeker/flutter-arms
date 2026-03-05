@@ -1,0 +1,17 @@
+import 'module_profile.dart';
+
+class BootstrapModule {
+  const BootstrapModule(this.name);
+
+  final String name;
+}
+
+List<BootstrapModule> buildBootstrapModules({
+  bool enableFullStackProfile = kEnableFullStackProfile,
+}) {
+  return <BootstrapModule>[
+    const BootstrapModule('logger'),
+    const BootstrapModule('storage'),
+    if (enableFullStackProfile) const BootstrapModule('network'),
+  ];
+}

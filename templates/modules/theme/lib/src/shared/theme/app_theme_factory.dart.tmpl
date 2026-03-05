@@ -1,0 +1,33 @@
+import 'package:flutter/material.dart';
+
+import 'app_color_scheme.dart';
+import 'app_theme_tokens.dart';
+
+class AppThemeFactory {
+  const AppThemeFactory._();
+
+  static ThemeData light([AppColorScheme scheme = AppColorScheme.indigo]) {
+    return ThemeData(
+      useMaterial3: true,
+      colorSchemeSeed: scheme.seedColor,
+      brightness: Brightness.light,
+    );
+  }
+
+  static ThemeData dark([AppColorScheme scheme = AppColorScheme.indigo]) {
+    return ThemeData(
+      useMaterial3: true,
+      colorSchemeSeed: scheme.seedColor,
+      brightness: Brightness.dark,
+    );
+  }
+
+  static ThemeData fromTokens(
+    AppThemeTokens tokens, {
+    required Brightness brightness,
+  }) {
+    return brightness == Brightness.dark
+        ? dark(tokens.colorScheme)
+        : light(tokens.colorScheme);
+  }
+}
