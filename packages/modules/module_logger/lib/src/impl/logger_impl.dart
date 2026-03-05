@@ -4,7 +4,7 @@ import 'package:interfaces/logger/log_level.dart';
 import 'package:interfaces/logger/log_output.dart';
 import 'package:interfaces/logger/log_entity.dart';
 
-/// ILogger 接口的默认实现
+/// Default implementation of the ILogger interface.
 class LoggerImpl implements ILogger {
   LogLevel _level = LogLevel.debug;
   final List<LogOutput> _outputs = [];
@@ -94,7 +94,7 @@ class LoggerImpl implements ILogger {
     StackTrace? stackTrace,
     Map<String, dynamic>? extras,
   }) {
-    // 级别过滤
+    // Level filtering.
     if (level < _level) return;
 
     final entry = LogEntry(
@@ -105,12 +105,12 @@ class LoggerImpl implements ILogger {
       extras: extras != null ? Map<String, dynamic>.from(extras) : null,
     );
 
-    // 分发到所有输出器
+    // Dispatch to all output sinks.
     for (final output in _outputs) {
       try {
         output.write(entry);
       } catch (e) {
-        // 输出器异常不应影响主流程
+        // Output errors should not affect the main flow.
         debugPrint('LogOutput error: $e');
       }
     }

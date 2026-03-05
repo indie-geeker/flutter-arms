@@ -1,12 +1,16 @@
 import 'log_level.dart';
 import 'log_output.dart';
 
-/// 日志抽象接口
+/// Logger interface.
+///
+/// Defines structured logging with configurable levels, multiple outputs,
+/// and contextual `extras` for machine-readable metadata.
+/// Implementations live in `packages/modules/module_logger`.
 abstract class ILogger {
-  /// 初始化日志系统
+  /// Initializes the logging subsystem.
   void init({LogLevel level = LogLevel.debug, List<LogOutput>? outputs});
 
-  /// 调试日志
+  /// Logs a debug-level message.
   void debug(
     String message, {
     dynamic error,
@@ -14,10 +18,10 @@ abstract class ILogger {
     Map<String, dynamic>? extras,
   });
 
-  /// 信息日志
+  /// Logs an info-level message.
   void info(String message, {Map<String, dynamic>? extras});
 
-  /// 警告日志
+  /// Logs a warning-level message.
   void warning(
     String message, {
     dynamic error,
@@ -25,7 +29,7 @@ abstract class ILogger {
     Map<String, dynamic>? extras,
   });
 
-  /// 错误日志
+  /// Logs an error-level message.
   void error(
     String message, {
     dynamic error,
@@ -33,7 +37,7 @@ abstract class ILogger {
     Map<String, dynamic>? extras,
   });
 
-  /// 严重错误日志
+  /// Logs a fatal-level message.
   void fatal(
     String message, {
     dynamic error,
@@ -41,7 +45,7 @@ abstract class ILogger {
     Map<String, dynamic>? extras,
   });
 
-  /// 自定义级别日志
+  /// Logs a message at a custom [level].
   void log(
     LogLevel level,
     String message, {
@@ -50,9 +54,9 @@ abstract class ILogger {
     Map<String, dynamic>? extras,
   });
 
-  /// 设置日志级别
+  /// Changes the minimum log level at runtime.
   void setLevel(LogLevel level);
 
-  /// 添加日志输出器
+  /// Registers an additional log output sink.
   void addOutput(LogOutput output);
 }

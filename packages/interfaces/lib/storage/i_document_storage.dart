@@ -1,32 +1,32 @@
 import 'i_storage.dart';
 
-/// 文档存储接口（类似 NoSQL）
-/// 实现：Hive、Isar
+/// Document storage interface (NoSQL-like).
+/// Implementations: Hive, Isar.
 abstract class IDocumentStorage<T> extends IStorage {
-  /// 插入文档
+  /// Inserts a document.
   Future<String> insert(T document);
 
-  /// 批量插入
+  /// Batch inserts documents.
   Future<List<String>> insertAll(List<T> documents);
 
-  /// 根据 ID 查询文档
+  /// Finds a document by ID.
   Future<T?> findById(String id);
 
-  /// 查询所有文档
+  /// Returns all documents.
   Future<List<T>> findAll();
 
-  /// 条件查询
+  /// Queries documents matching a condition.
   Future<List<T>> findWhere(bool Function(T) test);
 
-  /// 更新文档
+  /// Updates a document.
   Future<void> update(String id, T document);
 
-  /// 删除文档
+  /// Deletes a document.
   Future<void> delete(String id);
 
-  /// 批量删除
+  /// Deletes documents matching a condition.
   Future<void> deleteWhere(bool Function(T) test);
 
-  /// 计数
+  /// Returns the document count.
   Future<int> count();
 }

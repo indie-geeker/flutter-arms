@@ -31,7 +31,7 @@ void main() {
       await shutdownFuture;
       expect(module.disposeCount, 1);
 
-      // 幂等：重复关闭不应重复 dispose
+      // Idempotent: repeated shutdown should not re-dispose
       await controller.shutdown();
       expect(module.disposeCount, 1);
     });

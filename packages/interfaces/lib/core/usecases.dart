@@ -1,12 +1,12 @@
 import 'result.dart';
 
-/// UseCase 基类 - 有参数
+/// UseCase base class — with parameters.
 ///
-/// [F] 失败类型
-/// [S] 成功返回类型
-/// [Params] 参数类型
+/// [F] Failure type
+/// [S] Success return type
+/// [Params] Parameter type
 ///
-/// 用法示例：
+/// Usage example:
 /// ```dart
 /// class LoginUseCase extends UseCase<AuthFailure, UserEntity, LoginParams> {
 ///   final IAuthRepository _repository;
@@ -25,12 +25,12 @@ abstract class UseCase<F, S, Params> {
   Future<Result<F, S>> call(Params params);
 }
 
-/// NoParamsUseCase 基类 - 无参数
+/// NoParamsUseCase base class — without parameters.
 ///
-/// [F] 失败类型
-/// [S] 成功返回类型
+/// [F] Failure type
+/// [S] Success return type
 ///
-/// 用法示例：
+/// Usage example:
 /// ```dart
 /// class LogoutUseCase extends NoParamsUseCase<AuthFailure, void> {
 ///   final IAuthRepository _repository;

@@ -1,36 +1,36 @@
-/// 网络异常类型
+/// Network exception type.
 enum NetworkExceptionType {
-  /// 超时
+  /// Timeout.
   timeout,
 
-  /// 无网络连接
+  /// No internet connection.
   noInternet,
 
-  /// 服务器错误（4xx, 5xx）
+  /// Server error (4xx, 5xx).
   serverError,
 
-  /// 请求被取消
+  /// Request cancelled.
   cancelled,
 
-  /// 解析错误
+  /// Parse error.
   parseError,
 
-  /// 未知错误
+  /// Unknown error.
   unknown,
 }
 
-/// 网络异常
+/// Network exception.
 class NetworkException implements Exception {
-  /// 错误消息
+  /// Error message.
   final String message;
 
-  /// 异常类型
+  /// Exception type.
   final NetworkExceptionType type;
 
-  /// HTTP 状态码
+  /// HTTP status code.
   final int? statusCode;
 
-  /// 原始错误对象
+  /// Original error object.
   final dynamic originalError;
 
   NetworkException({
@@ -45,17 +45,17 @@ class NetworkException implements Exception {
     return 'NetworkException: $message (type: $type, statusCode: $statusCode)';
   }
 
-  /// 是否为客户端错误（4xx）
+  /// Whether this is a client error (4xx).
   bool get isClientError =>
       statusCode != null && statusCode! >= 400 && statusCode! < 500;
 
-  /// 是否为服务端错误（5xx）
+  /// Whether this is a server error (5xx).
   bool get isServerError =>
       statusCode != null && statusCode! >= 500 && statusCode! < 600;
 
-  /// 是否为超时错误
+  /// Whether this is a timeout error.
   bool get isTimeout => type == NetworkExceptionType.timeout;
 
-  /// 是否为网络连接错误
+  /// Whether this is a connection error.
   bool get isConnectionError => type == NetworkExceptionType.noInternet;
 }

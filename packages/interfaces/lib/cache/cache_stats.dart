@@ -1,21 +1,21 @@
-/// 缓存统计信息
+/// Cache statistics.
 class CacheStats {
-  /// 总键数
+  /// Total number of keys.
   final int totalKeys;
 
-  /// 内存缓存键数
+  /// Number of memory-cached keys.
   final int memoryKeys;
 
-  /// 磁盘缓存键数
+  /// Number of disk-cached keys.
   final int diskKeys;
 
-  /// 总大小（字节）
+  /// Total size in bytes.
   final int totalSize;
 
-  /// 命中次数
+  /// Number of cache hits.
   final int hitCount;
 
-  /// 未命中次数
+  /// Number of cache misses.
   final int missCount;
 
   CacheStats({
@@ -27,7 +27,7 @@ class CacheStats {
     required this.missCount,
   });
 
-  /// 命中率
+  /// Cache hit rate.
   double get hitRate =>
       hitCount + missCount > 0 ? hitCount / (hitCount + missCount) : 0.0;
 }

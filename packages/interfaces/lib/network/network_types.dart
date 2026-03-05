@@ -1,23 +1,24 @@
-/// 请求取消令牌
+/// Request cancellation token.
 ///
-/// 用于取消正在进行的网络请求
+/// Used to cancel an in-progress network request.
 abstract class CancelToken {
-  /// 取消请求
+  /// Cancels the request.
   void cancel([String? reason]);
 
-  /// 请求是否已取消
+  /// Whether the request has been cancelled.
   bool get isCancelled;
 
-  /// 注册取消监听器
+  /// Registers a cancellation listener.
   ///
-  /// 当取消发生时回调，并传入取消原因（可空）
+  /// The callback is invoked when cancellation occurs, passing the cancel
+  /// reason (nullable).
   void addListener(void Function(String? reason) listener);
 
-  /// 创建新的取消令牌
+  /// Creates a new cancel token.
   factory CancelToken() = _CancelTokenImpl;
 }
 
-/// 默认的取消令牌实现
+/// Default cancel token implementation.
 class _CancelTokenImpl implements CancelToken {
   bool _cancelled = false;
   String? _cancelReason;
@@ -46,41 +47,41 @@ class _CancelTokenImpl implements CancelToken {
   String? get cancelReason => _cancelReason;
 }
 
-/// 进度回调函数类型
+/// Progress callback function type.
 ///
-/// [current] 当前进度（字节数）
-/// [total] 总大小（字节数）
+/// [current] Current progress in bytes.
+/// [total] Total size in bytes.
 typedef ProgressCallback = void Function(int current, int total);
 
-/// 表单数据抽象接口
+/// Abstract form data interface.
 ///
-/// 用于文件上传等场景
+/// Used for file uploads and similar scenarios.
 abstract class FormData {
-  /// 添加字段
+  /// Adds a field.
   void addField(String key, String value);
 
-  /// 添加文件
+  /// Adds a file.
   void addFile(String key, FormFile file);
 
-  /// 获取所有字段
+  /// Returns all fields.
   Map<String, String> get fields;
 
-  /// 获取所有文件
+  /// Returns all files.
   Map<String, FormFile> get files;
 }
 
-/// 表单文件
+/// Form file.
 class FormFile {
-  /// 文件路径（原生平台可用）
+  /// File path (available on native platforms).
   final String? filePath;
 
-  /// 文件字节（Web 推荐）
+  /// File bytes (recommended for Web).
   final List<int>? bytes;
 
-  /// 文件名（可选，默认从路径提取）
+  /// File name (optional, defaults to extracting from path).
   final String? filename;
 
-  /// 内容类型（可选）
+  /// Content type (optional).
   final String? contentType;
 
   FormFile({this.filePath, this.bytes, this.filename, this.contentType})
@@ -89,13 +90,13 @@ class FormFile {
         'Either filePath or bytes must be provided.',
       );
 
-  /// 是否包含文件路径
+  /// Whether a file path is available.
   bool get hasFilePath => filePath != null && filePath!.isNotEmpty;
 
-  /// 是否包含文件字节
+  /// Whether file bytes are available.
   bool get hasBytes => bytes != null;
 
-  /// 从文件路径创建
+  /// Creates from a file path.
   factory FormFile.fromPath(
     String filePath, {
     String? filename,
@@ -108,7 +109,7 @@ class FormFile {
     );
   }
 
-  /// 从文件字节创建
+  /// Creates from file bytes.
   factory FormFile.fromBytes(
     List<int> bytes, {
     String? filename,

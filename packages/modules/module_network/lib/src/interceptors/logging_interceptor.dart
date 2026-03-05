@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:interfaces/interfaces.dart';
 
-/// 网络请求日志拦截器
+/// Network request logging interceptor.
 class LoggingInterceptor extends Interceptor {
   final ILogger _logger;
   static const String _redacted = '***';

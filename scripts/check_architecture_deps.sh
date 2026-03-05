@@ -55,6 +55,14 @@ if [[ -n "$cross_feature_imports" ]]; then
   has_violation=1
 fi
 
+# Rule 4: shared/ must not import from features/.
+shared_imports_features="$(rg -n "package:example/src/features/" app/example/lib/src/shared --glob '*.dart' || true)"
+if [[ -n "$shared_imports_features" ]]; then
+  echo "\n[Rule 4] Forbidden imports from features/ inside shared/:"
+  printf '%s\n' "$shared_imports_features"
+  has_violation=1
+fi
+
 if [[ "$has_violation" -ne 0 ]]; then
   echo "\nArchitecture dependency check failed."
   exit 1

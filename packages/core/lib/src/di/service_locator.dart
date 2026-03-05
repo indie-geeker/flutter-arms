@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:interfaces/core/i_service_locator.dart';
 
-/// 服务定位器 - 实现 IServiceLocator 接口，基于 GetIt
+/// Service locator — implements IServiceLocator, backed by GetIt.
 class ServiceLocator implements IServiceLocator {
   static final ServiceLocator _instance = ServiceLocator._internal();
   factory ServiceLocator() => _instance;

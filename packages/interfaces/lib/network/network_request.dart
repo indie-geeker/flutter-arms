@@ -1,32 +1,32 @@
 import 'network_cache_options.dart';
 
-/// 网络请求封装
+/// Network request wrapper.
 class NetworkRequest {
-  /// 请求路径
+  /// Request path.
   final String path;
 
-  /// 请求方法
+  /// HTTP method.
   final String method;
 
-  /// 查询参数
+  /// Query parameters.
   final Map<String, dynamic>? queryParameters;
 
-  /// 请求头
+  /// Request headers.
   final Map<String, dynamic>? headers;
 
-  /// 请求体数据
+  /// Request body data.
   final dynamic data;
 
-  /// 连接超时时间
+  /// Connection timeout.
   final Duration? connectTimeout;
 
-  /// 接收超时时间
+  /// Receive timeout.
   final Duration? receiveTimeout;
 
-  /// 额外配置（用于传递自定义参数）
+  /// Extra configuration (for passing custom parameters).
   final Map<String, dynamic>? extra;
 
-  /// 缓存配置
+  /// Cache configuration.
   final NetworkCacheOptions? cacheOptions;
 
   NetworkRequest({
@@ -41,7 +41,7 @@ class NetworkRequest {
     this.cacheOptions,
   });
 
-  /// 创建 GET 请求
+  /// Creates a GET request.
   factory NetworkRequest.get(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -59,7 +59,7 @@ class NetworkRequest {
     );
   }
 
-  /// 创建 POST 请求
+  /// Creates a POST request.
   factory NetworkRequest.post(
     String path, {
     dynamic data,
@@ -79,7 +79,7 @@ class NetworkRequest {
     );
   }
 
-  /// 创建 PUT 请求
+  /// Creates a PUT request.
   factory NetworkRequest.put(
     String path, {
     dynamic data,
@@ -99,7 +99,7 @@ class NetworkRequest {
     );
   }
 
-  /// 创建 DELETE 请求
+  /// Creates a DELETE request.
   factory NetworkRequest.delete(
     String path, {
     dynamic data,
@@ -119,7 +119,7 @@ class NetworkRequest {
     );
   }
 
-  /// 生成缓存键
+  /// Generates a cache key.
   String toCacheKey() {
     final uri = path;
     final params = queryParameters?.toString() ?? '';

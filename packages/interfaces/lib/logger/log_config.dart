@@ -1,22 +1,22 @@
 import 'log_level.dart';
 
-/// 日志输出配置
+/// Log output configuration.
 ///
 /// 用于配置日志输出工厂创建的输出实例
 class LogOutputConfig {
-  /// 是否启用日志
+  /// Whether logging is enabled.
   final bool enabled;
 
-  /// 最低日志级别
+  /// Minimum log level.
   final LogLevel minLevel;
 
-  /// 是否启用控制台输出
+  /// Whether console output is enabled.
   final bool enableConsole;
 
-  /// 是否启用文件输出
+  /// Whether file output is enabled.
   final bool enableFile;
 
-  /// 日志文件路径
+  /// Log file path.
   final String? logFilePath;
 
   /// 日志文件最大大小(字节)

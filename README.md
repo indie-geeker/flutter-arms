@@ -486,7 +486,7 @@ dart run build_runner clean
 ### State Management & Architecture
 - **Riverpod** - State management (app layer only)
 - **GetIt** - Service locator for infrastructure DI (core layer)
-- **Result** - Dart 3 sealed class for typed success/failure (replaces dartz Either)
+- **Result** - Dart 3 sealed class for typed success/failure
 
 ### Routing
 - **AutoRoute** - Type-safe navigation
@@ -495,8 +495,7 @@ dart run build_runner clean
 - **Freezed** - Immutable data classes
 - **json_serializable** - JSON serialization
 
-### Functional Programming
-- **Dartz** - Functional programming utilities (legacy, migrating to Result)
+
 
 ### Development Tools
 - **Melos** - Monorepo management

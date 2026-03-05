@@ -7,8 +7,8 @@ import 'package:interfaces/logger/log_output.dart';
 import '../formatters/simple_formatter.dart';
 import 'disposable_log_output.dart';
 
-/// 文件输出
-/// 支持日志轮转（按文件大小）
+/// File output.
+/// Supports log rotation (by file size).
 class FileOutput implements LogOutput, DisposableLogOutput {
   final String filePath;
   final int maxFileSize; // bytes
@@ -20,7 +20,7 @@ class FileOutput implements LogOutput, DisposableLogOutput {
 
   FileOutput(
     this.filePath, {
-    this.maxFileSize = 10 * 1024 * 1024, // 默认 10MB
+    this.maxFileSize = 10 * 1024 * 1024, // Default 10MB
   });
 
   @override
@@ -48,7 +48,7 @@ class FileOutput implements LogOutput, DisposableLogOutput {
       await _sink?.close();
       _sink = null;
 
-      // 重命名旧文件
+      // Rename the old file.
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       await file.rename('$filePath.$timestamp');
     }
@@ -71,7 +71,7 @@ class FileOutput implements LogOutput, DisposableLogOutput {
       debugPrint('FileOutput error: $e');
     } finally {
       _drainFuture = null;
-      // 处理 drain 结束后新追加的日志
+      // Handle logs appended after drain finished.
       if (_pendingLines.isNotEmpty && !_isDisposed) {
         _drainFuture = _drainQueue();
       }
@@ -83,7 +83,8 @@ class FileOutput implements LogOutput, DisposableLogOutput {
     _isDisposed = true;
     await (_drainFuture ?? Future<void>.value());
 
-    // 极端并发下，dispose 与 drain 收尾可能交错；兜底再 drain 一轮。
+    // Under extreme concurrency, dispose and drain may interleave;
+    // do a final safety drain.
     if (_pendingLines.isNotEmpty) {
       await _drainQueue();
       await (_drainFuture ?? Future<void>.value());

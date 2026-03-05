@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart' as dio;
 import 'package:interfaces/interfaces.dart';
 
-/// Dio CancelToken 适配器
+/// Dio CancelToken adapter.
 ///
-/// 将 interfaces 的 CancelToken 适配到 Dio 的 CancelToken
+/// Adapts interfaces CancelToken to Dio CancelToken.
 class DioCancelTokenAdapter implements CancelToken {
   final dio.CancelToken _dioToken;
   final List<void Function(String? reason)> _listeners = [];
@@ -17,7 +17,7 @@ class DioCancelTokenAdapter implements CancelToken {
     });
   }
 
-  /// 获取内部的 Dio CancelToken
+  /// Gets the internal Dio CancelToken.
   dio.CancelToken get dioToken => _dioToken;
 
   @override

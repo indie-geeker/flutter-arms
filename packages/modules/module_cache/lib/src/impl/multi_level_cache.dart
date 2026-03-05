@@ -8,10 +8,10 @@ import 'package:interfaces/storage/i_kv_storage.dart';
 
 import '../models/cache_entry.dart';
 
-/// 多级缓存管理器（内存 + 磁盘）
-/// 关键：基于 IKeyValueStorage 实现持久化
+/// Multi-level cache manager (memory + disk).
+/// Key design: persistence based on IKeyValueStorage.
 class MultiLevelCacheManager implements ICacheManager {
-  final IKeyValueStorage _storage; // 依赖 Storage 接口
+  final IKeyValueStorage _storage; // Depends on Storage interface.
   final ILogger _logger;
   final CacheValueRegistry? _valueRegistry;
   final Map<String, CacheEntry> _memoryCache = {};
@@ -32,7 +32,7 @@ class MultiLevelCacheManager implements ICacheManager {
 
   @override
   Future<void> init() async {
-    // Storage 已经在 StorageModule 中初始化
+    // Storage is already initialized in StorageModule.
     await _loadFrequentlyUsed();
     _logger.info('Multi-level cache initialized');
   }
@@ -54,11 +54,11 @@ class MultiLevelCacheManager implements ICacheManager {
       policy: policy,
     );
 
-    // 1. 存入内存
+    // 1. Store in memory.
     _memoryCache[key] = entry;
     _evictIfNeeded();
 
-    // 2. 根据策略决定是否持久化（通过 Storage）
+    // 2. Decide whether to persist based on policy (via Storage).
     if (policy != CachePolicy.memoryOnly) {
       try {
         await _storage.setJson(
@@ -77,32 +77,32 @@ class MultiLevelCacheManager implements ICacheManager {
 
   @override
   Future<T?> get<T>(String key) async {
-    // 1. 先从内存读取
+    // 1. Read from memory first.
     if (_memoryCache.containsKey(key)) {
       final entry = _memoryCache[key]!;
       if (!entry.isExpired) {
         _hitCount++;
-        entry.updateAccessTime(); // 更新访问时间（LRU）
+        entry.updateAccessTime(); // Update access time (LRU).
         return entry.value as T?;
       } else {
-        // 已过期，删除
+        // Expired, delete.
         _memoryCache.remove(key);
         await _storage.remove(_cacheKey(key));
       }
     }
 
-    // 2. 从磁盘读取（通过 Storage）
+    // 2. Read from disk (via Storage).
     try {
       final json = await _storage.getJson(_cacheKey(key));
       if (json != null) {
         final entry = CacheEntry.fromJson(json, registry: _valueRegistry);
         if (!entry.isExpired) {
-          // 加载到内存
+          // Load into memory.
           _memoryCache[key] = entry;
           _hitCount++;
           return entry.value as T?;
         } else {
-          // 已过期，删除
+          // Expired, delete.
           await _storage.remove(_cacheKey(key));
         }
       }
@@ -134,7 +134,7 @@ class MultiLevelCacheManager implements ICacheManager {
   Future<void> clear() async {
     _memoryCache.clear();
 
-    // 清理所有缓存键（通过前缀过滤）
+    // Clean all cache keys (filtered by prefix).
     final keys = await _storage.getKeys();
     for (final key in keys) {
       if (key.startsWith('cache:')) {
@@ -146,7 +146,7 @@ class MultiLevelCacheManager implements ICacheManager {
     _missCount = 0;
   }
 
-  /// 模块销毁时仅清理进程内内存，不清理磁盘持久缓存。
+  /// On module disposal, only clears in-process memory — not persistent disk cache.
   Future<void> disposeMemory() async {
     _memoryCache.clear();
     _hitCount = 0;
@@ -157,7 +157,7 @@ class MultiLevelCacheManager implements ICacheManager {
   Future<bool> containsKey(String key) async {
     final storageKey = _cacheKey(key);
 
-    // 检查内存
+    // Check memory.
     if (_memoryCache.containsKey(key)) {
       final entry = _memoryCache[key]!;
       if (!entry.isExpired) {
@@ -166,7 +166,7 @@ class MultiLevelCacheManager implements ICacheManager {
       _memoryCache.remove(key);
     }
 
-    // 检查磁盘并验证是否过期
+    // Check disk and verify expiration.
     try {
       final json = await _storage.getJson(storageKey);
       if (json == null) {
@@ -192,16 +192,16 @@ class MultiLevelCacheManager implements ICacheManager {
 
   @override
   Future<int> getCacheSize() async {
-    // 返回存储大小（可能包含非缓存数据）
+    // Return storage size (may include non-cache data).
     return await _storage.getSize();
   }
 
   @override
   Future<void> clearExpired() async {
-    // 清理内存中的过期项
+    // Clean expired entries in memory.
     _memoryCache.removeWhere((key, entry) => entry.isExpired);
 
-    // 清理磁盘中的过期项
+    // Clean expired entries on disk.
     final keys = await _storage.getKeys();
     for (final key in keys) {
       if (key.startsWith('cache:')) {
@@ -239,16 +239,16 @@ class MultiLevelCacheManager implements ICacheManager {
     );
   }
 
-  /// LRU 淘汰策略
+  /// LRU eviction policy.
   void _evictIfNeeded() {
     if (_memoryCache.length > _maxMemoryItems) {
-      // 找出最久未使用的项
+      // Find the least recently used entries.
       final sortedEntries = _memoryCache.entries.toList()
         ..sort(
           (a, b) => a.value.lastAccessedAt.compareTo(b.value.lastAccessedAt),
         );
 
-      // 删除最久未使用的 10%，至少删除 1 项 (修复 maxMemoryItems < 10 时的边界条件)
+      // Remove the least recently used 10%, at least 1 item (fixes edge case when maxMemoryItems < 10).
       final toRemove = max(1, (_maxMemoryItems * 0.1).toInt());
       for (int i = 0; i < toRemove && i < sortedEntries.length; i++) {
         _memoryCache.remove(sortedEntries[i].key);
@@ -256,11 +256,11 @@ class MultiLevelCacheManager implements ICacheManager {
     }
   }
 
-  /// 生成缓存键（添加前缀）
+  /// Generates a cache key (with prefix).
   String _cacheKey(String key) => 'cache:$key';
 
-  /// 加载常用数据到内存
+  /// Loads frequently used data into memory.
   Future<void> _loadFrequentlyUsed() async {
-    // 可以根据访问频率预加载热点数据
+    // Can preload hot data based on access frequency.
   }
 }

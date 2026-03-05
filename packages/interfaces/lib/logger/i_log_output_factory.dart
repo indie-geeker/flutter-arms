@@ -1,45 +1,45 @@
 import 'log_config.dart';
 import 'log_output.dart';
 
-/// 日志输出工厂接口
+/// Log output factory interface.
 ///
-/// 根据配置创建日志输出实例
+/// Creates log output instances based on configuration.
 abstract class ILogOutputFactory {
-  /// 根据配置创建日志输出列表
+  /// Creates a list of log outputs based on configuration.
   ///
-  /// [config] 日志输出配置
+  /// [config] Log output configuration.
   ///
-  /// 返回日志输出实例列表
+  /// Returns a list of log output instances.
   List<LogOutput> createOutputs(LogOutputConfig config);
 
-  /// 创建控制台输出
+  /// Creates a console output.
   ///
-  /// [config] 日志输出配置
+  /// [config] Log output configuration.
   ///
-  /// 返回控制台日志输出,如果不支持或未启用则返回 null
+  /// Returns a console log output, or null if unsupported or disabled.
   LogOutput? createConsoleOutput(LogOutputConfig config);
 
-  /// 创建文件输出
+  /// Creates a file output.
   ///
-  /// [config] 日志输出配置
+  /// [config] Log output configuration.
   ///
-  /// 返回文件日志输出,如果不支持或未启用则返回 null
+  /// Returns a file log output, or null if unsupported or disabled.
   Future<LogOutput?> createFileOutput(LogOutputConfig config);
 
-  /// 创建内存输出
+  /// Creates a memory output.
   ///
-  /// [config] 日志输出配置
+  /// [config] Log output configuration.
   ///
-  /// 返回内存日志输出,如果不支持或未启用则返回 null
+  /// Returns a memory log output, or null if unsupported or disabled.
   LogOutput? createMemoryOutput(LogOutputConfig config);
 
-  /// 创建远程输出
+  /// Creates a remote output.
   ///
-  /// [config] 日志输出配置
+  /// [config] Log output configuration.
   ///
-  /// 返回远程日志输出,如果不支持或未启用则返回 null
+  /// Returns a remote log output, or null if unsupported or disabled.
   LogOutput? createRemoteOutput(LogOutputConfig config);
 
-  /// 获取工厂类型标识
+  /// Returns the factory type identifier.
   String get factoryType;
 }

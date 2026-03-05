@@ -5,7 +5,7 @@ import 'package:interfaces/logger/i_logger.dart';
 import '../di/module_registry.dart';
 import '../di/service_locator.dart';
 
-/// 应用初始化进度
+/// Application initialization progress.
 class InitializationProgress {
   final String message;
   final int current;
@@ -20,9 +20,10 @@ class InitializationProgress {
   double get percentage => total > 0 ? current / total : 0.0;
 }
 
-/// 初始化生命周期控制器
+/// Initialization lifecycle controller.
 ///
-/// 用于在应用退出等可等待的时机显式触发模块销毁。
+/// Used to explicitly trigger module disposal at an awaitable point,
+/// such as application exit.
 class AppInitializerController {
   Future<void> Function()? _shutdownHandler;
 
@@ -41,22 +42,23 @@ class AppInitializerController {
   }
 }
 
-/// 应用初始化 Widget
-/// 提供可视化的初始化过程，支持自定义加载和错误界面
+/// Application initializer widget.
+/// Provides a visual initialization process with customizable loading
+/// and error screens.
 class AppInitializerWidget extends StatefulWidget {
-  /// 需要初始化的模块列表
+  /// List of modules to initialize.
   final List<IModule> modules;
 
-  /// 自定义加载界面构建器
+  /// Custom loading screen builder.
   final Widget Function(BuildContext, InitializationProgress)? loadingBuilder;
 
-  /// 自定义错误界面构建器
+  /// Custom error screen builder.
   final Widget Function(BuildContext, Object)? errorBuilder;
 
-  /// 可选的生命周期控制器，用于显式触发模块销毁
+  /// Optional lifecycle controller for explicit module disposal.
   final AppInitializerController? controller;
 
-  /// 初始化成功后显示的应用主体
+  /// Application body shown after successful initialization.
   final Widget child;
 
   const AppInitializerWidget({
@@ -100,10 +102,10 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
 
   Future<void> _initialize() async {
     try {
-      // 注册所有模块到 Registry
+      // Register all modules into the registry.
       _registry.registerModules(widget.modules, replace: true);
 
-      // 使用统一的初始化逻辑（包含依赖验证）
+      // Use the unified initialization logic (includes dependency validation).
       await _registry.initializeAllWithProgress((module, current, total) {
         _updateProgress('Initializing ${module.name}...', current, total);
       });
@@ -114,7 +116,7 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
         widget.modules.length,
       );
     } catch (e, stackTrace) {
-      // 记录错误（如果日志模块已初始化）
+      // Log the error if the logger module is already initialized.
       if (ServiceLocator().isRegistered<ILogger>()) {
         ServiceLocator().get<ILogger>().error(
           'Initialization failed',
@@ -147,25 +149,25 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
     return FutureBuilder<void>(
       future: _initializationFuture,
       builder: (context, snapshot) {
-        // 初始化中
+        // Initializing.
         if (snapshot.connectionState != ConnectionState.done) {
           return widget.loadingBuilder?.call(context, _progress) ??
               _defaultLoadingWidget();
         }
 
-        // 初始化失败
+        // Initialization failed.
         if (snapshot.hasError) {
           return widget.errorBuilder?.call(context, snapshot.error!) ??
               _defaultErrorWidget(snapshot.error!);
         }
 
-        // 初始化成功，显示应用主体
+        // Initialization succeeded — show application body.
         return widget.child;
       },
     );
   }
 
-  /// 默认加载界面
+  /// Default loading screen.
   Widget _defaultLoadingWidget() {
     return MaterialApp(
       home: Scaffold(
@@ -191,7 +193,7 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
     );
   }
 
-  /// 默认错误界面
+  /// Default error screen.
   Widget _defaultErrorWidget(Object error) {
     return MaterialApp(
       home: Scaffold(
@@ -216,7 +218,7 @@ class _AppInitializerWidgetState extends State<AppInitializerWidget> {
                 SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () {
-                    // 重新启动应用
+                    // Restart the application.
                     setState(() {
                       _initializationFuture = _initialize();
                     });

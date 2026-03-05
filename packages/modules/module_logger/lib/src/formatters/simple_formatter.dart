@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:interfaces/logger/log_entity.dart';
 
-/// 简单的文本格式化器
-/// 格式: [时间] [级别] 消息
+/// Simple text formatter.
+/// Format: [timestamp] [level] message
 class SimpleFormatter {
   String format(LogEntry entry) {
     final timestamp = _formatTimestamp(entry.timestamp);
@@ -36,7 +36,7 @@ class SimpleFormatter {
     return stackTrace
         .toString()
         .split('\n')
-        .take(5) // 只显示前5行
+        .take(5) // Show only the first 5 lines.
         .map((line) => '    $line')
         .join('\n');
   }

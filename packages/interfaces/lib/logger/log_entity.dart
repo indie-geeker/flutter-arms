@@ -1,16 +1,16 @@
 import 'log_level.dart';
 
-/// 日志条目
+/// Log entry.
 class LogEntry {
-  /// 创建日志条目
+  /// Creates a log entry.
   ///
-  /// [level] 日志级别
-  /// [message] 日志消息
-  /// [tag] 日志标签
-  /// [timestamp] 时间戳
-  /// [error] 错误对象
-  /// [stackTrace] 堆栈跟踪
-  /// [extras] 结构化日志上下文
+  /// [level] Log level
+  /// [message] Log message
+  /// [tag] Log tag
+  /// [timestamp] Timestamp
+  /// [error] Error object
+  /// [stackTrace] Stack trace
+  /// [extras] Structured log context
   LogEntry({
     required this.level,
     required this.message,
@@ -21,25 +21,25 @@ class LogEntry {
     this.extras,
   }) : timestamp = timestamp ?? DateTime.now();
 
-  /// 日志级别
+  /// Log level.
   final LogLevel level;
 
-  /// 日志消息
+  /// Log message.
   final String message;
 
-  /// 日志标签
+  /// Log tag.
   final String? tag;
 
-  /// 时间戳
+  /// Timestamp.
   final DateTime timestamp;
 
-  /// 错误对象
+  /// Error object.
   final Object? error;
 
-  /// 堆栈跟踪
+  /// Stack trace.
   final StackTrace? stackTrace;
 
-  /// 结构化日志上下文
+  /// Structured log context.
   final Map<String, dynamic>? extras;
 
   @override

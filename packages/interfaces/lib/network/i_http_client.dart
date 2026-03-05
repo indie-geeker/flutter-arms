@@ -3,9 +3,12 @@ import 'network_cache_options.dart';
 import 'network_response.dart';
 import 'network_types.dart';
 
-/// HTTP 客户端抽象接口
+/// Abstract HTTP client interface.
+///
+/// Defines the contract for all HTTP operations. Implementations (e.g., Dio)
+/// live in `packages/modules/module_network`.
 abstract class IHttpClient {
-  /// 发起 GET 请求
+  /// Sends a GET request to [path].
   Future<NetworkResponse<T>> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
@@ -17,7 +20,7 @@ abstract class IHttpClient {
     CancelToken? cancelToken,
   });
 
-  /// 发起 POST 请求
+  /// Sends a POST request to [path].
   Future<NetworkResponse<T>> post<T>(
     String path, {
     dynamic data,
@@ -30,7 +33,7 @@ abstract class IHttpClient {
     CancelToken? cancelToken,
   });
 
-  /// 发起 PUT 请求
+  /// Sends a PUT request to [path].
   Future<NetworkResponse<T>> put<T>(
     String path, {
     dynamic data,
@@ -43,7 +46,7 @@ abstract class IHttpClient {
     CancelToken? cancelToken,
   });
 
-  /// 发起 DELETE 请求
+  /// Sends a DELETE request to [path].
   Future<NetworkResponse<T>> delete<T>(
     String path, {
     dynamic data,
@@ -56,7 +59,7 @@ abstract class IHttpClient {
     CancelToken? cancelToken,
   });
 
-  /// 文件上传
+  /// Uploads a file using multipart form data.
   Future<NetworkResponse<T>> upload<T>(
     String path,
     FormData formData, {
@@ -68,7 +71,7 @@ abstract class IHttpClient {
     CancelToken? cancelToken,
   });
 
-  /// 文件下载
+  /// Downloads a file from [urlPath] and saves it to [savePath].
   Future<NetworkResponse> download(
     String urlPath,
     String savePath, {
@@ -80,9 +83,9 @@ abstract class IHttpClient {
     CancelToken? cancelToken,
   });
 
-  /// 添加拦截器
+  /// Adds a network interceptor to the request pipeline.
   void addInterceptor(INetworkInterceptor interceptor);
 
-  /// 取消所有请求
+  /// Cancels all in-progress requests.
   void cancelAllRequests();
 }

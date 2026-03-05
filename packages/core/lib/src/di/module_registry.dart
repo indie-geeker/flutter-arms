@@ -1,5 +1,5 @@
 import 'package:interfaces/core/i_service_locator.dart';
-import 'package:interfaces/core/module_registry.dart'; // IModule 接口
+import 'package:interfaces/core/module_registry.dart';
 import 'service_locator.dart';
 
 /// Module registry that coordinates module lifecycle.
@@ -15,14 +15,15 @@ class ModuleRegistry {
   ModuleRegistry({IServiceLocator? locator})
     : _locator = locator ?? ServiceLocator();
 
-  /// 注册模块
+  /// Registers a module.
   void registerModule(IModule module) {
-    // 使用模块名去重，避免重试或重复注册导致同一模块被执行多次初始化
+    // Deduplicates by module name to prevent duplicate initialization
+    // when retrying or double-registering the same module.
     _modules.removeWhere((m) => m.name == module.name);
     _modules.add(module);
   }
 
-  /// 批量注册模块
+  /// Batch-registers modules.
   void registerModules(List<IModule> modules, {bool replace = false}) {
     if (replace) {
       _modules.clear();
@@ -32,16 +33,17 @@ class ModuleRegistry {
     }
   }
 
-  /// 按优先级排序并初始化所有模块
+  /// Sorts by priority and initializes all modules.
   ///
-  /// 此方法委托给 [initializeAllWithProgress]，不带进度回调
+  /// Delegates to [initializeAllWithProgress] without a progress callback.
   Future<void> initializeAll() async {
     await initializeAllWithProgress(null);
   }
 
-  /// 带进度回调的初始化 (核心逻辑唯一来源)
+  /// Initialization with progress callback (single source of truth).
   ///
-  /// [onProgress] 回调在每个模块初始化前调用，传入当前模块、进度和总数
+  /// [onProgress] is called before each module is initialized, passing the
+  /// current module, progress index, and total count.
   Future<void> initializeAllWithProgress(
     void Function(IModule module, int current, int total)? onProgress,
   ) async {
@@ -49,12 +51,12 @@ class ModuleRegistry {
     _initializedModules.clear();
 
     try {
-      // 依次验证依赖、注册和初始化每个模块
+      // Validate dependencies, register, and initialize each module in order.
       for (int i = 0; i < orderedModules.length; i++) {
         final module = orderedModules[i];
         onProgress?.call(module, i + 1, orderedModules.length);
 
-        // 验证当前模块的依赖是否已注册
+        // Validate that the current module's dependencies are registered.
         _validateModuleDependencies(module);
 
         await module.register(_locator);
@@ -67,9 +69,10 @@ class ModuleRegistry {
     }
   }
 
-  /// 验证单个模块的依赖关系
+  /// Validates a single module's dependencies.
   ///
-  /// 在每个模块注册之前调用，确保其依赖的服务已被注册
+  /// Called before each module is registered to ensure its required
+  /// services are already available.
   void _validateModuleDependencies(IModule module) {
     for (final dep in module.dependencies) {
       if (!_locator.isRegisteredByType(dep)) {
@@ -81,7 +84,7 @@ class ModuleRegistry {
     }
   }
 
-  /// 查询所有已初始化模块的健康状态
+  /// Queries the health status of all initialized modules.
   Map<String, bool> checkHealth() {
     return {
       for (final module in _initializedModules)
@@ -89,13 +92,13 @@ class ModuleRegistry {
     };
   }
 
-  /// 获取已初始化模块名称列表（调试/日志用）
+  /// Returns the list of initialized module names (for debugging/logging).
   List<String> get initializedModuleNames =>
       _initializedModules.map((m) => m.name).toList();
 
-  /// 销毁所有模块
+  /// Disposes all modules.
   Future<void> disposeAll() async {
-    // 反向销毁
+    // Dispose in reverse order.
     final modulesToDispose = _initializedModules.isNotEmpty
         ? _initializedModules
         : _modules;
@@ -135,7 +138,7 @@ class ModuleRegistry {
         final provider = providerMap[dep];
         if (provider == null) {
           if (_locator.isRegisteredByType(dep)) {
-            // 依赖由外部预注册，跳过模块排序依赖
+            // Dependency is pre-registered externally; skip for sorting.
             continue;
           }
           throw StateError(

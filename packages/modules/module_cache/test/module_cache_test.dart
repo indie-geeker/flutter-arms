@@ -351,14 +351,14 @@ void main() {
 
         await module.dispose();
 
-        // dispose() 仅清理内存，磁盘持久缓存仍应保留
+        // dispose() only clears memory; persistent disk cache should remain.
         final diskValueAfter = await mockStorage.getJson('cache:persistent');
         expect(diskValueAfter, isNotNull);
 
         // Re-init creates fresh cache
         await module.init();
 
-        // 持久缓存在重初始化后仍可读取
+        // Persistent cache should still be readable after re-initialization.
         final result = await cacheManager.get<String>('persistent');
         expect(result, 'data');
       });

@@ -10,7 +10,7 @@ import 'package:interfaces/network/network_cache_options.dart';
 import 'config/network_config.dart';
 import 'impl/dio_http_client.dart';
 
-/// 网络模块
+/// Network module.
 class NetworkModule extends BaseModule {
   final String baseUrl;
   final Duration? connectTimeout;

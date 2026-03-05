@@ -1,17 +1,18 @@
 import 'cache_policy.dart';
 import 'cache_stats.dart';
 
-/// 缓存管理器接口
+/// Cache manager interface.
+///
+/// Provides multi-level caching (memory + disk) with configurable TTL
+/// and eviction policies. Implementations live in `packages/modules/module_cache`.
 abstract class ICacheManager {
-  /// 初始化缓存
+  /// Initializes the cache subsystem.
   Future<void> init();
 
-  /// 存储数据到缓存
+  /// Stores [value] under [key] with an optional [duration] (TTL).
   ///
-  /// [key] 缓存键
-  /// [value] 缓存值
-  /// [duration] 过期时间（null 表示使用默认时间）
-  /// [policy] 缓存策略
+  /// When [duration] is `null`, the module's default TTL is used.
+  /// [policy] controls eviction behavior (see [CachePolicy]).
   Future<void> put<T>(
     String key,
     T value, {
@@ -19,27 +20,27 @@ abstract class ICacheManager {
     CachePolicy policy = CachePolicy.normal,
   });
 
-  /// 从缓存获取数据
+  /// Retrieves the cached value for [key], or `null` if missing/expired.
   Future<T?> get<T>(String key);
 
-  /// 获取数据（带默认值）
+  /// Retrieves the cached value for [key], returning [defaultValue] if absent.
   Future<T> getOrDefault<T>(String key, T defaultValue);
 
-  /// 删除缓存
+  /// Removes the entry for [key].
   Future<void> remove(String key);
 
-  /// 清空所有缓存
+  /// Clears all cached entries.
   Future<void> clear();
 
-  /// 检查键是否存在（且未过期）
+  /// Returns `true` if [key] exists and has not expired.
   Future<bool> containsKey(String key);
 
-  /// 获取缓存大小（字节）
+  /// Returns the total cache size in bytes.
   Future<int> getCacheSize();
 
-  /// 清理过期缓存
+  /// Evicts all expired entries.
   Future<void> clearExpired();
 
-  /// 获取缓存统计信息
+  /// Returns cache hit/miss statistics.
   Future<CacheStats> getStats();
 }

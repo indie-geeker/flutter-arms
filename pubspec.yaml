@@ -11,6 +11,9 @@ workspace:
   - packages/modules/module_storage
   - packages/modules/module_cache
   - packages/modules/module_network
+  - packages/modules/module_analytics
+  - packages/modules/module_crash
+  - packages/modules/module_notification
 #  - packages/modules/utils
   - app/example
 
@@ -68,3 +71,7 @@ melos:
         melos bootstrap
         melos run analyze
         melos run test
+    doc:
+      description: Generate dart doc for interfaces package.
+      run: |
+        cd packages/interfaces && dart doc .

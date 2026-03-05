@@ -1,14 +1,14 @@
-/// 通用存储抽象基类
+/// Generic storage abstract base class.
 abstract class IStorage {
-  /// 初始化存储
+  /// Initializes the storage.
   Future<void> init();
 
-  /// 关闭存储
+  /// Closes the storage.
   Future<void> close();
 
-  /// 清空所有数据
+  /// Clears all data.
   Future<void> clear();
 
-  /// 获取存储大小（字节）
+  /// Returns the storage size in bytes.
   Future<int> getSize();
 }

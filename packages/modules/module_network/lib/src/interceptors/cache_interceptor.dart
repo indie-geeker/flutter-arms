@@ -4,9 +4,9 @@ import 'package:interfaces/interfaces.dart';
 
 import '../utils/network_utils.dart';
 
-/// 网络请求缓存拦截器
+/// Network request cache interceptor.
 ///
-/// 缓存配置通过 [NetworkCacheOptions] 传入
+/// Cache configuration is passed via [NetworkCacheOptions].
 class CacheInterceptor extends Interceptor {
   final ICacheManager _cacheManager;
   final ILogger _logger;
@@ -23,7 +23,7 @@ class CacheInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    // 只缓存 GET 请求
+    // Only cache GET requests.
     if (options.method.toUpperCase() != 'GET') {
       return handler.next(options);
     }
@@ -34,21 +34,21 @@ class CacheInterceptor extends Interceptor {
       return handler.next(options);
     }
 
-    // networkFirst: 跳过请求前缓存读取，优先请求网络。
+    // networkFirst: skip pre-request cache read, prefer network.
     if (cacheOptions.policy == CachePolicy.networkFirst) {
       return handler.next(options);
     }
 
-    // 生成缓存键
+    // Generate cache key.
     final cacheKey = _resolveCacheKey(options, cacheOptions);
 
     try {
-      // 尝试从缓存读取
+      // Try reading from cache.
       final cachedData = await _cacheManager.get<String>(cacheKey);
       if (cachedData != null) {
         _logger.debug('Cache hit for: ${options.uri}');
 
-        // 返回缓存数据
+        // Return cached data.
         return handler.resolve(
           Response(
             requestOptions: options,
@@ -62,7 +62,7 @@ class CacheInterceptor extends Interceptor {
       _logger.warning('Failed to read cache', error: e);
     }
 
-    // 缓存未命中，继续请求
+    // Cache miss, proceed with request.
     handler.next(options);
   }
 
@@ -107,7 +107,7 @@ class CacheInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) async {
-    // 只缓存 GET 请求的成功响应
+    // Only cache successful GET responses.
     if (response.requestOptions.method.toUpperCase() != 'GET' ||
         response.statusCode != 200) {
       return handler.next(response);
@@ -120,11 +120,11 @@ class CacheInterceptor extends Interceptor {
       return handler.next(response);
     }
 
-    // 生成缓存键
+    // Generate cache key.
     final cacheKey = _resolveCacheKey(response.requestOptions, cacheOptions);
 
     try {
-      // 获取缓存时长（使用客户端默认值作为兜底）
+      // Get cache duration (falls back to client default).
       final cacheDuration = cacheOptions.duration ?? _defaultDuration;
 
       final encoded = _encodeResponseData(response.data);
@@ -135,7 +135,7 @@ class CacheInterceptor extends Interceptor {
         return handler.next(response);
       }
 
-      // 存储到缓存
+      // Store in cache.
       await _cacheManager.put(
         cacheKey,
         encoded,

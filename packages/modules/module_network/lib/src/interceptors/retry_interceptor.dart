@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:interfaces/interfaces.dart';
 
-/// 网络请求重试拦截器
+/// Network request retry interceptor.
 class RetryInterceptor extends Interceptor {
   final ILogger _logger;
-  final Dio _dio; // 使用原始 Dio 实例进行重试
+  final Dio _dio; // Uses the original Dio instance for retries.
   final int maxRetries;
   final Duration retryDelay;
   final bool exponentialBackoff;
@@ -28,12 +28,12 @@ class RetryInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    // 检查是否应该重试
+    // Check whether a retry should be attempted.
     if (!_shouldRetry(err)) {
       return handler.next(err);
     }
 
-    // 获取当前重试次数
+    // Get the current retry count.
     final retryCount = err.requestOptions.extra['retry_count'] as int? ?? 0;
 
     if (retryCount >= maxRetries) {
@@ -50,11 +50,11 @@ class RetryInterceptor extends Interceptor {
       'Retrying request (${retryCount + 1}/$maxRetries): ${err.requestOptions.uri}',
     );
 
-    // 更新重试次数
+    // Update the retry count.
     err.requestOptions.extra['retry_count'] = retryCount + 1;
 
     try {
-      // 使用原始 Dio 实例重新发起请求，保留 baseUrl、headers 和拦截器
+      // Re-issue the request using the original Dio instance, preserving baseUrl, headers, and interceptors.
       final response = await _dio.fetch(err.requestOptions);
       return handler.resolve(response);
     } on DioException catch (e) {
@@ -62,14 +62,14 @@ class RetryInterceptor extends Interceptor {
     }
   }
 
-  /// 判断是否应该重试
+  /// Determines whether a retry should be attempted.
   bool _shouldRetry(DioException err) {
     final method = err.requestOptions.method.toUpperCase();
     if (!_retryableMethods.contains(method)) {
       return false;
     }
 
-    // 只重试网络错误和超时错误
+    // Only retry on network and timeout errors.
     final statusCode = err.response?.statusCode;
 
     if (statusCode != null && retryableStatusCodes.contains(statusCode)) {

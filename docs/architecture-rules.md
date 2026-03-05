@@ -51,3 +51,25 @@ Optional dirs: `data/repositories/`, `domain/repositories/`.
 ### Tier Selection Criteria
 - Independent domain entities + complex rules + multiple data sources → **Full**
 - Primarily UI interaction + simple data read/write → **Lite**
+
+## 6) Cross-Feature Communication
+
+Features must **never** import another feature's internal code directly.
+All inter-feature communication flows through `shared/` abstractions.
+
+### Allowed Patterns
+
+| Pattern | Example |
+|---------|---------|
+| Shared abstract class / interface | `shared/auth/auth_session.dart` |
+| Riverpod provider in `shared/` or `di/` | `authSessionProvider` |
+| Shared value objects / DTOs | `shared/models/user_summary.dart` |
+
+### `shared/` Addition Checklist
+
+1. Is the concept used by **≥ 2 features**? → belongs in `shared/`
+2. Is it used by **exactly 1 feature**? → stays in that feature
+3. Is it **infrastructure**? → belongs in `packages/interfaces`
+4. `shared/` must **never** import from `features/` (enforced by Rule 4 in CI).
+
+See [ADR-004](decisions/004-cross-feature-communication.md) for full rationale.

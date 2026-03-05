@@ -3,14 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:interfaces/interfaces.dart';
 
-/// Dio FormData 适配器
+/// Dio FormData adapter.
 ///
-/// 将 interfaces 的 FormData 适配到 Dio 的 FormData
+/// Adapts interfaces FormData to Dio FormData.
 class DioFormDataAdapter implements FormData {
   final Map<String, String> _fields = {};
   final Map<String, FormFile> _files = {};
 
-  /// 创建空的 FormData
+  /// Creates empty FormData.
   DioFormDataAdapter();
 
   @override
@@ -29,16 +29,16 @@ class DioFormDataAdapter implements FormData {
   @override
   Map<String, FormFile> get files => Map.unmodifiable(_files);
 
-  /// 转换为 Dio FormData
+  /// Converts to Dio FormData.
   Future<dio.FormData> toDioFormData() async {
     final formDataMap = <String, dynamic>{};
 
-    // 添加普通字段
+    // Add regular fields.
     _fields.forEach((key, value) {
       formDataMap[key] = value;
     });
 
-    // 添加文件
+    // Add files.
     for (final entry in _files.entries) {
       final file = entry.value;
       final contentType = file.contentType != null
@@ -75,7 +75,7 @@ class DioFormDataAdapter implements FormData {
     return dio.FormData.fromMap(formDataMap);
   }
 
-  /// 从 Map 创建
+  /// Creates from a Map.
   factory DioFormDataAdapter.fromMap(Map<String, dynamic> map) {
     final adapter = DioFormDataAdapter();
     map.forEach((key, value) {

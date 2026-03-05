@@ -6,7 +6,7 @@ import 'package:interfaces/storage/i_kv_storage.dart';
 
 import '../utils/storage_file_utils.dart';
 
-/// 基于 Hive 的 KV 存储实现
+/// Hive-based key-value storage implementation.
 class HiveKeyValueStorage implements IKeyValueStorage {
   late Box _box;
   final String boxName;
@@ -22,7 +22,7 @@ class HiveKeyValueStorage implements IKeyValueStorage {
   @override
   Future<void> init() async {
     try {
-      // 使用 HiveFlutter 自动处理平台路径，确保多平台兼容
+      // HiveFlutter auto-resolves platform paths for cross-platform compatibility.
       await _initHive();
       _box = await Hive.openBox(boxName);
       _logger.info('Hive KV storage initialized');

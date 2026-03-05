@@ -1,0 +1,19 @@
+name: module_notification
+description: Push notification module for FlutterArms — region-aware notification service with FCM and China push support.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  interfaces:
+    path: ../../interfaces
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

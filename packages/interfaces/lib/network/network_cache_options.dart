@@ -1,25 +1,25 @@
 import '../cache/cache_policy.dart';
 
-/// 网络缓存配置
+/// Network cache configuration.
 ///
-/// 通过 IHttpClient 的 cacheOptions 参数传入
+/// Passed via the `cacheOptions` parameter of IHttpClient.
 class NetworkCacheOptions {
-  /// 用于在 Dio extra 中存储缓存配置的 key
+  /// Key used to store cache config in Dio extras.
   static const String extraKey = 'network_cache_options';
 
-  /// 是否启用缓存
+  /// Whether caching is enabled.
   final bool enabled;
 
-  /// 缓存时长（null 表示使用默认时长）
+  /// Cache duration (null uses the default duration).
   final Duration? duration;
 
-  /// 缓存策略
+  /// Cache policy.
   final CachePolicy policy;
 
-  /// 自定义缓存键（可选）
+  /// Custom cache key (optional).
   final String? cacheKey;
 
-  /// 是否使用哈希缓存键
+  /// Whether to use a hashed cache key.
   final bool useHashKey;
 
   const NetworkCacheOptions({

@@ -1,22 +1,22 @@
 import 'dart:convert';
 
-/// 自定义序列化器接口
-/// 用于支持自定义类型的序列化和反序列化
+/// Custom serializer interface.
+/// Supports serialization and deserialization of custom types.
 abstract class ISerializer<T> {
-  /// 将对象序列化为字符串
+  /// Serializes an object to a string.
   String serialize(T value);
 
-  /// 从字符串反序列化为对象
+  /// Deserializes from a string to an object.
   T deserialize(String value);
 }
 
-/// 存储序列化工具类
-/// 提供类型安全的序列化/反序列化功能
+/// Storage serialization utility.
+/// Provides type-safe serialization/deserialization.
 class StorageSerializer {
-  /// 注册的自定义序列化器
+  /// Registered custom serializers.
   final Map<Type, ISerializer> _serializers = {};
 
-  /// 注册自定义序列化器
+  /// Registers a custom serializer.
   ///
   /// Example:
   /// ```dart
@@ -26,38 +26,38 @@ class StorageSerializer {
     _serializers[T] = serializer;
   }
 
-  /// 注销自定义序列化器
+  /// Unregisters a custom serializer.
   void unregisterSerializer<T>() {
     _serializers.remove(T);
   }
 
-  /// 检查是否注册了指定类型的序列化器
+  /// Checks whether a serializer is registered for the given type.
   bool hasSerializer<T>() {
     return _serializers.containsKey(T);
   }
 
-  /// 序列化对象为字符串
+  /// Serializes an object to a string.
   ///
-  /// 支持的类型：
-  /// - 基本类型：String, int, double, bool
-  /// - 集合类型：List, Map, Set
-  /// - 自定义类型（需要注册序列化器）
+  /// Supported types:
+  /// - Primitive types: String, int, double, bool
+  /// - Collection types: List, Map, Set
+  /// - Custom types (serializer registration required)
   ///
-  /// Throws [SerializationException] 如果类型不支持或序列化失败
+  /// Throws [SerializationException] if the type is unsupported or serialization fails.
   String serialize<T>(T value) {
     try {
-      // 处理 null 值
+      // Handle null value.
       if (value == null) {
         return jsonEncode(null);
       }
 
-      // 使用自定义序列化器
+      // Use custom serializer.
       if (_serializers.containsKey(T)) {
         final serializer = _serializers[T] as ISerializer<T>;
         return serializer.serialize(value);
       }
 
-      // 处理基本类型和可 JSON 序列化的类型
+      // Handle primitive types and JSON-serializable types.
       if (value is String ||
           value is int ||
           value is double ||
@@ -75,31 +75,31 @@ class StorageSerializer {
     }
   }
 
-  /// 从字符串反序列化为对象
+  /// Deserializes from a string to an object.
   ///
-  /// Throws [DeserializationException] 如果反序列化失败
+  /// Throws [DeserializationException] if deserialization fails.
   T deserialize<T>(String value) {
     try {
-      // 使用自定义序列化器
+      // Use custom serializer.
       if (_serializers.containsKey(T)) {
         final serializer = _serializers[T] as ISerializer<T>;
         return serializer.deserialize(value);
       }
 
-      // 解码 JSON
+      // Decode JSON.
       final decoded = jsonDecode(value);
 
-      // 处理 null 值
+      // Handle null value.
       if (decoded == null) {
         return null as T;
       }
 
-      // 类型检查和转换
+      // Type check and conversion.
       if (decoded is T) {
         return decoded;
       }
 
-      // 尝试类型转换
+      // Attempt type conversion.
       return _castValue<T>(decoded);
     } catch (e) {
       throw DeserializationException(
@@ -108,14 +108,14 @@ class StorageSerializer {
     }
   }
 
-  /// 尝试类型转换
+  /// Attempts type conversion.
   T _castValue<T>(dynamic value) {
-    // 字符串转换
+    // String conversion.
     if (T == String) {
       return value.toString() as T;
     }
 
-    // 整数转换
+    // Integer conversion.
     if (T == int) {
       if (value is int) return value as T;
       if (value is num) return value.toInt() as T;
@@ -123,7 +123,7 @@ class StorageSerializer {
       throw DeserializationException('Cannot convert $value to int');
     }
 
-    // 浮点数转换
+    // Double conversion.
     if (T == double) {
       if (value is double) return value as T;
       if (value is num) return value.toDouble() as T;
@@ -131,7 +131,7 @@ class StorageSerializer {
       throw DeserializationException('Cannot convert $value to double');
     }
 
-    // 布尔值转换
+    // Boolean conversion.
     if (T == bool) {
       if (value is bool) return value as T;
       if (value is String) {
@@ -143,12 +143,12 @@ class StorageSerializer {
       throw DeserializationException('Cannot convert $value to bool');
     }
 
-    // 列表转换
+    // List conversion.
     if (value is List) {
       return value as T;
     }
 
-    // Map 转换
+    // Map conversion.
     if (value is Map) {
       return value as T;
     }
@@ -156,9 +156,9 @@ class StorageSerializer {
     throw DeserializationException('Cannot cast value to type $T');
   }
 
-  /// 批量序列化
+  /// Batch serialization.
   ///
-  /// 将多个键值对序列化为 `Map<String, String>`
+  /// Serializes multiple key-value pairs to `Map<String, String>`.
   Map<String, String> serializeBatch(Map<String, dynamic> data) {
     final result = <String, String>{};
     for (final entry in data.entries) {
@@ -173,9 +173,9 @@ class StorageSerializer {
     return result;
   }
 
-  /// 批量反序列化
+  /// Batch deserialization.
   ///
-  /// 将 `Map<String, String>` 反序列化为 `Map<String, dynamic>`
+  /// Deserializes a `Map<String, String>` to `Map<String, dynamic>`.
   Map<String, dynamic> deserializeBatch(Map<String, String> data) {
     final result = <String, dynamic>{};
     for (final entry in data.entries) {
@@ -190,9 +190,9 @@ class StorageSerializer {
     return result;
   }
 
-  /// 安全序列化
+  /// Safe serialization.
   ///
-  /// 返回 null 而不是抛出异常
+  /// Returns null instead of throwing an exception.
   String? trySerialize<T>(T value) {
     try {
       return serialize(value);
@@ -201,9 +201,9 @@ class StorageSerializer {
     }
   }
 
-  /// 安全反序列化
+  /// Safe deserialization.
   ///
-  /// 返回 null 而不是抛出异常
+  /// Returns null instead of throwing an exception.
   T? tryDeserialize<T>(String value) {
     try {
       return deserialize<T>(value);
@@ -213,7 +213,7 @@ class StorageSerializer {
   }
 }
 
-/// 序列化异常
+/// Serialization exception.
 class SerializationException implements Exception {
   final String message;
 
@@ -223,7 +223,7 @@ class SerializationException implements Exception {
   String toString() => 'SerializationException: $message';
 }
 
-/// 反序列化异常
+/// Deserialization exception.
 class DeserializationException implements Exception {
   final String message;
 
@@ -233,5 +233,5 @@ class DeserializationException implements Exception {
   String toString() => 'DeserializationException: $message';
 }
 
-/// 默认的全局序列化器实例
+/// Default global serializer instance.
 final globalSerializer = StorageSerializer();

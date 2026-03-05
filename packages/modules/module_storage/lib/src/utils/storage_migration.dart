@@ -1,52 +1,52 @@
 import 'dart:async';
 
-/// 迁移脚本接口
+/// Migration script interface.
 ///
-/// 定义单个版本迁移的行为
+/// Defines behavior for a single version migration.
 abstract class IMigrationScript {
-  /// 源版本号
+  /// Source version number.
   int get fromVersion;
 
-  /// 目标版本号
+  /// Target version number.
   int get toVersion;
 
-  /// 迁移描述
+  /// Migration description.
   String get description;
 
-  /// 执行迁移
+  /// Executes migration.
   ///
-  /// [module_storage] 存储数据的访问接口
-  /// 返回是否迁移成功
+  /// [module_storage] Storage data access interface.
+  /// Returns whether the migration succeeded.
   Future<bool> migrate(StorageMigrationContext context);
 
-  /// 回滚迁移（可选）
+  /// Rolls back migration (optional).
   ///
-  /// 如果迁移失败，尝试回滚到原始状态
+  /// If migration fails, attempts to roll back to original state.
   Future<void> rollback(StorageMigrationContext context) async {
-    // 默认不实现回滚
+    // Rollback not implemented by default.
   }
 }
 
-/// 存储迁移上下文
+/// Storage migration context.
 ///
-/// 提供迁移脚本访问存储数据的接口
+/// Provides migration scripts with access to storage data.
 class StorageMigrationContext {
-  /// 获取数据的回调
+  /// Get data callback.
   final Future<Map<String, dynamic>> Function() getData;
 
-  /// 设置数据的回调
+  /// Set data callback.
   final Future<void> Function(Map<String, dynamic> data) setData;
 
-  /// 删除键的回调
+  /// Delete key callback.
   final Future<void> Function(String key) deleteKey;
 
-  /// 检查键是否存在的回调
+  /// Check key existence callback.
   final Future<bool> Function(String key) hasKey;
 
-  /// 获取所有键的回调
+  /// Get all keys callback.
   final Future<Set<String>> Function() getKeys;
 
-  /// 清空所有数据的回调
+  /// Clear all data callback.
   final Future<void> Function() clear;
 
   StorageMigrationContext({
@@ -59,32 +59,32 @@ class StorageMigrationContext {
   });
 }
 
-/// 存储迁移管理器
+/// Storage migration manager.
 ///
-/// 管理存储版本升级和数据迁移
+/// Manages storage version upgrades and data migration.
 class StorageMigration {
-  /// 当前存储版本的键名
+  /// Key name for the current storage version.
   static const String versionKey = '__storage_version__';
 
-  /// 备份数据的键名前缀
+  /// Key prefix for backup data.
   static const String backupPrefix = '__backup_';
 
-  /// 固定快照备份键，避免依赖运行时版本号恢复
+  /// Fixed snapshot backup key to avoid depending on runtime version for restoration.
   static const String backupSnapshotKey = '${backupPrefix}snapshot';
 
-  /// 备份创建时的版本元数据
+  /// Version metadata at backup creation time.
   static const String backupVersionKey = '${backupPrefix}version';
 
-  /// 注册的迁移脚本
+  /// Registered migration scripts.
   final Map<int, IMigrationScript> _migrations = {};
 
-  /// 是否启用自动备份
+  /// Whether automatic backup is enabled.
   final bool enableAutoBackup;
 
-  /// 迁移失败时是否回滚
+  /// Whether to roll back on migration failure.
   final bool enableRollback;
 
-  /// 迁移进度回调
+  /// Migration progress callback.
   final void Function(MigrationProgress progress)? onProgress;
 
   StorageMigration({
@@ -93,9 +93,9 @@ class StorageMigration {
     this.onProgress,
   });
 
-  /// 注册迁移脚本
+  /// Registers a migration script.
   ///
-  /// [script] 迁移脚本实例
+  /// [script] Migration script instance.
   void registerMigration(IMigrationScript script) {
     if (_migrations.containsKey(script.fromVersion)) {
       throw MigrationException(
@@ -105,31 +105,31 @@ class StorageMigration {
     _migrations[script.fromVersion] = script;
   }
 
-  /// 批量注册迁移脚本
+  /// Batch-registers migration scripts.
   void registerMigrations(List<IMigrationScript> scripts) {
     for (final script in scripts) {
       registerMigration(script);
     }
   }
 
-  /// 执行迁移
+  /// Executes migration.
   ///
-  /// [context] 迁移上下文
-  /// [targetVersion] 目标版本，如果为 null 则迁移到最新版本
+  /// [context] Migration context.
+  /// [targetVersion] Target version; migrates to the latest if null.
   ///
-  /// 返回迁移后的版本号
+  /// Returns the version number after migration.
   Future<int> migrate(
     StorageMigrationContext context, {
     int? targetVersion,
   }) async {
     try {
-      // 获取当前版本
+      // Get current version.
       final currentVersion = await _getCurrentVersion(context);
 
-      // 计算目标版本
+      // Calculate target version.
       final target = targetVersion ?? _getLatestVersion();
 
-      // 检查是否需要迁移
+      // Check whether migration is needed.
       if (currentVersion >= target) {
         _notifyProgress(
           currentVersion: currentVersion,
@@ -145,12 +145,12 @@ class StorageMigration {
         message: 'Starting migration from v$currentVersion to v$target',
       );
 
-      // 自动备份
+      // Auto backup.
       if (enableAutoBackup) {
         await _backup(context, currentVersion);
       }
 
-      // 执行迁移链
+      // Execute migration chain.
       var version = currentVersion;
       while (version < target) {
         final script = _migrations[version];
@@ -167,7 +167,7 @@ class StorageMigration {
           message: 'Migrating: ${script.description}',
         );
 
-        // 执行迁移
+        // Execute migration.
         final success = await script.migrate(context);
         if (!success) {
           throw MigrationException(
@@ -175,7 +175,7 @@ class StorageMigration {
           );
         }
 
-        // 更新版本号
+        // Update version number.
         version = script.toVersion;
         await _setCurrentVersion(context, version);
 
@@ -186,7 +186,7 @@ class StorageMigration {
         );
       }
 
-      // 清理备份
+      // Clean up backup.
       if (enableAutoBackup) {
         await _clearBackup(context, currentVersion);
       }
@@ -207,7 +207,7 @@ class StorageMigration {
         error: e,
       );
 
-      // 尝试回滚
+      // Attempt rollback.
       if (enableRollback && enableAutoBackup) {
         await _restoreFromBackup(context);
       }
@@ -216,13 +216,13 @@ class StorageMigration {
     }
   }
 
-  /// 获取当前存储版本
+  /// Gets the current storage version.
   Future<int> _getCurrentVersion(StorageMigrationContext context) async {
     final data = await context.getData();
     return (data[versionKey] as int?) ?? 0;
   }
 
-  /// 设置当前存储版本
+  /// Sets the current storage version.
   Future<void> _setCurrentVersion(
     StorageMigrationContext context,
     int version,
@@ -232,7 +232,7 @@ class StorageMigration {
     await context.setData(data);
   }
 
-  /// 获取最新版本号
+  /// Gets the latest version number.
   int _getLatestVersion() {
     if (_migrations.isEmpty) return 0;
     return _migrations.values
@@ -240,7 +240,7 @@ class StorageMigration {
         .reduce((a, b) => a > b ? a : b);
   }
 
-  /// 备份当前数据
+  /// Backs up current data.
   Future<void> _backup(StorageMigrationContext context, int version) async {
     final data = await context.getData();
     final snapshot = Map<String, dynamic>.from(data);
@@ -251,7 +251,7 @@ class StorageMigration {
     await context.setData(dataWithBackup);
   }
 
-  /// 从备份恢复数据
+  /// Restores data from backup.
   Future<void> _restoreFromBackup(StorageMigrationContext context) async {
     if (!await context.hasKey(backupSnapshotKey)) {
       throw MigrationException('No backup snapshot found');
@@ -273,7 +273,7 @@ class StorageMigration {
     throw MigrationException('Invalid backup snapshot format');
   }
 
-  /// 清理备份数据
+  /// Cleans up backup data.
   Future<void> _clearBackup(
     StorageMigrationContext context,
     int version,
@@ -287,7 +287,7 @@ class StorageMigration {
     await context.setData(data);
   }
 
-  /// 通知迁移进度
+  /// Notifies migration progress.
   void _notifyProgress({
     required int currentVersion,
     required int targetVersion,
@@ -310,9 +310,9 @@ class StorageMigration {
     }
   }
 
-  /// 检查迁移路径是否完整
+  /// Checks whether the migration path is complete.
   ///
-  /// 验证从版本 0 到最新版本的迁移脚本是否连续
+  /// Verifies that migration scripts from version 0 to the latest are contiguous.
   bool validateMigrationPath() {
     if (_migrations.isEmpty) return true;
 
@@ -329,9 +329,9 @@ class StorageMigration {
     return true;
   }
 
-  /// 获取迁移路径
+  /// Gets the migration path.
   ///
-  /// 返回从 [fromVersion] 到 [toVersion] 的迁移脚本列表
+  /// Returns migration scripts from [fromVersion] to [toVersion].
   List<IMigrationScript> getMigrationPath(int fromVersion, int toVersion) {
     final path = <IMigrationScript>[];
     var version = fromVersion;
@@ -350,30 +350,30 @@ class StorageMigration {
     return path;
   }
 
-  /// 清空所有注册的迁移脚本
+  /// Clears all registered migration scripts.
   void clearMigrations() {
     _migrations.clear();
   }
 }
 
-/// 迁移进度信息
+/// Migration progress info.
 class MigrationProgress {
-  /// 当前版本
+  /// Current version.
   final int currentVersion;
 
-  /// 目标版本
+  /// Target version.
   final int targetVersion;
 
-  /// 当前执行的迁移步骤
+  /// Current migration step being executed.
   final IMigrationScript? currentStep;
 
-  /// 进度消息
+  /// Progress message.
   final String? message;
 
-  /// 错误信息
+  /// Error info.
   final Object? error;
 
-  /// 是否完成
+  /// Whether completed.
   final bool completed;
 
   MigrationProgress({
@@ -385,7 +385,7 @@ class MigrationProgress {
     this.completed = false,
   });
 
-  /// 计算进度百分比 (0.0 - 1.0)
+  /// Calculates progress percentage (0.0 - 1.0).
   double get progress {
     if (targetVersion == currentVersion) return 1.0;
     return currentVersion / targetVersion;
@@ -407,7 +407,7 @@ class MigrationProgress {
   }
 }
 
-/// 迁移异常
+/// Migration exception.
 class MigrationException implements Exception {
   final String message;
 

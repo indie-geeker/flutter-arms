@@ -1,18 +1,18 @@
-/// 日志级别
+/// Log level.
 enum LogLevel {
-  /// 调试信息
+  /// Debug information.
   debug(0),
 
-  /// 常规信息
+  /// General information.
   info(1),
 
-  /// 警告信息
+  /// Warning messages.
   warning(2),
 
-  /// 错误信息
+  /// Error messages.
   error(3),
 
-  /// 致命错误
+  /// Fatal errors.
   fatal(4);
 
   final int value;

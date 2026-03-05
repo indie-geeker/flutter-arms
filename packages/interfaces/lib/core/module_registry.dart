@@ -1,70 +1,78 @@
 import 'i_service_locator.dart';
 
-/// 模块注册接口
+/// Module registration interface.
 ///
-/// 所有功能模块（如 Logger、Storage、Network 等）都需要实现此接口。
-/// 通过统一的模块接口，Core 层可以协调各模块的注册、初始化和销毁流程。
+/// All feature modules (e.g. Logger, Storage, Network) must implement this
+/// interface. The Core layer uses it to coordinate module registration,
+/// initialization and disposal.
 abstract class IModule {
-  /// 模块名称（用于日志和调试）
+  /// Module name (used for logging and debugging).
   String get name;
 
-  /// 初始化优先级（数字越小优先级越高）
+  /// Initialization priority (lower number = higher priority).
   ///
-  /// 例如：
-  /// - Logger: 10 (最先初始化)
+  /// Examples:
+  /// - Logger: 10 (initialized first)
   /// - Storage: 20
-  /// - Cache: 30 (依赖 Storage)
-  /// - Network: 40 (依赖 Cache)
+  /// - Cache: 30 (depends on Storage)
+  /// - Network: 40 (depends on Cache)
   int get priority;
 
-  /// 模块依赖列表
+  /// List of service types this module depends on.
   ///
-  /// 声明当前模块依赖的其他服务类型。
-  /// Core 层会在初始化前验证依赖关系，确保依赖的服务已注册。
+  /// The Core layer validates these dependencies before initialization,
+  /// ensuring that required services are already registered.
   List<Type> get dependencies;
 
-  /// 模块提供的服务类型列表
+  /// List of service types this module provides.
   ///
-  /// 用于依赖图解析与初始化排序，确保依赖模块先于使用模块初始化。
-  /// 例如 LoggerModule 提供 ILogger，StorageModule 提供 IKeyValueStorage。
+  /// Used for dependency graph resolution and initialization ordering,
+  /// ensuring provider modules initialize before consumer modules.
+  /// For example, LoggerModule provides ILogger, StorageModule provides
+  /// IKeyValueStorage.
   List<Type> get provides;
 
-  /// 模块健康状态
+  /// Module health status.
   ///
-  /// 模块可实现此 getter 报告运行时健康状态，
-  /// 例如网络模块检测连通性，存储模块检测文件系统可用性。
-  /// 使用 [BaseModule] 或 `with ModuleDefaults` 可获得默认值 `true`。
+  /// Modules can implement this getter to report runtime health,
+  /// e.g. network module checks connectivity, storage module checks
+  /// filesystem availability.
+  /// Use [BaseModule] or `with ModuleDefaults` for the default value `true`.
   bool get isHealthy;
 
-  /// 注册模块服务
+  /// Registers module services.
   ///
-  /// 将模块提供的服务注册到服务定位器中。
+  /// Registers the services this module provides into the service locator.
   ///
-  /// **重要**：此方法接收 [IServiceLocator] 接口，而不是具体实现。
-  /// 这样模块层只需要依赖 `interfaces` 包，不需要依赖 `core` 包。
+  /// **Important**: This method receives [IServiceLocator] (an interface),
+  /// not a concrete implementation. This way the module layer only depends
+  /// on the `interfaces` package, not on `core`.
   Future<void> register(IServiceLocator locator);
 
-  /// 初始化模块
+  /// Initializes the module.
   ///
-  /// 执行模块的初始化逻辑（如打开数据库、建立网络连接等）。
-  /// 在所有模块的 register 方法执行完后，按优先级依次调用。
+  /// Executes module initialization logic (e.g. opening a database,
+  /// establishing a network connection). Called in priority order after
+  /// all modules have been registered.
   Future<void> init();
 
-  /// 销毁模块
+  /// Disposes the module.
   ///
-  /// 清理模块资源（如关闭数据库、取消网络请求等）。
-  /// 应用退出时按优先级逆序调用。
+  /// Cleans up module resources (e.g. closing a database, cancelling
+  /// network requests). Called in reverse priority order when the
+  /// application exits.
   Future<void> dispose();
 }
 
-/// 模块基类，减少样板代码
+/// Module base class that reduces boilerplate.
 ///
-/// 子类只需实现 [onRegister] 和可选的 [onInit] / [onDispose]。
-/// [locator] 在 register 阶段自动保存，后续可直接使用。
+/// Subclasses only need to implement [onRegister] and optionally override
+/// [onInit] / [onDispose]. The [locator] is saved automatically during
+/// registration and can be used directly afterwards.
 abstract class BaseModule implements IModule {
   late IServiceLocator _locator;
 
-  /// 受保护的 locator 访问器，仅在 register 后可用
+  /// Protected locator accessor, available only after registration.
   IServiceLocator get locator => _locator;
 
   @override
@@ -88,20 +96,23 @@ abstract class BaseModule implements IModule {
   @override
   Future<void> dispose() async => onDispose();
 
-  /// 子类实现：注册服务到 locator
+  /// Subclass implementation: register services into the locator.
   Future<void> onRegister(IServiceLocator locator);
 
-  /// 子类可选重写：初始化逻辑
+  /// Subclass optional override: initialization logic.
   Future<void> onInit() async {}
 
-  /// 子类可选重写：清理逻辑
+  /// Subclass optional override: cleanup logic.
   Future<void> onDispose() async {}
 }
 
 class InitPriorities {
+  static const int crash = 5;
   static const int logger = 0;
   static const int storage = 10;
   static const int cache = 30;
   static const int network = 40;
   static const int theme = 50;
+  static const int analytics = 60;
+  static const int notification = 70;
 }

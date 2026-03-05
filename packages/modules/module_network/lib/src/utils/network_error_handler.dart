@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:interfaces/interfaces.dart';
 
-/// 网络错误处理器
+/// Network error handler.
 ///
-/// 负责将底层网络库（Dio）的异常转换为统一的 NetworkException
+/// Converts low-level networking library (Dio) exceptions to unified NetworkException.
 class NetworkErrorHandler {
-  /// 处理 Dio 异常
+  /// Handles Dio exceptions.
   static NetworkException handleDioException(DioException error) {
     NetworkExceptionType type;
     String message;
@@ -52,7 +52,7 @@ class NetworkErrorHandler {
     );
   }
 
-  /// 处理通用异常
+  /// Handles generic exceptions.
   static NetworkException handleGenericException(
     dynamic error,
     StackTrace? stackTrace,
@@ -76,7 +76,7 @@ class NetworkErrorHandler {
     );
   }
 
-  /// 获取超时错误消息
+  /// Gets timeout error message.
   static String _getTimeoutMessage(DioExceptionType type) {
     switch (type) {
       case DioExceptionType.connectionTimeout:
@@ -90,7 +90,7 @@ class NetworkErrorHandler {
     }
   }
 
-  /// 获取服务器错误消息
+  /// Gets server error message.
   static String _getServerErrorMessage(Response? response) {
     if (response == null) {
       return 'Server error';
@@ -99,7 +99,7 @@ class NetworkErrorHandler {
     final statusCode = response.statusCode;
     final statusMessage = response.statusMessage;
 
-    // 尝试从响应体中提取错误消息
+    // Try extracting error message from response body.
     try {
       if (response.data is Map<String, dynamic>) {
         final data = response.data as Map<String, dynamic>;
@@ -109,10 +109,10 @@ class NetworkErrorHandler {
         }
       }
     } catch (_) {
-      // 忽略解析错误
+      // Ignore parse errors.
     }
 
-    // 根据状态码返回默认消息
+    // Return default message based on status code.
     if (statusCode != null) {
       switch (statusCode) {
         case 400:
@@ -149,28 +149,28 @@ class NetworkErrorHandler {
     return statusMessage ?? 'Server error';
   }
 
-  /// 判断错误是否可重试
+  /// Determines whether the error is retryable.
   static bool isRetryable(
     NetworkException exception,
     Set<int> retryableStatusCodes,
   ) {
-    // 超时错误可重试
+    // Timeout errors are retryable.
     if (exception.isTimeout) {
       return true;
     }
 
-    // 连接错误可重试
+    // Connection errors are retryable.
     if (exception.isConnectionError) {
       return true;
     }
 
-    // 特定状态码可重试
+    // Specific status codes are retryable.
     if (exception.statusCode != null &&
         retryableStatusCodes.contains(exception.statusCode)) {
       return true;
     }
 
-    // 服务器错误（5xx）可重试
+    // Server errors (5xx) are retryable.
     if (exception.isServerError) {
       return true;
     }

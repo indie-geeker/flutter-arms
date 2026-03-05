@@ -1,33 +1,33 @@
-/// 网络配置
+/// Network configuration.
 class NetworkConfig {
-  /// 基础 URL
+  /// Base URL.
   final String baseUrl;
 
-  /// 连接超时时间
+  /// Connection timeout.
   final Duration connectTimeout;
 
-  /// 接收超时时间
+  /// Receive timeout.
   final Duration receiveTimeout;
 
-  /// 发送超时时间
+  /// Send timeout.
   final Duration sendTimeout;
 
-  /// 默认请求头
+  /// Default request headers.
   final Map<String, String> defaultHeaders;
 
-  /// 是否启用日志
+  /// Whether logging is enabled.
   final bool enableLogging;
 
-  /// 是否启用缓存
+  /// Whether caching is enabled.
   final bool enableCache;
 
-  /// 默认缓存时长
+  /// Default cache duration.
   final Duration defaultCacheDuration;
 
-  /// 重试配置
+  /// Retry configuration.
   final RetryConfig retryConfig;
 
-  /// 代理配置
+  /// Proxy configuration.
   final ProxyConfig? proxyConfig;
 
   NetworkConfig({
@@ -46,7 +46,7 @@ class NetworkConfig {
     this.proxyConfig,
   });
 
-  /// 创建开发环境配置
+  /// Creates a development configuration.
   factory NetworkConfig.development({required String baseUrl}) {
     return NetworkConfig(
       baseUrl: baseUrl,
@@ -56,7 +56,7 @@ class NetworkConfig {
     );
   }
 
-  /// 创建生产环境配置
+  /// Creates a production configuration.
   factory NetworkConfig.production({required String baseUrl}) {
     return NetworkConfig(
       baseUrl: baseUrl,
@@ -67,18 +67,18 @@ class NetworkConfig {
   }
 }
 
-/// 重试配置
+/// Retry configuration.
 class RetryConfig {
-  /// 最大重试次数
+  /// Maximum number of retries.
   final int maxRetries;
 
-  /// 重试延迟
+  /// Retry delay.
   final Duration retryDelay;
 
-  /// 是否启用指数退避
+  /// Whether to use exponential backoff.
   final bool exponentialBackoff;
 
-  /// 需要重试的 HTTP 状态码
+  /// HTTP status codes to retry on.
   final Set<int> retryableStatusCodes;
 
   const RetryConfig({
@@ -89,18 +89,18 @@ class RetryConfig {
   });
 }
 
-/// 代理配置
+/// Proxy configuration.
 class ProxyConfig {
-  /// 代理地址
+  /// Proxy address.
   final String host;
 
-  /// 代理端口
+  /// Proxy port.
   final int port;
 
-  /// 用户名（可选）
+  /// Username (optional).
   final String? username;
 
-  /// 密码（可选）
+  /// Password (optional).
   final String? password;
 
   ProxyConfig({
@@ -110,7 +110,7 @@ class ProxyConfig {
     this.password,
   });
 
-  /// 生成代理 URL
+  /// Generates the proxy URL.
   String get proxyUrl {
     if (username != null && password != null) {
       return 'http://$username:$password@$host:$port';

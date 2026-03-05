@@ -4,8 +4,8 @@ import 'package:interfaces/logger/log_output.dart';
 
 import 'disposable_log_output.dart';
 
-/// Web/非 IO 平台上的文件输出占位实现。
-/// 保持 API 兼容，但不会落盘写文件。
+/// Stub file output for Web/non-IO platforms.
+/// Maintains API compatibility but does not write to disk.
 class FileOutput implements LogOutput, DisposableLogOutput {
   static bool _warnedUnsupported = false;
   final String filePath;

@@ -1,21 +1,21 @@
 import 'i_storage.dart';
 
-/// 关系型数据库接口
-/// 实现：SQLite、Drift
+/// Relational database interface.
+/// Implementations: SQLite, Drift.
 abstract class IRelationalStorage extends IStorage {
-  /// 执行原始 SQL 查询
+  /// Executes a raw SQL query.
   Future<List<Map<String, dynamic>>> rawQuery(
     String sql, [
     List<dynamic>? arguments,
   ]);
 
-  /// 执行原始 SQL 命令
+  /// Executes a raw SQL command.
   Future<int> rawExecute(String sql, [List<dynamic>? arguments]);
 
-  /// 插入数据
+  /// Inserts a row.
   Future<int> insert(String table, Map<String, dynamic> values);
 
-  /// 查询数据
+  /// Queries rows.
   Future<List<Map<String, dynamic>>> query(
     String table, {
     List<String>? columns,
@@ -26,7 +26,7 @@ abstract class IRelationalStorage extends IStorage {
     int? offset,
   });
 
-  /// 更新数据
+  /// Updates rows.
   Future<int> update(
     String table,
     Map<String, dynamic> values, {
@@ -34,15 +34,15 @@ abstract class IRelationalStorage extends IStorage {
     List<dynamic>? whereArgs,
   });
 
-  /// 删除数据
+  /// Deletes rows.
   Future<int> delete(String table, {String? where, List<dynamic>? whereArgs});
 
-  /// 开始事务
+  /// Begins a transaction.
   Future<void> beginTransaction();
 
-  /// 提交事务
+  /// Commits a transaction.
   Future<void> commit();
 
-  /// 回滚事务
+  /// Rolls back a transaction.
   Future<void> rollback();
 }

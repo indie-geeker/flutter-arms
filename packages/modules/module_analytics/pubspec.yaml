@@ -1,0 +1,19 @@
+name: module_analytics
+description: Analytics module for FlutterArms — provides event tracking with region-aware delegation.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  interfaces:
+    path: ../../interfaces
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

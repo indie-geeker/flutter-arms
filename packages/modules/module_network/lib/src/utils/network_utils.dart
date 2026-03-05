@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-/// 网络工具类
+/// Network utilities.
 class NetworkUtils {
-  /// 生成缓存键
+  /// Generates a cache key.
   ///
-  /// 基于 URL 和查询参数生成唯一的缓存键
+  /// Generates a unique cache key based on URL and query parameters.
   static String generateCacheKey(
     String url,
     Map<String, dynamic>? queryParameters,
@@ -13,11 +13,11 @@ class NetworkUtils {
     final uri = Uri.parse(url);
     final params = queryParameters ?? {};
 
-    // 合并 URL 中的查询参数和额外的查询参数
+    // Merge query parameters from the URL and additional parameters.
     final allParams = Map<String, dynamic>.from(uri.queryParameters)
       ..addAll(params);
 
-    // 按键排序以确保相同参数生成相同的键
+    // Sort by key to ensure identical parameters produce the same key.
     final sortedParams = Map.fromEntries(
       allParams.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
     );
@@ -28,7 +28,7 @@ class NetworkUtils {
     return 'http_cache:$baseUrl:$paramString';
   }
 
-  /// 生成缓存键的 MD5 哈希（更短）
+  /// Generates an MD5 hash of the cache key (shorter).
   static String generateCacheKeyHash(
     String url,
     Map<String, dynamic>? queryParameters,
@@ -39,24 +39,24 @@ class NetworkUtils {
     return 'http_cache:${digest.toString()}';
   }
 
-  /// URL 拼接
+  /// URL joining.
   ///
-  /// 安全地拼接基础 URL 和路径
+  /// Safely joins a base URL and path.
   static String joinUrl(String baseUrl, String path) {
-    // 移除 baseUrl 末尾的斜杠
+    // Remove trailing slash from baseUrl.
     final base = baseUrl.endsWith('/')
         ? baseUrl.substring(0, baseUrl.length - 1)
         : baseUrl;
 
-    // 确保 path 以斜杠开头
+    // Ensure path starts with a slash.
     final p = path.startsWith('/') ? path : '/$path';
 
     return '$base$p';
   }
 
-  /// 序列化查询参数
+  /// Serializes query parameters.
   ///
-  /// 将 Map 转换为 URL 查询字符串
+  /// Converts a Map to a URL query string.
   static String encodeQueryParameters(Map<String, dynamic> params) {
     if (params.isEmpty) return '';
 
@@ -71,18 +71,18 @@ class NetworkUtils {
     return encodedParams;
   }
 
-  /// 解析查询参数
+  /// Parses query parameters.
   ///
-  /// 将 URL 查询字符串转换为 Map
+  /// Converts a URL query string to a Map.
   static Map<String, String> decodeQueryParameters(String query) {
     if (query.isEmpty) return {};
 
     return Uri.splitQueryString(query);
   }
 
-  /// 格式化文件大小
+  /// Formats a file size.
   ///
-  /// 将字节数转换为人类可读的格式
+  /// Converts bytes to a human-readable format.
   static String formatBytes(int bytes, {int decimals = 2}) {
     if (bytes <= 0) return '0 B';
 
@@ -96,13 +96,13 @@ class NetworkUtils {
     return '${(bytes / (1 << (i * 10))).toStringAsFixed(decimals)} ${suffixes[i]}';
   }
 
-  /// 计算下载/上传进度百分比
+  /// Calculates download/upload progress percentage.
   static double calculateProgress(int current, int total) {
     if (total <= 0) return 0.0;
     return (current / total * 100).clamp(0.0, 100.0);
   }
 
-  /// 验证 URL 格式
+  /// Validates a URL format.
   static bool isValidUrl(String url) {
     try {
       final uri = Uri.parse(url);
@@ -112,7 +112,7 @@ class NetworkUtils {
     }
   }
 
-  /// 从 URL 提取文件名
+  /// Extracts a filename from a URL.
   static String? extractFileNameFromUrl(String url) {
     try {
       final uri = Uri.parse(url);
@@ -123,7 +123,7 @@ class NetworkUtils {
     }
   }
 
-  /// 判断是否为网络图片 URL
+  /// Determines whether a URL is a network image URL.
   static bool isNetworkImageUrl(String url) {
     if (!isValidUrl(url)) return false;
 
@@ -137,7 +137,7 @@ class NetworkUtils {
         lowerUrl.endsWith('.svg');
   }
 
-  /// 添加查询参数到 URL
+  /// Adds query parameters to a URL.
   static String addQueryParameters(String url, Map<String, dynamic> params) {
     if (params.isEmpty) return url;
 

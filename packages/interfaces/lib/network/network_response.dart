@@ -1,6 +1,6 @@
 import 'network_exception.dart';
 
-/// 网络响应封装
+/// Network response wrapper.
 class NetworkResponse<T> {
   final T? data;
   final int statusCode;
@@ -18,7 +18,7 @@ class NetworkResponse<T> {
     this.error,
   });
 
-  /// 创建成功响应
+  /// Creates a success response.
   factory NetworkResponse.success(
     T data, {
     int statusCode = 200,
@@ -34,7 +34,7 @@ class NetworkResponse<T> {
     );
   }
 
-  /// 创建失败响应
+  /// Creates a failure response.
   factory NetworkResponse.failure(
     NetworkException error, {
     int statusCode = 500,

@@ -1,8 +1,8 @@
-/// 统一结果类型，替代 dartz Either
+/// Unified result type using Dart 3 sealed classes.
 ///
-/// 使用 Dart 3 sealed class 实现，无需外部依赖。
+/// Implemented with Dart 3 sealed classes — no external dependencies needed.
 ///
-/// 用法示例：
+/// Usage example:
 /// ```dart
 /// Future<Result<AuthFailure, UserEntity>> login() async {
 ///   try {
@@ -13,7 +13,7 @@
 ///   }
 /// }
 ///
-/// // 使用 switch 模式匹配
+/// // Using switch pattern matching
 /// final result = await login();
 /// switch (result) {
 ///   case Success(:final value):
@@ -26,7 +26,7 @@ sealed class Result<F, S> {
   const Result();
 }
 
-/// 成功结果
+/// Success result.
 final class Success<F, S> extends Result<F, S> {
   final S value;
   const Success(this.value);
@@ -43,7 +43,7 @@ final class Success<F, S> extends Result<F, S> {
   String toString() => 'Success($value)';
 }
 
-/// 失败结果
+/// Failure result.
 final class Failure<F, S> extends Result<F, S> {
   final F error;
   const Failure(this.error);

@@ -4,7 +4,7 @@ import 'package:core/src/di/service_locator.dart';
 import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/core/i_service_locator.dart';
 
-/// 测试用模块 - 无依赖
+/// Test module — no dependencies.
 class MockLoggerModule implements IModule {
   @override
   bool get isHealthy => true;
@@ -39,7 +39,7 @@ class MockLoggerModule implements IModule {
   Future<void> dispose() async {}
 }
 
-/// 测试用模块 - 有依赖
+/// Test module — has dependencies.
 class MockNetworkModule implements IModule {
   @override
   bool get isHealthy => true;
@@ -80,7 +80,7 @@ void main() {
 
     setUp(() async {
       registry = ModuleRegistry();
-      // 重置 ServiceLocator 单例状态
+      // Reset ServiceLocator singleton state.
       await ServiceLocator().reset();
     });
 
@@ -183,10 +183,10 @@ void main() {
           final logger = MockLoggerModule();
           final network = MockNetworkModule();
 
-          // Logger (priority 0) 先于 Network (priority 40) 注册
+          // Logger (priority 0) registers before Network (priority 40).
           registry.registerModules([logger, network]);
 
-          // 不应抛出异常
+          // Should not throw.
           await registry.initializeAll();
 
           expect(logger.registered, true);
@@ -195,7 +195,7 @@ void main() {
       );
 
       test('should throw when dependency is not registered', () async {
-        // 只注册 Network，不注册它依赖的 Logger
+        // Register only Network, without its Logger dependency.
         final network = MockNetworkModule();
         registry.registerModule(network);
 
@@ -232,7 +232,7 @@ void main() {
         final logger = MockLoggerModule();
         registry.registerModule(logger);
 
-        // 不应抛出异常
+        // Should not throw.
         await registry.initializeAllWithProgress(null);
 
         expect(logger.initialized, true);
@@ -251,14 +251,14 @@ void main() {
         await registry.initializeAll();
         await registry.disposeAll();
 
-        // 销毁顺序应该是反向的
+        // Dispose order should be reversed.
         expect(disposeOrder, ['Third', 'Second', 'First']);
       });
     });
   });
 }
 
-/// 辅助类：追踪初始化/销毁顺序
+/// Helper class: tracks initialization/disposal order.
 class _OrderTrackingModule implements IModule {
   @override
   bool get isHealthy => true;

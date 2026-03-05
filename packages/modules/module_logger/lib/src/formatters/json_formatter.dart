@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:interfaces/logger/log_entity.dart';
 
-/// JSON 格式化器
-/// 适用于结构化日志分析和远程上报
+/// JSON formatter.
+/// Suitable for structured log analysis and remote reporting.
 class JsonFormatter {
   String format(LogEntry entry) {
     final map = <String, dynamic>{

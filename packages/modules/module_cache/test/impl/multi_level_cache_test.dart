@@ -455,7 +455,7 @@ void main() {
         setUp(() async {
           smallStorage = MockKeyValueStorage();
           smallLogger = MockLogger();
-          // 使用小于10的 maxMemoryItems 来测试边界条件
+          // Use maxMemoryItems < 10 to test edge cases.
           smallCache = MultiLevelCacheManager(
             storage: smallStorage,
             logger: smallLogger,
@@ -469,19 +469,19 @@ void main() {
         });
 
         test('should evict at least 1 item when maxMemoryItems is 5', () async {
-          // 填满缓存 + 1 触发淘汰
+          // Fill cache + 1 to trigger eviction.
           for (int i = 0; i < 6; i++) {
             await smallCache.put('small_key$i', 'value$i');
             await Future.delayed(Duration(milliseconds: 1));
           }
 
           final stats = await smallCache.getStats();
-          // 应该触发淘汰，内存缓存不应超过 maxMemoryItems
+          // Should trigger eviction, memory cache should not exceed maxMemoryItems.
           expect(stats.memoryKeys <= 5, true);
         });
 
         test('should evict at least 1 item when maxMemoryItems is 3', () async {
-          // 创建更小的缓存
+          // Create a smaller cache.
           final tinyStorage = MockKeyValueStorage();
           final tinyLogger = MockLogger();
           final tinyCache = MultiLevelCacheManager(
@@ -491,14 +491,14 @@ void main() {
           );
           await tinyCache.init();
 
-          // 添加超过限制的项目
+          // Add items exceeding the limit.
           for (int i = 0; i < 5; i++) {
             await tinyCache.put('tiny_key$i', 'value$i');
             await Future.delayed(Duration(milliseconds: 1));
           }
 
           final stats = await tinyCache.getStats();
-          // 确保淘汰生效
+          // Ensure eviction took effect.
           expect(stats.memoryKeys <= 3, true);
 
           await tinyCache.clear();
@@ -514,15 +514,15 @@ void main() {
           );
           await singleCache.init();
 
-          // 添加2个项目
+          // Add 2 items.
           await singleCache.put('single_key0', 'value0');
           await Future.delayed(Duration(milliseconds: 1));
           await singleCache.put('single_key1', 'value1');
 
           final stats = await singleCache.getStats();
-          // 应该只保留1个
+          // Should keep only 1.
           expect(stats.memoryKeys <= 1, true);
-          // 最新的应该存在
+          // The newest should exist.
           final result = await singleCache.get<String>('single_key1');
           expect(result, 'value1');
 
