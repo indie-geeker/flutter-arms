@@ -143,6 +143,7 @@ melos_*.iml
 docs/ai/
 docs/plans/
 CLAUDE.md
+.claude/
 .worktrees/
 
 
