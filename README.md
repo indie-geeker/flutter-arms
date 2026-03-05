@@ -320,20 +320,20 @@ MyDataSource myDataSource(Ref ref) {
 Use the built-in scaffold command to generate a workspace app under `app/<name>`:
 
 ```bash
-melos run create:app -- --name demo_app
+dart run scripts/create_app.dart --name demo_app
 ```
 
 Common options:
 
 ```bash
 # Only apply templates (skip flutter create)
-melos run create:app -- --name demo_app --template-only
+dart run scripts/create_app.dart --name demo_app --template-only
 
 # Keep workspace unchanged for local experiments
-melos run create:app -- --name demo_app --no-workspace-registration
+dart run scripts/create_app.dart --name demo_app --no-workspace-registration
 
 # Generate with optional modules
-melos run create:app -- --name demo_app --with-feature --with-tests
+dart run scripts/create_app.dart --name demo_app --with-feature --with-tests
 ```
 
 The scaffold generates architecture-aligned structure under `lib/src/`:

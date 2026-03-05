@@ -29,7 +29,6 @@ Options:
 Examples:
   dart run scripts/create_app.dart --name shop_app
   dart run scripts/create_app.dart --name shop_app --template-only --with-feature --with-tests
-  melos run create:app -- --name shop_app --platforms android,ios
 ''';
 
 Future<void> main(List<String> args) async {
