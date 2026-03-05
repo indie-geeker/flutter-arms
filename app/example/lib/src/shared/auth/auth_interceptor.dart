@@ -15,25 +15,25 @@ import 'auth_shared.dart';
 /// ```
 class AuthInterceptor {
   final Ref _ref;
+  final String? Function(AuthSession session)? _tokenResolver;
 
-  const AuthInterceptor(this._ref);
+  const AuthInterceptor(this._ref, {
+    String? Function(AuthSession session)? tokenResolver,
+  }) : _tokenResolver = tokenResolver;
 
   /// Returns authentication headers for the current request.
   ///
-  /// Returns `null` when not authenticated.
-  /// Throws [UnimplementedError] when authenticated, because the
-  /// template does not include real token logic — replace this stub
-  /// with your actual token header before using in production.
+  /// Returns `null` when not authenticated or token is unavailable.
   Map<String, String>? buildAuthHeaders() {
     final session = _ref.read(authSessionProvider);
     if (!session.isAuthenticated) return null;
 
-    // TODO(auth): Replace with real token logic:
-    // return {'Authorization': 'Bearer ${session.accessToken}'};
-    throw UnimplementedError(
-      'AuthInterceptor.buildAuthHeaders() is a stub. '
-      'Replace with real token logic before using in production.',
-    );
+    final token = _tokenResolver?.call(session);
+    if (token == null || token.trim().isEmpty) {
+      return null;
+    }
+
+    return <String, String>{'Authorization': 'Bearer ${token.trim()}'};
   }
 
   /// Whether the current session is authenticated.

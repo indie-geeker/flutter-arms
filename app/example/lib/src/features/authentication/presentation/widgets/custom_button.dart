@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 /// Enterprise convention: use class definitions, avoid returning raw widgets.
 class CustomButton extends StatelessWidget {
   final String text;
+  final Key? buttonKey;
   final VoidCallback? onPressed;
   final bool isLoading;
   final bool isFullWidth;
@@ -17,6 +18,7 @@ class CustomButton extends StatelessWidget {
   const CustomButton({
     super.key,
     required this.text,
+    this.buttonKey,
     this.onPressed,
     this.isLoading = false,
     this.isFullWidth = true,
@@ -33,6 +35,7 @@ class CustomButton extends StatelessWidget {
     final isEnabled = onPressed != null && !isLoading;
 
     final button = ElevatedButton(
+      key: buttonKey,
       onPressed: isEnabled ? onPressed : null,
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor ?? theme.colorScheme.primary,

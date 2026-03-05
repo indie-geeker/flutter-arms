@@ -9,6 +9,7 @@ class CustomTextField extends StatelessWidget {
   final String? hint;
   final String? errorText;
   final bool obscureText;
+  final Key? textFieldKey;
   final IconData? prefixIcon;
   final IconData? suffixIcon;
   final VoidCallback? onSuffixIconPressed;
@@ -24,6 +25,7 @@ class CustomTextField extends StatelessWidget {
     this.hint,
     this.errorText,
     this.obscureText = false,
+    this.textFieldKey,
     this.prefixIcon,
     this.suffixIcon,
     this.onSuffixIconPressed,
@@ -43,6 +45,7 @@ class CustomTextField extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         TextField(
+          key: textFieldKey,
           controller: controller,
           obscureText: obscureText,
           enabled: enabled,

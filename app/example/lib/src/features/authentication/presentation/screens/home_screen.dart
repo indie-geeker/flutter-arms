@@ -19,6 +19,7 @@ class HomeScreen extends ConsumerWidget {
 
   void _handleNetworkDemoTap(
     BuildContext context, {
+    required String disabledMessage,
     required bool isAvailable,
   }) {
     if (isAvailable) {
@@ -26,10 +27,8 @@ class HomeScreen extends ConsumerWidget {
       return;
     }
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Full-stack profile is disabled. Run with ARMS_EXAMPLE_FULL_STACK=true.',
-        ),
+      SnackBar(
+        content: Text(disabledMessage),
       ),
     );
   }
@@ -57,9 +56,10 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.cloud_sync_outlined),
-            tooltip: 'Network demo',
+            tooltip: l10n.networkDemo,
             onPressed: () => _handleNetworkDemoTap(
               context,
+              disabledMessage: l10n.fullStackProfileDisabled,
               isAvailable: networkDemoAvailable,
             ),
           ),
@@ -69,6 +69,7 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () => context.router.push(const SettingsRoute()),
           ),
           IconButton(
+            key: const Key('home_logout_button'),
             icon: const Icon(Icons.logout),
             tooltip: l10n.logout,
             onPressed: () => _handleLogout(ref),

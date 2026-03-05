@@ -50,6 +50,40 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settings => '设置';
 
   @override
+  String get networkDemo => '网络演示';
+
+  @override
+  String get refresh => '刷新';
+
+  @override
+  String get fullStackProfileDisabled =>
+      '全栈模式未启用。请使用 ARMS_EXAMPLE_FULL_STACK=true 运行。';
+
+  @override
+  String get mode => '模式';
+
+  @override
+  String get sourceCache => '来源：缓存';
+
+  @override
+  String get sourceNetwork => '来源：网络';
+
+  @override
+  String get retry => '重试';
+
+  @override
+  String get noPostsYet => '暂无数据。';
+
+  @override
+  String get cacheModeCacheFirst => '优先缓存';
+
+  @override
+  String get cacheModeNetworkFirst => '优先网络';
+
+  @override
+  String get cacheModeDisabled => '禁用缓存';
+
+  @override
   String get theme => '主题';
 
   @override

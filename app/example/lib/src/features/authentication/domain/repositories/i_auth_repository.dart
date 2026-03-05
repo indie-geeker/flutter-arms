@@ -11,7 +11,7 @@ abstract class IAuthRepository {
   ///
   /// [username] Username
   /// [password] Password
-  /// Returns Result<failure, user entity>
+  /// Returns `Result<AuthFailure, UserEntity>`.
   Future<Result<AuthFailure, UserEntity>> login({
     required String username,
     required String password,

@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:example/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,23 +25,28 @@ class _NetworkDemoScreenState extends ConsumerState<NetworkDemoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(networkDemoProvider);
     final notifier = ref.read(networkDemoProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Network Demo'),
+        title: Text(l10n.networkDemo),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
+            tooltip: l10n.refresh,
             onPressed: state.isLoading ? null : () => notifier.fetch(),
           ),
         ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: _NetworkDemoBody(state: state, onFetch: notifier.fetch),
+        child: _NetworkDemoBody(
+          state: state,
+          onFetch: notifier.fetch,
+          l10n: l10n,
+        ),
       ),
     );
   }
@@ -49,15 +55,20 @@ class _NetworkDemoScreenState extends ConsumerState<NetworkDemoScreen> {
 class _NetworkDemoBody extends StatelessWidget {
   final NetworkDemoState state;
   final Future<void> Function({DemoCacheMode? cacheMode}) onFetch;
+  final AppLocalizations l10n;
 
-  const _NetworkDemoBody({required this.state, required this.onFetch});
+  const _NetworkDemoBody({
+    required this.state,
+    required this.onFetch,
+    required this.l10n,
+  });
 
   @override
   Widget build(BuildContext context) {
     if (!state.available) {
-      return const Center(
+      return Center(
         child: Text(
-          'Full-stack profile is disabled.\nRun with ARMS_EXAMPLE_FULL_STACK=true.',
+          l10n.fullStackProfileDisabled,
           textAlign: TextAlign.center,
         ),
       );
@@ -68,7 +79,7 @@ class _NetworkDemoBody extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Text('Mode:'),
+            Text('${l10n.mode}:'),
             const SizedBox(width: 12),
             DropdownButton<DemoCacheMode>(
               value: state.cacheMode,
@@ -83,7 +94,7 @@ class _NetworkDemoBody extends StatelessWidget {
                   .map((mode) {
                     return DropdownMenuItem<DemoCacheMode>(
                       value: mode,
-                      child: Text(_labelForMode(mode)),
+                      child: Text(_labelForMode(mode, l10n)),
                     );
                   })
                   .toList(growable: false),
@@ -97,7 +108,9 @@ class _NetworkDemoBody extends StatelessWidget {
               state.fromCache ? Icons.inventory_2_outlined : Icons.public,
               size: 18,
             ),
-            label: Text(state.fromCache ? 'Source: cache' : 'Source: network'),
+            label: Text(
+              state.fromCache ? l10n.sourceCache : l10n.sourceNetwork,
+            ),
           ),
         const SizedBox(height: 12),
         if (state.errorMessage != null)
@@ -116,7 +129,7 @@ class _NetworkDemoBody extends StatelessWidget {
                   const SizedBox(height: 8),
                   FilledButton.tonal(
                     onPressed: () => onFetch(cacheMode: state.cacheMode),
-                    child: const Text('Retry'),
+                    child: Text(l10n.retry),
                   ),
                 ],
               ),
@@ -129,7 +142,7 @@ class _NetworkDemoBody extends StatelessWidget {
           ),
         Expanded(
           child: state.posts.isEmpty
-              ? const Center(child: Text('No posts yet.'))
+              ? Center(child: Text(l10n.noPostsYet))
               : ListView.separated(
                   itemCount: state.posts.length,
                   separatorBuilder: (_, _) => const SizedBox(height: 8),
@@ -149,14 +162,14 @@ class _NetworkDemoBody extends StatelessWidget {
     );
   }
 
-  String _labelForMode(DemoCacheMode mode) {
+  String _labelForMode(DemoCacheMode mode, AppLocalizations l10n) {
     switch (mode) {
       case DemoCacheMode.cacheFirst:
-        return 'cacheFirst';
+        return l10n.cacheModeCacheFirst;
       case DemoCacheMode.networkFirst:
-        return 'networkFirst';
+        return l10n.cacheModeNetworkFirst;
       case DemoCacheMode.disabled:
-        return 'disabled';
+        return l10n.cacheModeDisabled;
     }
   }
 }

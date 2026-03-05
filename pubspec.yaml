@@ -50,15 +50,26 @@ dev_dependencies:
 
 melos:
   scripts:
+    codegen:example:
+      description: Generate required code for app/example.
+      run: |
+        cd app/example
+        dart run build_runner build --delete-conflicting-outputs
     analyze:
       description: Run flutter analyze across all workspace packages.
-      run: melos exec --concurrency=1 -- flutter analyze
+      run: |
+        melos run codegen:example
+        melos exec --concurrency=1 -- flutter analyze
     test:
       description: Run flutter test across all workspace packages.
-      run: melos exec --concurrency=1 -- flutter test
+      run: |
+        melos run codegen:example
+        melos exec --concurrency=1 -- flutter test
     test:coverage:
       description: Run flutter test --coverage across all workspace packages.
-      run: melos exec --concurrency=1 -- flutter test --coverage
+      run: |
+        melos run codegen:example
+        melos exec --concurrency=1 -- flutter test --coverage
     lint:arch:
       description: Enforce architecture dependency boundaries for app/example.
       run: scripts/check_architecture_deps.sh

@@ -18,7 +18,7 @@ class LoginUseCase {
   ///
   /// [usernameStr] Username string
   /// [passwordStr] Password string
-  /// Returns Result<failure, user entity>
+  /// Returns `Result<AuthFailure, UserEntity>`.
   Future<Result<AuthFailure, UserEntity>> call({
     required String usernameStr,
     required String passwordStr,

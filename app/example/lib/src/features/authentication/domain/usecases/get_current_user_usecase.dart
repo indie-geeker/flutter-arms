@@ -13,7 +13,7 @@ class GetCurrentUserUseCase {
 
   /// Execute get current user
   ///
-  /// Returns Result<failure, user entity or null>
+  /// Returns `Result<AuthFailure, UserEntity?>`.
   Future<Result<AuthFailure, UserEntity?>> call() async {
     return await _repository.getCurrentUser();
   }

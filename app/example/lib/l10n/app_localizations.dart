@@ -176,6 +176,72 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
+  /// Network demo screen title and tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Network Demo'**
+  String get networkDemo;
+
+  /// Refresh action text
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// Message shown when full-stack profile dependencies are unavailable
+  ///
+  /// In en, this message translates to:
+  /// **'Full-stack profile is disabled. Run with ARMS_EXAMPLE_FULL_STACK=true.'**
+  String get fullStackProfileDisabled;
+
+  /// Cache mode selector label
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get mode;
+
+  /// Data source chip label when loaded from cache
+  ///
+  /// In en, this message translates to:
+  /// **'Source: cache'**
+  String get sourceCache;
+
+  /// Data source chip label when loaded from network
+  ///
+  /// In en, this message translates to:
+  /// **'Source: network'**
+  String get sourceNetwork;
+
+  /// Retry button text
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// Empty state text for network demo list
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet.'**
+  String get noPostsYet;
+
+  /// Cache mode label for cache-first strategy
+  ///
+  /// In en, this message translates to:
+  /// **'Cache first'**
+  String get cacheModeCacheFirst;
+
+  /// Cache mode label for network-first strategy
+  ///
+  /// In en, this message translates to:
+  /// **'Network first'**
+  String get cacheModeNetworkFirst;
+
+  /// Cache mode label when cache is disabled
+  ///
+  /// In en, this message translates to:
+  /// **'Disabled'**
+  String get cacheModeDisabled;
+
   /// Theme section title
   ///
   /// In en, this message translates to:

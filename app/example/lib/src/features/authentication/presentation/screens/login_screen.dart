@@ -189,6 +189,7 @@ class LoginFormContent extends StatelessWidget {
 
         // Username input field.
         CustomTextField(
+          textFieldKey: const Key('login_username_field'),
           controller: usernameController,
           label: l10n.username,
           hint: l10n.enterYourUsername,
@@ -202,6 +203,7 @@ class LoginFormContent extends StatelessWidget {
 
         // Password input field.
         CustomTextField(
+          textFieldKey: const Key('login_password_field'),
           controller: passwordController,
           label: l10n.password,
           hint: l10n.enterYourPassword,
@@ -221,6 +223,7 @@ class LoginFormContent extends StatelessWidget {
 
         // Login button.
         CustomButton(
+          buttonKey: const Key('login_submit_button'),
           text: l10n.login,
           onPressed: formState.isValid && !isLoading ? onLogin : null,
           isLoading: isLoading,

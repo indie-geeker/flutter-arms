@@ -50,6 +50,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get networkDemo => 'Network Demo';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get fullStackProfileDisabled =>
+      'Full-stack profile is disabled. Run with ARMS_EXAMPLE_FULL_STACK=true.';
+
+  @override
+  String get mode => 'Mode';
+
+  @override
+  String get sourceCache => 'Source: cache';
+
+  @override
+  String get sourceNetwork => 'Source: network';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get noPostsYet => 'No posts yet.';
+
+  @override
+  String get cacheModeCacheFirst => 'Cache first';
+
+  @override
+  String get cacheModeNetworkFirst => 'Network first';
+
+  @override
+  String get cacheModeDisabled => 'Disabled';
+
+  @override
   String get theme => 'Theme';
 
   @override

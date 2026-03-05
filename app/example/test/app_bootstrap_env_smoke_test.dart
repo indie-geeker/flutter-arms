@@ -1,7 +1,9 @@
 import 'package:example/src/bootstrap/module_composition.dart';
 import 'package:example/src/bootstrap/module_profile.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:module_analytics/module_analytics.dart';
 import 'package:module_cache/module_cache.dart';
+import 'package:module_crash/module_crash.dart';
 import 'package:module_logger/module_logger.dart';
 import 'package:module_network/module_network.dart';
 import 'package:module_storage/storage.dart';
@@ -21,11 +23,26 @@ void main() {
     if (kExpectedFullStackProfile) {
       expect(
         moduleTypes,
-        containsAll({LoggerModule, StorageModule, CacheModule, NetworkModule}),
+        containsAll({
+          CrashModule,
+          LoggerModule,
+          StorageModule,
+          AnalyticsModule,
+          CacheModule,
+          NetworkModule,
+        }),
       );
       return;
     }
 
-    expect(moduleTypes, equals({LoggerModule, StorageModule}));
+    expect(
+      moduleTypes,
+      equals({
+        CrashModule,
+        LoggerModule,
+        StorageModule,
+        AnalyticsModule,
+      }),
+    );
   });
 }

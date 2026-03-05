@@ -79,12 +79,12 @@ Release only when all commands pass.
 
 Current CI baseline (enforced):
 
-- Total coverage: `>=60%`
-- Per-package coverage: `>=50%`
+- Total coverage: `>=75%`
+- Per-package coverage: `>=70%`
 
 Recommended tightening path:
 
-1. Stage B: total `65%`, package `55%`
-2. Stage C: total `70%`, package `60%`
+1. Stage B: total `80%`, package `75%`
+2. Stage C: total `85%`, package `80%`
 
 Advance to next stage only after two consecutive green CI runs.

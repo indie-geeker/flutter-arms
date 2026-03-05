@@ -72,6 +72,61 @@
     "description": "Settings screen title"
   },
 
+  "networkDemo": "Network Demo",
+  "@networkDemo": {
+    "description": "Network demo screen title and tooltip"
+  },
+
+  "refresh": "Refresh",
+  "@refresh": {
+    "description": "Refresh action text"
+  },
+
+  "fullStackProfileDisabled": "Full-stack profile is disabled. Run with ARMS_EXAMPLE_FULL_STACK=true.",
+  "@fullStackProfileDisabled": {
+    "description": "Message shown when full-stack profile dependencies are unavailable"
+  },
+
+  "mode": "Mode",
+  "@mode": {
+    "description": "Cache mode selector label"
+  },
+
+  "sourceCache": "Source: cache",
+  "@sourceCache": {
+    "description": "Data source chip label when loaded from cache"
+  },
+
+  "sourceNetwork": "Source: network",
+  "@sourceNetwork": {
+    "description": "Data source chip label when loaded from network"
+  },
+
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text"
+  },
+
+  "noPostsYet": "No posts yet.",
+  "@noPostsYet": {
+    "description": "Empty state text for network demo list"
+  },
+
+  "cacheModeCacheFirst": "Cache first",
+  "@cacheModeCacheFirst": {
+    "description": "Cache mode label for cache-first strategy"
+  },
+
+  "cacheModeNetworkFirst": "Network first",
+  "@cacheModeNetworkFirst": {
+    "description": "Cache mode label for network-first strategy"
+  },
+
+  "cacheModeDisabled": "Disabled",
+  "@cacheModeDisabled": {
+    "description": "Cache mode label when cache is disabled"
+  },
+
   "theme": "Theme",
   "@theme": {
     "description": "Theme section title"
