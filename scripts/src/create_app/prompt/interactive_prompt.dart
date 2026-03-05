@@ -12,7 +12,7 @@ class StdioPromptIO implements PromptIO {
   @override
   String ask(String question, {String? defaultValue}) {
     final suffix = defaultValue == null ? '' : ' [$defaultValue]';
-    stdout.write('$question$suffix: ');
+    stdout.writeln('$question$suffix:');
     final value = stdin.readLineSync()?.trim();
     if (value == null || value.isEmpty) {
       return defaultValue ?? '';
@@ -23,7 +23,7 @@ class StdioPromptIO implements PromptIO {
   @override
   bool askYesNo(String question, {bool defaultValue = false}) {
     final suffix = defaultValue ? '[Y/n]' : '[y/N]';
-    stdout.write('$question $suffix: ');
+    stdout.writeln('$question $suffix:');
     final value = stdin.readLineSync()?.trim().toLowerCase();
 
     if (value == null || value.isEmpty) {
