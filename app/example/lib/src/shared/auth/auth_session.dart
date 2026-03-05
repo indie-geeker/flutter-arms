@@ -3,33 +3,33 @@ import 'auth_status.dart';
 
 part 'auth_session.freezed.dart';
 
-/// 全局认证会话模型（不可变）
+/// Global authentication session model (immutable).
 ///
-/// 存储跨 feature 共享的会话信息，如当前用户标识和认证状态。
-/// 由 [AuthSessionNotifier] 管理，其他 feature 通过 watch/read 获取。
+/// Stores cross-feature shared session info such as user identity and auth status.
+/// Managed by [AuthSessionNotifier]; other features access via watch/read.
 @freezed
 abstract class AuthSession with _$AuthSession {
   const factory AuthSession({
-    /// 当前认证状态
+    /// Current authentication status.
     @Default(AuthStatus.unknown) AuthStatus status,
 
-    /// 当前用户 ID（未认证时为 null）
+    /// Current user ID (null when unauthenticated).
     String? userId,
 
-    /// 当前用户名（未认证时为 null）
+    /// Current username (null when unauthenticated).
     String? username,
 
-    // 若后续接入真实后端 token，在此添加：
+    // If a real backend token is added later, add it here:
     // String? accessToken,
     // DateTime? tokenExpiry,
   }) = _AuthSession;
 }
 
-/// 扩展方法
+/// Extension methods.
 extension AuthSessionX on AuthSession {
-  /// 是否已认证
+  /// Whether authenticated.
   bool get isAuthenticated => status == AuthStatus.authenticated;
 
-  /// 是否处于初始未知状态（应用启动时）
+  /// Whether in initial unknown state (at app startup).
   bool get isUnknown => status == AuthStatus.unknown;
 }

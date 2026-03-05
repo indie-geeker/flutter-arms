@@ -2,15 +2,27 @@ import 'package:auto_route/auto_route.dart';
 import 'package:example/src/features/authentication/authentication.dart';
 import 'package:example/src/features/network_demo/network_demo.dart';
 import 'package:example/src/features/settings/settings.dart';
+
+// Web optimization: To enable deferred loading for route-level code splitting,
+// replace the eager imports above with deferred imports:
+//
+//   import 'package:example/src/features/settings/settings.dart'
+//       deferred as settings;
+//   import 'package:example/src/features/network_demo/network_demo.dart'
+//       deferred as network_demo;
+//
+// Then run: dart run build_runner build --delete-conflicting-outputs
+// auto_route will generate async loaders automatically.
+// See docs/advanced/web-optimization.md for details.
 import 'package:example/src/shared/auth/auth_shared.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'app_router.gr.dart';
 
-/// 认证路由守卫
+/// Authentication route guard.
 ///
-/// 保护需要登录才能访问的路由。
-/// 未认证用户访问受保护页面时，自动重定向至登录页。
+/// Protects routes that require authentication.
+/// Redirects unauthenticated users to the login page.
 class AuthGuard extends AutoRouteGuard {
   final Ref _ref;
 
@@ -21,21 +33,21 @@ class AuthGuard extends AutoRouteGuard {
     final session = _ref.read(authSessionProvider);
 
     if (session.isAuthenticated) {
-      // 已认证，放行
+      // Authenticated, allow access.
       resolver.next(true);
     } else if (session.isUnknown) {
-      // session 尚未恢复（应用刚启动），放行并依赖 LoginScreen 处理
+      // Session not yet restored (app just started), allow and let LoginScreen handle.
       resolver.next(true);
     } else {
-      // 未认证，重定向到登录页
+      // Unauthenticated, redirect to login.
       router.push(const LoginRoute());
     }
   }
 }
 
-/// 应用路由配置
+/// Application routing configuration.
 ///
-/// 使用 auto_route 管理应用导航
+/// Uses auto_route for navigation management.
 @AutoRouterConfig()
 class AppRouter extends RootStackRouter {
   final Ref? _ref;
@@ -44,20 +56,20 @@ class AppRouter extends RootStackRouter {
 
   @override
   List<AutoRoute> get routes => [
-        /// 登录页面（初始路由，无须守卫）
+        /// Login page (initial route, no guard needed).
         AutoRoute(page: LoginRoute.page, path: '/', initial: true),
 
-        /// 主页（受认证守卫保护）
+        /// Home page (protected by auth guard).
         AutoRoute(
           page: HomeRoute.page,
           path: '/home-route',
           guards: [if (_ref != null) AuthGuard(_ref)],
         ),
 
-        /// 设置页面
+        /// Settings screen.
         AutoRoute(page: SettingsRoute.page, path: '/settings'),
 
-        /// 网络演示页面
+        /// Network demo page.
         AutoRoute(page: NetworkDemoRoute.page, path: '/network-demo'),
       ];
 }

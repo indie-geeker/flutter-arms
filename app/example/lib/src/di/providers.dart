@@ -1,14 +1,16 @@
 import 'package:core/core.dart' show ServiceLocator;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:interfaces/analytics/i_analytics.dart';
+import 'package:interfaces/crash/i_crash_reporter.dart';
 import 'package:interfaces/logger/i_logger.dart';
 import 'package:interfaces/storage/i_kv_storage.dart';
 import 'package:interfaces/cache/i_cache_manager.dart';
 import 'package:interfaces/network/i_http_client.dart';
 
-/// 基础设施 Provider 桥接（GetIt → Riverpod）
+/// Infrastructure provider bridge (GetIt → Riverpod).
 ///
-/// 将 GetIt 中注册的基础设施服务桥接到 Riverpod Provider，
-/// 使 Feature 层可通过 ref.watch 获取基础设施服务。
+/// Bridges infrastructure services registered in GetIt to Riverpod providers,
+/// so that the feature layer can access infrastructure services via ref.watch.
 final loggerProvider = Provider<ILogger>((ref) {
   return ServiceLocator().get<ILogger>();
 });
@@ -23,6 +25,14 @@ final cacheManagerProvider = Provider<ICacheManager>((ref) {
 
 final httpClientProvider = Provider<IHttpClient>((ref) {
   return ServiceLocator().get<IHttpClient>();
+});
+
+final analyticsProvider = Provider<IAnalytics>((ref) {
+  return ServiceLocator().get<IAnalytics>();
+});
+
+final crashReporterProvider = Provider<ICrashReporter>((ref) {
+  return ServiceLocator().get<ICrashReporter>();
 });
 
 final fullStackDemoAvailableProvider = Provider<bool>((ref) {

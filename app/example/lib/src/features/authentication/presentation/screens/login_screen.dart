@@ -11,7 +11,7 @@ import '../state/login_state.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 
-/// 登录页面
+/// Login screen.
 @RoutePage()
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -42,10 +42,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final formNotifier = ref.read(loginFormProvider.notifier);
     final loginNotifier = ref.read(loginProvider.notifier);
 
-    // 清除之前的错误
+    // Clear previous errors.
     formNotifier.clearErrors();
 
-    // 执行登录
+    // Execute login.
     loginNotifier.login(_usernameController.text, _passwordController.text);
   }
 
@@ -66,34 +66,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    // 触发启动时的 session 恢复（keepAlive: true 保证只执行一次）
-    // 当 sessionRestoreProvider 完成后，authSessionNotifierProvider 的状态将更新，
-    // 若已认证，LoginScreen 应由路由守卫或监听跳转到首页。
+    // Trigger session restoration at startup (keepAlive: true ensures single execution).
+    // When sessionRestoreProvider completes, authSessionNotifierProvider state updates.
+    // If authenticated, LoginScreen should redirect to home via route guard.
     final sessionRestoreAsync = ref.watch(sessionRestoreProvider);
 
-    // session 恢复期间显示加载界面
+    // Show loading during session restoration.
     if (sessionRestoreAsync.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // session 恢复成功且已认证时，跳转到首页
+    // Redirect to home when session is restored and authenticated.
     ref.listen<AuthSession>(authSessionProvider, (previous, next) {
       if (next.isAuthenticated && mounted) {
         context.router.replace(const HomeRoute());
       }
     });
 
-    // 监听登录状态
+    // Listen to login state.
     ref.listen<LoginState>(loginProvider, (previous, next) {
       next.when(
         initial: () {},
         loading: () {},
         success: () {
-          // 登录成功，导航到主页
+          // Login succeeded, navigate to home.
           context.router.replace(const HomeRoute());
         },
         failure: (failure) {
-          // 显示错误信息
+          // Show error message.
           final message = failure.when(
             emptyUsername: () => l10n.usernameRequired,
             emptyPassword: () => l10n.passwordRequired,
@@ -150,9 +150,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-/// 登录表单内容
+/// Login form content.
 ///
-/// 分离为独立 class 以提高代码组织性
+/// Separated into a standalone class for better code organization.
 class LoginFormContent extends StatelessWidget {
   final TextEditingController usernameController;
   final TextEditingController passwordController;
@@ -183,11 +183,11 @@ class LoginFormContent extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Logo 区域
+        // Logo area.
         const LoginHeader(),
         const SizedBox(height: 48),
 
-        // 用户名输入框
+        // Username input field.
         CustomTextField(
           controller: usernameController,
           label: l10n.username,
@@ -200,7 +200,7 @@ class LoginFormContent extends StatelessWidget {
         ),
         const SizedBox(height: 16),
 
-        // 密码输入框
+        // Password input field.
         CustomTextField(
           controller: passwordController,
           label: l10n.password,
@@ -219,7 +219,7 @@ class LoginFormContent extends StatelessWidget {
         ),
         const SizedBox(height: 32),
 
-        // 登录按钮
+        // Login button.
         CustomButton(
           text: l10n.login,
           onPressed: formState.isValid && !isLoading ? onLogin : null,
@@ -231,9 +231,9 @@ class LoginFormContent extends StatelessWidget {
   }
 }
 
-/// 登录页面头部
+/// Login screen header.
 ///
-/// 显示 Logo 和欢迎文字
+/// Displays logo and welcome text.
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
 
@@ -260,7 +260,7 @@ class LoginHeader extends StatelessWidget {
         ),
         const SizedBox(height: 24),
 
-        // 标题
+        // Title.
         Text(
           l10n.welcomeBack,
           style: theme.textTheme.headlineMedium?.copyWith(
@@ -270,7 +270,7 @@ class LoginHeader extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
-        // 副标题
+        // Subtitle.
         Text(
           l10n.signInToContinue,
           style: theme.textTheme.bodyMedium?.copyWith(

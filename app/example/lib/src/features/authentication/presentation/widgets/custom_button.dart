@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// 自定义按钮组件
+/// Custom button widget.
 ///
-/// 企业级规范：使用 class 定义，避免 return widget
+/// Enterprise convention: use class definitions, avoid returning raw widgets.
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;

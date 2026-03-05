@@ -4,22 +4,22 @@ import 'auth_status.dart';
 
 part 'auth_session_notifier.g.dart';
 
-/// 全局认证会话状态管理器
+/// Global authentication session state manager.
 ///
-/// 这是跨 feature 共享的单一认证状态来源（Single Source of Truth）。
+/// Single source of truth for cross-feature authentication state.
 ///
-/// **写入方**：`features/authentication` 在登录/登出后调用本 Notifier
-/// **读取方**：其他 feature、路由守卫通过 `ref.watch/read(authSessionNotifierProvider)` 获取
+/// **Writers**: `features/authentication` calls this notifier after login/logout.
+/// **Readers**: other features and route guards access via `ref.watch/read(authSessionNotifierProvider)`.
 ///
-/// 使用示例：
+/// Usage example:
 /// ```dart
-/// // 登录成功后（在 login_notifier 中）
+/// // After login success (in login_notifier):
 /// ref.read(authSessionNotifierProvider.notifier).setAuthenticated(
 ///   userId: user.id,
 ///   username: user.username,
 /// );
 ///
-/// // 读取当前认证状态（在任意 feature 中）
+/// // Read current auth state (in any feature):
 /// final session = ref.watch(authSessionNotifierProvider);
 /// if (session.isAuthenticated) { ... }
 /// ```
@@ -28,7 +28,7 @@ class AuthSessionNotifier extends _$AuthSessionNotifier {
   @override
   AuthSession build() => const AuthSession();
 
-  /// 设置为已认证（登录成功后调用）
+  /// Sets state to authenticated (called after login success).
   void setAuthenticated({
     required String userId,
     required String username,
@@ -40,7 +40,7 @@ class AuthSessionNotifier extends _$AuthSessionNotifier {
     );
   }
 
-  /// 设置为未认证（登出成功或 session 过期后调用）
+  /// Sets state to unauthenticated (called after logout or session expiry).
   void setUnauthenticated() {
     state = const AuthSession(status: AuthStatus.unauthenticated);
   }

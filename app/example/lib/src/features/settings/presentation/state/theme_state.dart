@@ -4,9 +4,9 @@ import 'package:example/src/shared/theme/app_color_scheme.dart';
 
 part 'theme_state.freezed.dart';
 
-/// 主题状态
+/// Theme state.
 ///
-/// 管理应用的主题模式和配色方案
+/// Manages the app theme mode and color scheme.
 @freezed
 abstract class ThemeState with _$ThemeState {
   const factory ThemeState({

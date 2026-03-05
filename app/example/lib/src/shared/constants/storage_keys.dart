@@ -1,10 +1,10 @@
-/// 存储键常量
+/// Storage key constants.
 ///
-/// 用于持久化设置的键名
+/// Keys used for persisted settings.
 abstract final class StorageKeys {
-  /// 主题偏好设置（JSON: themeMode/colorScheme）
+  /// Theme preference (JSON: themeMode/colorScheme).
   static const String themePreferences = 'theme_preferences';
 
-  /// 语言设置 (AppLocale.index)
+  /// Locale setting (AppLocale.index).
   static const String locale = 'locale';
 }

@@ -1,12 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'auth_shared.dart';
 
-/// HTTP 请求认证拦截辅助类
+/// HTTP request authentication interceptor helper.
 ///
-/// 从全局 [AuthSessionNotifier] 读取认证凭据，供 NetworkModule 配置使用。
-/// 目前示例 app 使用本地 mock 认证，无真实 token，此类作为接入真实后端的扩展入口。
+/// Reads authentication credentials from the global [AuthSessionNotifier]
+/// for use with NetworkModule configuration.
 ///
-/// 接入真实 token 后，在 [buildAuthHeaders] 中返回：
+/// The example app uses local mock auth with no real token. This class
+/// serves as the extension point for integrating a real backend.
+///
+/// After integrating real tokens, replace the body of [buildAuthHeaders]:
 /// ```dart
 /// return {'Authorization': 'Bearer ${session.accessToken}'};
 /// ```
@@ -15,19 +18,25 @@ class AuthInterceptor {
 
   const AuthInterceptor(this._ref);
 
-  /// 返回当前请求所需的认证头
+  /// Returns authentication headers for the current request.
   ///
-  /// 若未认证，返回 null（调用方可选择是否继续请求）
+  /// Returns `null` when not authenticated.
+  /// Throws [UnimplementedError] when authenticated, because the
+  /// template does not include real token logic — replace this stub
+  /// with your actual token header before using in production.
   Map<String, String>? buildAuthHeaders() {
     final session = _ref.read(authSessionProvider);
     if (!session.isAuthenticated) return null;
 
-    // TODO(auth): 接入真实 token 后取消注释：
+    // TODO(auth): Replace with real token logic:
     // return {'Authorization': 'Bearer ${session.accessToken}'};
-    return null;
+    throw UnimplementedError(
+      'AuthInterceptor.buildAuthHeaders() is a stub. '
+      'Replace with real token logic before using in production.',
+    );
   }
 
-  /// 当前是否已认证
+  /// Whether the current session is authenticated.
   bool get isAuthenticated =>
       _ref.read(authSessionProvider).isAuthenticated;
 }

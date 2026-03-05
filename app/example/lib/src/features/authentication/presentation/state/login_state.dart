@@ -3,27 +3,27 @@ import '../../domain/failures/auth_failure.dart';
 
 part 'login_state.freezed.dart';
 
-/// 登录状态
+/// Login state.
 ///
-/// 使用 Union Types 模式表示登录过程的不同状态
+/// Represents different login states using Union Types pattern.
 @freezed
 abstract class LoginState with _$LoginState {
-  /// 初始状态
+  /// Initial state.
   const factory LoginState.initial() = _Initial;
 
-  /// 加载中
+  /// Loading.
   const factory LoginState.loading() = _Loading;
 
-  /// 登录成功
+  /// Login succeeded.
   const factory LoginState.success() = _Success;
 
-  /// 登录失败
+  /// Login failed.
   const factory LoginState.failure(AuthFailure failure) = _Failure;
 }
 
-/// 登录表单状态
+/// Login form state.
 ///
-/// 管理表单验证和错误信息
+/// Manages form validation and error messages.
 @freezed
 abstract class LoginFormState with _$LoginFormState {
   const factory LoginFormState({
@@ -35,16 +35,16 @@ abstract class LoginFormState with _$LoginFormState {
   }) = _LoginFormState;
 }
 
-/// 扩展方法用于表单验证
+/// Extension methods for form validation.
 extension LoginFormStateX on LoginFormState {
-  /// 表单是否有效
+  /// Whether the form is valid.
   bool get isValid =>
       username.isNotEmpty &&
       password.isNotEmpty &&
       usernameError == null &&
       passwordError == null;
 
-  /// 清除所有错误
+  /// Clears all errors.
   LoginFormState clearErrors() {
     return copyWith(usernameError: null, passwordError: null);
   }

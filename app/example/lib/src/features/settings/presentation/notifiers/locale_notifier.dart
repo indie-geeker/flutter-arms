@@ -6,9 +6,9 @@ import 'package:example/src/features/settings/presentation/state/locale_state.da
 
 part 'locale_notifier.g.dart';
 
-/// 语言状态管理器
+/// Locale state manager.
 ///
-/// 管理应用的语言设置，并持久化到存储
+/// Manages the app locale setting, persisted to storage.
 @riverpod
 class LocaleNotifier extends _$LocaleNotifier {
   late final IKeyValueStorage _storage;
@@ -20,7 +20,7 @@ class LocaleNotifier extends _$LocaleNotifier {
     return const LocaleState(isLoading: true);
   }
 
-  /// 从存储加载语言偏好设置
+  /// Loads locale preferences from storage.
   Future<void> _loadPreferences() async {
     try {
       final localeIndex = await _storage.getInt(StorageKeys.locale);
@@ -38,7 +38,7 @@ class LocaleNotifier extends _$LocaleNotifier {
     }
   }
 
-  /// 设置语言
+  /// Sets the locale.
   Future<void> setLocale(AppLocale locale) async {
     state = state.copyWith(appLocale: locale);
     await _storage.setInt(StorageKeys.locale, locale.index);

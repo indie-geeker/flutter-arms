@@ -8,9 +8,9 @@ import '../notifiers/theme_notifier.dart';
 import '../state/locale_state.dart';
 import '../state/theme_state.dart';
 
-/// 设置页面
+/// Settings screen.
 ///
-/// 提供主题模式、配色方案和语言切换功能
+/// Provides theme mode, color scheme, and locale switching.
 @RoutePage()
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -25,19 +25,19 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(title: Text(l10n.settings)),
       body: ListView(
         children: [
-          // 主题模式部分
+          // Theme mode section.
           _buildSectionHeader(context, l10n.themeMode),
           _buildThemeModeSection(ref, l10n, themeState),
 
           const Divider(),
 
-          // 配色方案部分
+          // Color scheme section.
           _buildSectionHeader(context, l10n.colorScheme),
           _buildColorSchemeSection(context, ref, themeState),
 
           const Divider(),
 
-          // 语言部分
+          // Locale section.
           _buildSectionHeader(context, l10n.language),
           _buildLanguageSection(ref, l10n, localeState),
         ],

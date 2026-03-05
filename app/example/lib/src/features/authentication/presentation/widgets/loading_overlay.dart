@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// 加载遮罩组件
+/// Loading overlay widget.
 ///
-/// 企业级规范：使用 class 定义，避免 return widget
+/// Enterprise convention: use class definitions, avoid returning raw widgets.
 class LoadingOverlay extends StatelessWidget {
   final bool isLoading;
   final Widget child;
@@ -34,9 +34,9 @@ class LoadingOverlay extends StatelessWidget {
   }
 }
 
-/// 加载指示器内容
+/// Loading indicator content.
 ///
-/// 分离为独立的 class 以便复用
+/// Separated into a standalone class for reusability.
 class LoadingIndicatorContent extends StatelessWidget {
   final String? message;
 

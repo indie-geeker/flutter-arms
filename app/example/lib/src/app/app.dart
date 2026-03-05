@@ -13,16 +13,16 @@ import 'package:example/src/router/app_router.dart';
 
 part 'app.g.dart';
 
-/// 应用路由 Provider
+/// Application router provider.
 ///
-/// 将 ref 传给 AppRouter，使 AuthGuard 可读取全局认证状态。
-/// keepAlive: true 确保整个应用生命周期内只有一个 AppRouter 实例。
+/// Passes ref to AppRouter so AuthGuard can read global auth state.
+/// keepAlive: true ensures a single AppRouter instance for the entire app lifecycle.
 @Riverpod(keepAlive: true)
 AppRouter appRouter(Ref ref) => AppRouter(ref);
 
-/// FlutterArms 示例应用
+/// FlutterArms example application.
 ///
-/// 使用 Clean Architecture 和模块化架构
+/// Built with Clean Architecture and modular architecture.
 class ArmsApp extends StatelessWidget {
   const ArmsApp({
     super.key,
@@ -38,7 +38,7 @@ class ArmsApp extends StatelessWidget {
         enableFullStackProfile: enableFullStackProfile,
       ),
 
-      // 自定义加载界面
+      // Custom loading screen.
       loadingBuilder: (context, progress) {
         return MaterialApp(
           onGenerateRoute: (settings) {
@@ -74,26 +74,26 @@ class ArmsApp extends StatelessWidget {
         );
       },
 
-      // 应用主体
+      // Application body.
       child: const ProviderScope(child: _ArmsMainApp()),
     );
   }
 }
 
-/// 应用主体（在模块初始化后显示）
+/// Application body (shown after module initialization).
 class _ArmsMainApp extends ConsumerWidget {
   const _ArmsMainApp();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 启动时恢复认证状态（仅执行一次）
+    // Restore auth state at startup (runs only once).
     ref.watch(sessionRestoreProvider);
 
     final appRouter = ref.watch(appRouterProvider);
     final themeState = ref.watch(themeProvider);
     final localeState = ref.watch(localeProvider);
 
-    // 加载中时显示简单的加载界面
+    // Show simple loading screen while loading.
     if (themeState.isLoading || localeState.isLoading) {
       return MaterialApp(
         onGenerateRoute: (settings) {

@@ -6,9 +6,9 @@ import 'package:example/src/di/providers.dart';
 import 'package:example/src/router/app_router.dart';
 import '../notifiers/home_notifier.dart';
 
-/// 主页
+/// Home screen.
 ///
-/// 登录后的主要界面
+/// Main interface after login.
 @RoutePage()
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -40,11 +40,11 @@ class HomeScreen extends ConsumerWidget {
     final userState = ref.watch(homeProvider);
     final networkDemoAvailable = ref.watch(fullStackDemoAvailableProvider);
 
-    // 监听登出状态
+    // Listen to logout state.
     ref.listen(homeProvider, (previous, next) {
       next.whenOrNull(
         loggedOut: () {
-          // 登出成功，返回登录页
+          // Logout succeeded, return to login.
           context.router.replace(const LoginRoute());
         },
       );
@@ -85,9 +85,9 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// 主页内容
+/// Home screen content.
 ///
-/// 分离为独立 class 以提高代码组织性
+/// Separated into a standalone class for better code organization.
 class HomeContent extends StatelessWidget {
   final HomeState userState;
   final VoidCallback onLogout;
@@ -113,7 +113,7 @@ class HomeContent extends StatelessWidget {
   }
 }
 
-/// 用户信息卡片
+/// User info card.
 class UserInfoCard extends StatelessWidget {
   final String username;
   final DateTime loginTime;
@@ -140,7 +140,7 @@ class UserInfoCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // 用户头像
+            // User avatar.
             CircleAvatar(
               radius: 50,
               backgroundColor: theme.colorScheme.primaryContainer,
@@ -152,7 +152,7 @@ class UserInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // 欢迎文字
+            // Welcome text.
             Text(
               l10n.welcome,
               style: theme.textTheme.headlineSmall?.copyWith(
@@ -161,7 +161,7 @@ class UserInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            // 用户名
+            // Username.
             Text(
               username,
               style: theme.textTheme.titleLarge?.copyWith(
@@ -171,7 +171,7 @@ class UserInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // 登录时间
+            // Login time.
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
@@ -198,7 +198,7 @@ class UserInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // 登出按钮
+            // Logout button.
             ElevatedButton.icon(
               onPressed: onLogout,
               icon: const Icon(Icons.logout),
@@ -222,7 +222,7 @@ class UserInfoCard extends StatelessWidget {
   }
 }
 
-/// 错误显示组件
+/// Error display widget.
 class ErrorDisplay extends StatelessWidget {
   final String message;
 

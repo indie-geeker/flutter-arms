@@ -1,8 +1,8 @@
 /// shared/auth — Cross-feature authentication state layer
 ///
-/// 提供全局认证状态模型和管理器，供多个 feature 或路由守卫共享使用。
+/// Provides global auth state model and manager, shared by features and route guards.
 ///
-/// **依赖方向**：features/ → shared/auth → di/ → packages/
+/// **Dependency direction**: features/ → shared/auth → di/ → packages/.
 library;
 
 export 'auth_status.dart';

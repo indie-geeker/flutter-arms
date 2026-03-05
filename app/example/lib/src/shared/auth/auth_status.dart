@@ -1,11 +1,11 @@
-/// 全局认证状态枚举
+/// Global authentication status enum.
 enum AuthStatus {
-  /// 初始未知状态（应用启动时）
+  /// Initial unknown state (at app startup).
   unknown,
 
-  /// 已认证
+  /// Authenticated.
   authenticated,
 
-  /// 未认证（已登出或从未登录）
+  /// Unauthenticated (logged out or never logged in).
   unauthenticated,
 }

@@ -1,6 +1,8 @@
 import 'package:interfaces/core/module_registry.dart';
 import 'package:interfaces/logger/log_level.dart';
+import 'package:module_analytics/module_analytics.dart';
 import 'package:module_cache/module_cache.dart';
+import 'package:module_crash/module_crash.dart';
 import 'package:module_logger/module_logger.dart';
 import 'package:module_network/module_network.dart';
 import 'package:module_storage/storage.dart';
@@ -11,8 +13,10 @@ List<IModule> buildBootstrapModules({
   bool enableFullStackProfile = kEnableFullStackProfile,
 }) {
   final modules = <IModule>[
+    CrashModule(),
     LoggerModule(initialLevel: LogLevel.debug),
     StorageModule(),
+    AnalyticsModule(),
   ];
 
   if (enableFullStackProfile) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// 自定义文本输入框组件
+/// Custom text field widget.
 ///
-/// 企业级规范：使用 class 定义，避免 return widget
+/// Enterprise convention: use class definitions, avoid returning raw widgets.
 class CustomTextField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
