@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
 import 'package:flutter_arms/app/app_router.dart';
+import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -20,6 +21,7 @@ void main() {
   late _MockKvStorage mockKvStorage;
 
   setUp(() {
+    LocaleSettings.setLocaleSync(AppLocale.en);
     mockKvStorage = _MockKvStorage();
     when(() => mockKvStorage.isOnboardingDone()).thenReturn(false);
     when(() => mockKvStorage.markOnboardingDone()).thenAnswer((_) async {});
@@ -27,9 +29,11 @@ void main() {
 
   Future<void> pumpOnboarding(WidgetTester tester) async {
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [kvStorageProvider.overrideWithValue(mockKvStorage)],
-        child: MaterialApp.router(routerConfig: _TestRouter().config()),
+      TranslationProvider(
+        child: ProviderScope(
+          overrides: [kvStorageProvider.overrideWithValue(mockKvStorage)],
+          child: MaterialApp.router(routerConfig: _TestRouter().config()),
+        ),
       ),
     );
 
@@ -39,7 +43,7 @@ void main() {
   testWidgets('swipe changes the visible slide', (tester) async {
     await pumpOnboarding(tester);
 
-    expect(find.text('快速启动模板'), findsOneWidget);
+    expect(find.text('Start fast'), findsOneWidget);
 
     await tester.drag(find.byType(PageView), const Offset(-400, 0));
     await tester.pumpAndSettle();
@@ -55,8 +59,8 @@ void main() {
     await tester.drag(find.byType(PageView), const Offset(-400, 0));
     await tester.pumpAndSettle();
 
-    expect(find.text('开始使用'), findsOneWidget);
-    expect(find.text('下一步'), findsNothing);
+    expect(find.text('Get started'), findsOneWidget);
+    expect(find.text('Next'), findsNothing);
   });
 
   testWidgets('skip completes onboarding and navigates to login', (
@@ -64,11 +68,11 @@ void main() {
   ) async {
     await pumpOnboarding(tester);
 
-    await tester.tap(find.text('跳过'));
+    await tester.tap(find.text('Skip'));
     await tester.pumpAndSettle();
 
     verify(() => mockKvStorage.markOnboardingDone()).called(1);
-    expect(find.text('欢迎登录'), findsOneWidget);
+    expect(find.text('Welcome back'), findsOneWidget);
   });
 
   testWidgets('start cta completes onboarding and navigates to login', (
@@ -81,10 +85,10 @@ void main() {
     await tester.drag(find.byType(PageView), const Offset(-400, 0));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('开始使用'));
+    await tester.tap(find.text('Get started'));
     await tester.pumpAndSettle();
 
     verify(() => mockKvStorage.markOnboardingDone()).called(1);
-    expect(find.text('欢迎登录'), findsOneWidget);
+    expect(find.text('Welcome back'), findsOneWidget);
   });
 }

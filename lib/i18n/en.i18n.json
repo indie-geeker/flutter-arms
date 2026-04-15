@@ -1,0 +1,32 @@
+{
+  "common": {
+    "logout": "Logout",
+    "retry": "Retry"
+  },
+  "auth": {
+    "title": "Login",
+    "welcomeBack": "Welcome back",
+    "username": "Username",
+    "password": "Password",
+    "submit": "Sign in"
+  },
+  "onboarding": {
+    "slide1Title": "Start fast",
+    "slide1Body": "Start from a working Flutter template and focus on your product.",
+    "slide2Title": "Clean Architecture + MVVM",
+    "slide2Body": "Keep code layered so it stays easy to extend and maintain.",
+    "slide3Title": "Ship sooner",
+    "slide3Body": "Finish onboarding and jump straight to login.",
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get started"
+  },
+  "home": {
+    "feed": "Feed",
+    "explore": "Explore",
+    "profile": "Profile"
+  },
+  "splash": {
+    "title": "Flutter Arms"
+  }
+}

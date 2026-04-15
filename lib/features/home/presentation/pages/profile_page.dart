@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Profile Tab 页。
@@ -12,6 +13,8 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
+
     return Scaffold(
       body: Center(
         child: FilledButton.icon(
@@ -22,7 +25,7 @@ class ProfilePage extends ConsumerWidget {
             }
           },
           icon: const Icon(Icons.logout),
-          label: const Text('退出登录'),
+          label: Text(t.common.logout),
         ),
       ),
     );

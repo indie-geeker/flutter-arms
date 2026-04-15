@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/features/onboarding/presentation/view_models/onboarding_view_model.dart';
+import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 首次引导页。
@@ -16,15 +17,6 @@ class OnboardingPage extends ConsumerStatefulWidget {
 
 class _OnboardingPageState extends ConsumerState<OnboardingPage> {
   late final PageController _pageController;
-
-  static const _slides = <_OnboardingSlide>[
-    _OnboardingSlide(title: '快速启动模板', body: '从一套可运行的模板开始，直接进入业务开发。'),
-    _OnboardingSlide(
-      title: 'Clean Architecture + MVVM',
-      body: '按清晰的分层组织代码，方便扩展和维护。',
-    ),
-    _OnboardingSlide(title: '立即开始开发', body: '完成引导后直接进入登录页，开始你的项目。'),
-  ];
 
   @override
   void initState() {
@@ -59,9 +51,11 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     final state = ref.watch(onboardingViewModelProvider);
     final notifier = ref.read(onboardingViewModelProvider.notifier);
-    final isLastPage = state.pageIndex == _slides.length - 1;
+    final slides = _slides(t);
+    final isLastPage = state.pageIndex == slides.length - 1;
 
     return Scaffold(
       body: SafeArea(
@@ -74,7 +68,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: _completeAndNavigate,
-                  child: const Text('跳过'),
+                  child: Text(t.onboarding.skip),
                 ),
               ),
               const SizedBox(height: 16),
@@ -82,12 +76,12 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 child: PageView.builder(
                   controller: _pageController,
                   onPageChanged: notifier.setPage,
-                  itemCount: _slides.length,
+                  itemCount: slides.length,
                   itemBuilder: (context, index) {
                     return _OnboardingSlideView(
-                      slide: _slides[index],
+                      slide: slides[index],
                       index: index + 1,
-                      total: _slides.length,
+                      total: slides.length,
                     );
                   },
                 ),
@@ -95,7 +89,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List<Widget>.generate(_slides.length, (index) {
+                children: List<Widget>.generate(slides.length, (index) {
                   final selected = index == state.pageIndex;
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
@@ -116,7 +110,9 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                 onPressed: isLastPage
                     ? _completeAndNavigate
                     : () => _goToNextPage(state.pageIndex),
-                child: Text(isLastPage ? '开始使用' : '下一步'),
+                child: Text(
+                  isLastPage ? t.onboarding.start : t.onboarding.next,
+                ),
               ),
             ],
           ),
@@ -132,6 +128,21 @@ class _OnboardingSlide {
   final String title;
   final String body;
 }
+
+List<_OnboardingSlide> _slides(Translations t) => <_OnboardingSlide>[
+  _OnboardingSlide(
+    title: t.onboarding.slide1Title,
+    body: t.onboarding.slide1Body,
+  ),
+  _OnboardingSlide(
+    title: t.onboarding.slide2Title,
+    body: t.onboarding.slide2Body,
+  ),
+  _OnboardingSlide(
+    title: t.onboarding.slide3Title,
+    body: t.onboarding.slide3Body,
+  ),
+];
 
 class _OnboardingSlideView extends StatelessWidget {
   const _OnboardingSlideView({
