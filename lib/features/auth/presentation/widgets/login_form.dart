@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arms/app/app_router.dart';
+import 'package:flutter_arms/core/error/failures.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_arms/shared/dialogs/app_dialog.dart';
@@ -18,8 +19,17 @@ class LoginForm extends ConsumerWidget {
     final t = context.t;
 
     ref.listen(loginViewModelProvider, (previous, next) {
-      if (next.errorMessage != null && next.errorMessage!.isNotEmpty) {
-        AppDialog.showError(context, next.errorMessage!);
+      if (next.error != null) {
+        switch (next.error!) {
+          case NetworkFailure(:final message):
+            // 网络错误：可扩展为显示"重试"按钮
+            AppDialog.showError(context, message);
+          case AuthFailure(:final message):
+            // 认证错误：可扩展为跳转重新登录
+            AppDialog.showError(context, message);
+          case UnknownFailure(:final message):
+            AppDialog.showError(context, message);
+        }
       }
 
       if (next.isLoginSuccess) {

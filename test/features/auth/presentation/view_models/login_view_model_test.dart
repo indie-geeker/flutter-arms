@@ -1,14 +1,15 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_arms/core/error/failures.dart';
 import 'package:flutter_arms/core/result/result.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
+import 'package:flutter_arms/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
 import 'package:flutter_arms/features/auth/domain/usecases/login_usecase.dart';
 import 'package:flutter_arms/features/auth/domain/usecases/logout_usecase.dart';
-import 'package:flutter_arms/features/auth/auth_providers.dart';
 import 'package:flutter_arms/features/auth/presentation/states/login_state.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockLoginUseCase extends Mock implements LoginUseCase {}
@@ -50,13 +51,13 @@ void main() {
     final state = container.read(loginViewModelProvider);
     expect(state.isLoading, isFalse);
     expect(state.isLoginSuccess, isTrue);
-    expect(state.errorMessage, isNull);
+    expect(state.error, isNull);
   });
 
-  test('should set error message when login fails', () async {
+  test('should set typed failure when login fails', () async {
     when(
       () => mockLoginUseCase(username: 'tester', password: 'wrong'),
-    ).thenAnswer((_) async => const Result.failure('invalid credentials'));
+    ).thenAnswer((_) async => const Result.failure(AuthFailure('invalid credentials')));
 
     final container = ProviderContainer(
       overrides: [loginUseCaseProvider.overrideWithValue(mockLoginUseCase)],
@@ -72,7 +73,8 @@ void main() {
     final state = container.read(loginViewModelProvider);
     expect(state.isLoading, isFalse);
     expect(state.isLoginSuccess, isFalse);
-    expect(state.errorMessage, 'invalid credentials');
+    expect(state.error, isA<AuthFailure>());
+    expect(state.error?.message, 'invalid credentials');
   });
 
   test('should reset login state and auth flag when logout succeeds', () async {
