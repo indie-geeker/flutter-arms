@@ -1,8 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arms/app/app_router.dart';
-import 'package:flutter_arms/features/auth/auth_providers.dart';
-import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
+import 'package:flutter_arms/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Profile Tab 页。
@@ -17,8 +16,7 @@ class ProfilePage extends ConsumerWidget {
       body: Center(
         child: FilledButton.icon(
           onPressed: () async {
-            await ref.read(logoutUseCaseProvider)();
-            ref.read(authNotifierProvider.notifier).setAuthenticated(false);
+            await ref.read(loginViewModelProvider.notifier).logout();
             if (context.mounted) {
               context.router.replace(const LoginRoute());
             }

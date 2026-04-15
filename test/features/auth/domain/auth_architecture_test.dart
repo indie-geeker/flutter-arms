@@ -22,6 +22,9 @@ void main() {
           .allMatches(content)
           .map((match) => match.group(1)!)
           .toList();
+      final riverpodUsagePattern = RegExp(
+        r'@riverpod|\bProvider\b|\bNotifierProvider\b|\bConsumer(?:Widget|StatefulWidget|State)?\b|\bRef\b|flutter_riverpod|riverpod_annotation',
+      );
 
       for (final uri in imports) {
         if (uri.contains('/data/') ||
@@ -31,8 +34,8 @@ void main() {
         }
       }
 
-      if (content.contains('Provider<')) {
-        violations.add('${entity.path}: declares provider wiring inside domain');
+      if (riverpodUsagePattern.hasMatch(content)) {
+        violations.add('${entity.path}: contains riverpod wiring or API usage');
       }
     }
 
