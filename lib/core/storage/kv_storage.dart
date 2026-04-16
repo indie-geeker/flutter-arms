@@ -52,6 +52,12 @@ abstract class KvStorage {
 
   /// 标记引导页完成。
   Future<void> markOnboardingDone();
+
+  /// 读取语言偏好。
+  String? getLocale();
+
+  /// 写入语言偏好。
+  Future<void> setLocale(String locale);
 }
 
 /// Hive 存储实现。
@@ -172,6 +178,15 @@ class HiveKvStorage implements KvStorage {
   @override
   Future<void> markOnboardingDone() async {
     await _commonBox.put(AppConstants.onboardingDoneKey, true);
+  }
+
+  @override
+  String? getLocale() =>
+      _commonBox.get(AppConstants.localeKey) as String?;
+
+  @override
+  Future<void> setLocale(String locale) async {
+    await _commonBox.put(AppConstants.localeKey, locale);
   }
 }
 

@@ -18,4 +18,5 @@ class AppConstants {
   static const String themeModeKey = 'theme_mode';
   static const String themeSeedColorKey = 'theme_seed_color';
   static const String onboardingDoneKey = 'onboarding_done';
+  static const String localeKey = 'app_locale';
 }
