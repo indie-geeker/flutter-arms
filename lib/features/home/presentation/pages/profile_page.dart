@@ -37,7 +37,7 @@ class ProfilePage extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
           children: [
-            _UserHeader(),
+            const _UserHeader(),
             const SizedBox(height: 24),
             _AppearanceSection(
               themeState: themeState,
@@ -76,6 +76,8 @@ class ProfilePage extends ConsumerWidget {
 // ---------------------------------------------------------------------------
 
 class _UserHeader extends StatelessWidget {
+  const _UserHeader();
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -136,27 +138,30 @@ class _AppearanceSection extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 8),
             // Theme mode SegmentedButton
-            SegmentedButton<ThemeMode>(
-              segments: [
-                ButtonSegment(
-                  value: ThemeMode.light,
-                  label: Text(t.profile.light),
-                  icon: const Icon(Icons.light_mode_outlined),
-                ),
-                ButtonSegment(
-                  value: ThemeMode.system,
-                  label: Text(t.profile.system),
-                  icon: const Icon(Icons.brightness_auto_outlined),
-                ),
-                ButtonSegment(
-                  value: ThemeMode.dark,
-                  label: Text(t.profile.dark),
-                  icon: const Icon(Icons.dark_mode_outlined),
-                ),
-              ],
-              selected: {themeState.mode},
-              onSelectionChanged: (selected) =>
-                  onThemeModeChanged(selected.first),
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<ThemeMode>(
+                segments: [
+                  ButtonSegment(
+                    value: ThemeMode.light,
+                    label: Text(t.profile.light),
+                    icon: const Icon(Icons.light_mode_outlined),
+                  ),
+                  ButtonSegment(
+                    value: ThemeMode.system,
+                    label: Text(t.profile.system),
+                    icon: const Icon(Icons.brightness_auto_outlined),
+                  ),
+                  ButtonSegment(
+                    value: ThemeMode.dark,
+                    label: Text(t.profile.dark),
+                    icon: const Icon(Icons.dark_mode_outlined),
+                  ),
+                ],
+                selected: {themeState.mode},
+                onSelectionChanged: (selected) =>
+                    onThemeModeChanged(selected.first),
+              ),
             ),
             const SizedBox(height: 16),
             // Theme color label
@@ -269,28 +274,32 @@ class _CustomColorCircle extends StatelessWidget {
     Color pickerColor = currentColor;
     showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(label),
-        content: SingleChildScrollView(
-          child: MaterialPicker(
-            pickerColor: pickerColor,
-            onColorChanged: (color) => pickerColor = color,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: Text(label),
+            content: SingleChildScrollView(
+              child: MaterialPicker(
+                pickerColor: pickerColor,
+                onColorChanged: (color) => setState(() => pickerColor = color),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+              ),
+              FilledButton(
+                onPressed: () {
+                  onColorSelected(pickerColor);
+                  Navigator.of(context).pop();
+                },
+                child: Text(MaterialLocalizations.of(context).okButtonLabel),
+              ),
+            ],
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              onColorSelected(pickerColor);
-              Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
@@ -327,20 +336,23 @@ class _GeneralSection extends StatelessWidget {
             Text(t.profile.language,
                 style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 8),
-            SegmentedButton<AppLocale>(
-              segments: const [
-                ButtonSegment(
-                  value: AppLocale.en,
-                  label: Text('English'),
-                ),
-                ButtonSegment(
-                  value: AppLocale.zh,
-                  label: Text('中文'),
-                ),
-              ],
-              selected: {currentLocale},
-              onSelectionChanged: (selected) =>
-                  onLocaleChanged(selected.first),
+            SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<AppLocale>(
+                segments: const [
+                  ButtonSegment(
+                    value: AppLocale.en,
+                    label: Text('English'),
+                  ),
+                  ButtonSegment(
+                    value: AppLocale.zh,
+                    label: Text('中文'),
+                  ),
+                ],
+                selected: {currentLocale},
+                onSelectionChanged: (selected) =>
+                    onLocaleChanged(selected.first),
+              ),
             ),
           ],
         ),
