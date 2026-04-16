@@ -1,8 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arms/app/app_router.dart';
+import 'package:flutter_arms/core/locale/locale_notifier.dart';
+import 'package:flutter_arms/core/theme/theme_notifier.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Profile Tab 页。
@@ -11,21 +14,335 @@ class ProfilePage extends ConsumerWidget {
   /// 构造函数。
   const ProfilePage({super.key});
 
+  // Preset seed color palette (8 colours).
+  static const List<Color> _presetColors = [
+    Color(0xFF1D4ED8), // Blue (default)
+    Color(0xFF7C3AED), // Purple
+    Color(0xFF4338CA), // Indigo
+    Color(0xFF0D9488), // Teal
+    Color(0xFF16A34A), // Green
+    Color(0xFFEA580C), // Orange
+    Color(0xFFDC2626), // Red
+    Color(0xFFDB2777), // Pink
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
+    final themeState = ref.watch(themeNotifierProvider);
+    final currentLocale = ref.watch(localeNotifierProvider);
 
     return Scaffold(
-      body: Center(
-        child: FilledButton.icon(
-          onPressed: () async {
-            await ref.read(loginViewModelProvider.notifier).logout();
-            if (context.mounted) {
-              context.router.replace(const LoginRoute());
-            }
-          },
-          icon: const Icon(Icons.logout),
-          label: Text(t.common.logout),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+          children: [
+            _UserHeader(),
+            const SizedBox(height: 24),
+            _AppearanceSection(
+              themeState: themeState,
+              presetColors: _presetColors,
+              onThemeModeChanged: (mode) =>
+                  ref.read(themeNotifierProvider.notifier).setThemeMode(mode),
+              onColorSelected: (color) =>
+                  ref.read(themeNotifierProvider.notifier).setSeedColor(color),
+            ),
+            const SizedBox(height: 16),
+            _GeneralSection(
+              currentLocale: currentLocale,
+              onLocaleChanged: (locale) =>
+                  ref.read(localeNotifierProvider.notifier).setLocale(locale),
+            ),
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: () async {
+                await ref.read(loginViewModelProvider.notifier).logout();
+                if (context.mounted) {
+                  context.router.replace(const LoginRoute());
+                }
+              },
+              icon: const Icon(Icons.logout),
+              label: Text(t.common.logout),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// _UserHeader
+// ---------------------------------------------------------------------------
+
+class _UserHeader extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: colorScheme.primaryContainer,
+            child: Icon(Icons.person, size: 40, color: colorScheme.onPrimaryContainer),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'User',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// _AppearanceSection
+// ---------------------------------------------------------------------------
+
+class _AppearanceSection extends StatelessWidget {
+  const _AppearanceSection({
+    required this.themeState,
+    required this.presetColors,
+    required this.onThemeModeChanged,
+    required this.onColorSelected,
+  });
+
+  final ThemeState themeState;
+  final List<Color> presetColors;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+  final ValueChanged<Color> onColorSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.profile.appearance,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: colorScheme.primary,
+                    )),
+            const SizedBox(height: 16),
+            // Theme mode label
+            Text(t.profile.themeMode,
+                style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            // Theme mode SegmentedButton
+            SegmentedButton<ThemeMode>(
+              segments: [
+                ButtonSegment(
+                  value: ThemeMode.light,
+                  label: Text(t.profile.light),
+                  icon: const Icon(Icons.light_mode_outlined),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.system,
+                  label: Text(t.profile.system),
+                  icon: const Icon(Icons.brightness_auto_outlined),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.dark,
+                  label: Text(t.profile.dark),
+                  icon: const Icon(Icons.dark_mode_outlined),
+                ),
+              ],
+              selected: {themeState.mode},
+              onSelectionChanged: (selected) =>
+                  onThemeModeChanged(selected.first),
+            ),
+            const SizedBox(height: 16),
+            // Theme color label
+            Text(t.profile.themeColor,
+                style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            // Color palette + custom button
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ...presetColors.map((color) => _ColorCircle(
+                      color: color,
+                      isSelected: themeState.seedColor == color,
+                      onTap: () => onColorSelected(color),
+                    )),
+                _CustomColorCircle(
+                  currentColor: themeState.seedColor,
+                  label: t.profile.custom,
+                  onColorSelected: onColorSelected,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// _ColorCircle
+// ---------------------------------------------------------------------------
+
+class _ColorCircle extends StatelessWidget {
+  const _ColorCircle({
+    required this.color,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final Color color;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isSelected
+                ? Theme.of(context).colorScheme.onSurface
+                : Colors.transparent,
+            width: 2,
+          ),
+        ),
+        child: isSelected
+            ? const Icon(Icons.check, color: Colors.white, size: 18)
+            : null,
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// _CustomColorCircle
+// ---------------------------------------------------------------------------
+
+class _CustomColorCircle extends StatelessWidget {
+  const _CustomColorCircle({
+    required this.currentColor,
+    required this.label,
+    required this.onColorSelected,
+  });
+
+  final Color currentColor;
+  final String label;
+  final ValueChanged<Color> onColorSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showColorPicker(context),
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Theme.of(context).colorScheme.outline,
+            width: 1.5,
+          ),
+        ),
+        child: Icon(
+          Icons.add,
+          size: 18,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
+    );
+  }
+
+  void _showColorPicker(BuildContext context) {
+    Color pickerColor = currentColor;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(label),
+        content: SingleChildScrollView(
+          child: MaterialPicker(
+            pickerColor: pickerColor,
+            onColorChanged: (color) => pickerColor = color,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              onColorSelected(pickerColor);
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// _GeneralSection
+// ---------------------------------------------------------------------------
+
+class _GeneralSection extends StatelessWidget {
+  const _GeneralSection({
+    required this.currentLocale,
+    required this.onLocaleChanged,
+  });
+
+  final AppLocale currentLocale;
+  final ValueChanged<AppLocale> onLocaleChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.t;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.profile.general,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: colorScheme.primary,
+                    )),
+            const SizedBox(height: 16),
+            Text(t.profile.language,
+                style: Theme.of(context).textTheme.bodyMedium),
+            const SizedBox(height: 8),
+            SegmentedButton<AppLocale>(
+              segments: const [
+                ButtonSegment(
+                  value: AppLocale.en,
+                  label: Text('English'),
+                ),
+                ButtonSegment(
+                  value: AppLocale.zh,
+                  label: Text('中文'),
+                ),
+              ],
+              selected: {currentLocale},
+              onSelectionChanged: (selected) =>
+                  onLocaleChanged(selected.first),
+            ),
+          ],
         ),
       ),
     );
