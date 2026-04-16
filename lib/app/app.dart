@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/app/app_router.dart';
+import 'package:flutter_arms/core/locale/locale_notifier.dart';
 import 'package:flutter_arms/core/theme/app_theme.dart';
 import 'package:flutter_arms/core/theme/theme_notifier.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
@@ -23,6 +24,9 @@ class _AppState extends ConsumerState<App> {
   void initState() {
     super.initState();
     _router = AppRouter(ref);
+    // Restore persisted locale on startup.
+    final locale = ref.read(localeNotifierProvider);
+    LocaleSettings.setLocaleSync(locale);
   }
 
   @override

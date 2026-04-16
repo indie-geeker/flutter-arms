@@ -24,6 +24,7 @@ void main() {
       () => mockKvStorage.getThemeSeedColor(),
     ).thenReturn(const Color(0xFF1D4ED8));
     when(() => mockKvStorage.isOnboardingDone()).thenReturn(true);
+    when(() => mockKvStorage.getLocale()).thenReturn(null);
   });
 
   testWidgets('wraps the router with translation provider and locale data', (
