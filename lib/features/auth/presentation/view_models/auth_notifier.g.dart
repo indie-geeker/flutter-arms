@@ -22,7 +22,7 @@ final class AuthNotifierProvider extends $NotifierProvider<AuthNotifier, bool> {
         argument: null,
         retry: null,
         name: r'authProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -43,7 +43,7 @@ final class AuthNotifierProvider extends $NotifierProvider<AuthNotifier, bool> {
   }
 }
 
-String _$authNotifierHash() => r'2ca165d7749e193095e8d1d8f051b058d087c7eb';
+String _$authNotifierHash() => r'63706bbdd0d71f67a807d2dfc0d82a226d8f6f0b';
 
 /// 全局认证状态。
 

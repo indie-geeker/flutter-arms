@@ -44,7 +44,7 @@ final class LocaleNotifierProvider
   }
 }
 
-String _$localeNotifierHash() => r'87c91a16d10a30891e5a987902a2bfde6092be4c';
+String _$localeNotifierHash() => r'5287ed9512a68f9151a4b24dada520c4e470e96f';
 
 /// 全局语言状态管理。
 

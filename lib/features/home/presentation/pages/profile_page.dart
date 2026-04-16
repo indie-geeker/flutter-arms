@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/core/locale/locale_notifier.dart';
 import 'package:flutter_arms/core/theme/theme_notifier.dart';
-import 'package:flutter_arms/features/auth/presentation/view_models/login_view_model.dart';
+import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,7 +56,7 @@ class ProfilePage extends ConsumerWidget {
             const SizedBox(height: 32),
             FilledButton.icon(
               onPressed: () async {
-                await ref.read(loginViewModelProvider.notifier).logout();
+                await ref.read(authNotifierProvider.notifier).logout();
                 if (context.mounted) {
                   context.router.replace(const LoginRoute());
                 }

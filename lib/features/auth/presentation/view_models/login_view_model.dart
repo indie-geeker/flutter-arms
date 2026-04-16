@@ -59,11 +59,4 @@ class LoginViewModel extends _$LoginViewModel {
         );
     }
   }
-
-  /// 执行登出。
-  Future<void> logout() async {
-    await ref.read(logoutUseCaseProvider)();
-    ref.read(authNotifierProvider.notifier).setAuthenticated(false);
-    state = const LoginState();
-  }
 }
