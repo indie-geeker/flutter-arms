@@ -19,10 +19,10 @@ class LocaleNotifier extends _$LocaleNotifier {
   /// 切换语言。
   Future<void> setLocale(AppLocale locale) async {
     state = locale;
-    LocaleSettings.setLocale(locale);
+    LocaleSettings.setLocaleSync(locale);
     await ref.read(kvStorageProvider).setLocale(locale.languageCode);
   }
 }
 
 /// 兼容命名：语言状态 Provider。
-final localeNotifierProvider = localeProvider;
+const localeNotifierProvider = localeProvider;

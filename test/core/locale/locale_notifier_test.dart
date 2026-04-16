@@ -13,6 +13,7 @@ void main() {
 
   setUp(() {
     mockKvStorage = _MockKvStorage();
+    LocaleSettings.setLocaleSync(AppLocale.en);
   });
 
   tearDown(() {
@@ -36,11 +37,11 @@ void main() {
     });
 
     test('restores stored locale on build', () {
-      when(() => mockKvStorage.getLocale()).thenReturn('zh');
+      when(() => mockKvStorage.getLocale()).thenReturn('en');
       final c = createContainer();
 
       final locale = c.read(localeNotifierProvider);
-      expect(locale, equals(AppLocale.zh));
+      expect(locale, equals(AppLocale.en));
     });
 
     test('setLocale updates state and persists', () async {
@@ -49,10 +50,10 @@ void main() {
       final c = createContainer();
 
       final notifier = c.read(localeNotifierProvider.notifier);
-      await notifier.setLocale(AppLocale.zh);
+      await notifier.setLocale(AppLocale.en);
 
-      expect(c.read(localeNotifierProvider), equals(AppLocale.zh));
-      verify(() => mockKvStorage.setLocale('zh')).called(1);
+      expect(c.read(localeNotifierProvider), equals(AppLocale.en));
+      verify(() => mockKvStorage.setLocale('en')).called(1);
     });
   });
 }
