@@ -26,6 +26,17 @@
     "explore": "探索",
     "profile": "我的"
   },
+  "profile": {
+    "appearance": "外观",
+    "themeMode": "主题模式",
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统",
+    "themeColor": "主题色",
+    "custom": "自定义",
+    "general": "通用",
+    "language": "语言"
+  },
   "splash": {
     "title": "Flutter Arms"
   }

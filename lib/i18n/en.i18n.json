@@ -26,6 +26,17 @@
     "explore": "Explore",
     "profile": "Profile"
   },
+  "profile": {
+    "appearance": "Appearance",
+    "themeMode": "Theme mode",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "themeColor": "Theme color",
+    "custom": "Custom",
+    "general": "General",
+    "language": "Language"
+  },
   "splash": {
     "title": "Flutter Arms"
   }

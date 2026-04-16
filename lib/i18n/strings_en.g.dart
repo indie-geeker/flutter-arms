@@ -44,6 +44,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsAuthEn auth = TranslationsAuthEn._(_root);
 	late final TranslationsOnboardingEn onboarding = TranslationsOnboardingEn._(_root);
 	late final TranslationsHomeEn home = TranslationsHomeEn._(_root);
+	late final TranslationsProfileEn profile = TranslationsProfileEn._(_root);
 	late final TranslationsSplashEn splash = TranslationsSplashEn._(_root);
 }
 
@@ -140,6 +141,42 @@ class TranslationsHomeEn {
 	String get profile => 'Profile';
 }
 
+// Path: profile
+class TranslationsProfileEn {
+	TranslationsProfileEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Appearance'
+	String get appearance => 'Appearance';
+
+	/// en: 'Theme mode'
+	String get themeMode => 'Theme mode';
+
+	/// en: 'Light'
+	String get light => 'Light';
+
+	/// en: 'Dark'
+	String get dark => 'Dark';
+
+	/// en: 'System'
+	String get system => 'System';
+
+	/// en: 'Theme color'
+	String get themeColor => 'Theme color';
+
+	/// en: 'Custom'
+	String get custom => 'Custom';
+
+	/// en: 'General'
+	String get general => 'General';
+
+	/// en: 'Language'
+	String get language => 'Language';
+}
+
 // Path: splash
 class TranslationsSplashEn {
 	TranslationsSplashEn._(this._root);
@@ -179,6 +216,15 @@ extension on Translations {
 			'home.feed' => 'Feed',
 			'home.explore' => 'Explore',
 			'home.profile' => 'Profile',
+			'profile.appearance' => 'Appearance',
+			'profile.themeMode' => 'Theme mode',
+			'profile.light' => 'Light',
+			'profile.dark' => 'Dark',
+			'profile.system' => 'System',
+			'profile.themeColor' => 'Theme color',
+			'profile.custom' => 'Custom',
+			'profile.general' => 'General',
+			'profile.language' => 'Language',
 			'splash.title' => 'Flutter Arms',
 			_ => null,
 		};

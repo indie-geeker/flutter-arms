@@ -41,6 +41,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsAuthZh auth = _TranslationsAuthZh._(_root);
 	@override late final _TranslationsOnboardingZh onboarding = _TranslationsOnboardingZh._(_root);
 	@override late final _TranslationsHomeZh home = _TranslationsHomeZh._(_root);
+	@override late final _TranslationsProfileZh profile = _TranslationsProfileZh._(_root);
 	@override late final _TranslationsSplashZh splash = _TranslationsSplashZh._(_root);
 }
 
@@ -99,6 +100,24 @@ class _TranslationsHomeZh implements TranslationsHomeEn {
 	@override String get profile => '我的';
 }
 
+// Path: profile
+class _TranslationsProfileZh implements TranslationsProfileEn {
+	_TranslationsProfileZh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get appearance => '外观';
+	@override String get themeMode => '主题模式';
+	@override String get light => '浅色';
+	@override String get dark => '深色';
+	@override String get system => '跟随系统';
+	@override String get themeColor => '主题色';
+	@override String get custom => '自定义';
+	@override String get general => '通用';
+	@override String get language => '语言';
+}
+
 // Path: splash
 class _TranslationsSplashZh implements TranslationsSplashEn {
 	_TranslationsSplashZh._(this._root);
@@ -136,6 +155,15 @@ extension on TranslationsZh {
 			'home.feed' => '首页',
 			'home.explore' => '探索',
 			'home.profile' => '我的',
+			'profile.appearance' => '外观',
+			'profile.themeMode' => '主题模式',
+			'profile.light' => '浅色',
+			'profile.dark' => '深色',
+			'profile.system' => '跟随系统',
+			'profile.themeColor' => '主题色',
+			'profile.custom' => '自定义',
+			'profile.general' => '通用',
+			'profile.language' => '语言',
 			'splash.title' => 'Flutter Arms',
 			_ => null,
 		};
