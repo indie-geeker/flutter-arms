@@ -40,5 +40,14 @@
   },
   "splash": {
     "title": "Flutter Arms"
+  },
+  "errors": {
+    "network": "网络连接失败，请检查网络设置",
+    "timeout": "请求超时，请检查网络后重试",
+    "badResponse": "服务响应异常",
+    "auth": "登录已过期，请重新登录",
+    "validation": "参数校验失败，请检查后重试",
+    "cancelled": "请求已取消",
+    "unknown": "发生未知错误，请稍后重试"
   }
 }

@@ -1,4 +1,5 @@
-import 'package:flutter_arms/core/error/failures.dart';
+import 'package:flutter_arms/core/error/failure.dart';
+import 'package:flutter_arms/core/error/failure_code.dart';
 import 'package:flutter_arms/core/result/result.dart';
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
 import 'package:flutter_arms/features/auth/domain/repositories/auth_repository.dart';
@@ -33,13 +34,15 @@ void main() {
     when(
       () => repository.login(username: 'tester', password: 'wrong'),
     ).thenAnswer(
-      (_) async => const Result.failure(AuthFailure('invalid credentials')),
+      (_) async => const Result.failure(
+        Failure(code: FailureCode.auth, detail: 'invalid credentials'),
+      ),
     );
 
     final result = await useCase(username: 'tester', password: 'wrong');
 
     expect(result.isFailure, isTrue);
-    expect(result.failure, isA<AuthFailure>());
-    expect(result.failure?.message, 'invalid credentials');
+    expect(result.failure?.code, FailureCode.auth);
+    expect(result.failure?.detail, 'invalid credentials');
   });
 }

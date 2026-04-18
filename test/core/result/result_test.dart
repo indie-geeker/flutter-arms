@@ -1,4 +1,5 @@
-import 'package:flutter_arms/core/error/failures.dart';
+import 'package:flutter_arms/core/error/failure.dart';
+import 'package:flutter_arms/core/error/failure_code.dart';
 import 'package:flutter_arms/core/result/result.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -14,13 +15,14 @@ void main() {
 
     test('should hold failure when failure', () {
       const result = Result<int>.failure(
-        NetworkFailure('network error'),
+        Failure(code: FailureCode.network, detail: 'network error'),
       );
 
       expect(result.isFailure, isTrue);
       expect(result.data, isNull);
-      expect(result.failure, isA<NetworkFailure>());
-      expect(result.failure?.message, 'network error');
+      expect(result.failure, isA<Failure>());
+      expect(result.failure?.code, FailureCode.network);
+      expect(result.failure?.detail, 'network error');
     });
   });
 }

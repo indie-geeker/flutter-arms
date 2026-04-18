@@ -40,5 +40,14 @@
   },
   "splash": {
     "title": "Flutter Arms"
+  },
+  "errors": {
+    "network": "Network connection failed. Please check your network settings.",
+    "timeout": "The request timed out. Please try again.",
+    "badResponse": "The server returned an unexpected response.",
+    "auth": "Your session has expired. Please sign in again.",
+    "validation": "Please review the input and try again.",
+    "cancelled": "The request was cancelled.",
+    "unknown": "Something went wrong. Please try again."
   }
 }

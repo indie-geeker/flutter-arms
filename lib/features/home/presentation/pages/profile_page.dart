@@ -19,7 +19,7 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final themeState = ref.watch(themeNotifierProvider);
-    final currentLocale = ref.watch(localeNotifierProvider);
+    final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -40,7 +40,7 @@ class ProfilePage extends ConsumerWidget {
             _GeneralSection(
               currentLocale: currentLocale,
               onLocaleChanged: (locale) =>
-                  ref.read(localeNotifierProvider.notifier).setLocale(locale),
+                  ref.read(localeProvider.notifier).setLocale(locale),
             ),
             const SizedBox(height: 32),
             FilledButton.icon(

@@ -43,6 +43,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsHomeZh home = _TranslationsHomeZh._(_root);
 	@override late final _TranslationsProfileZh profile = _TranslationsProfileZh._(_root);
 	@override late final _TranslationsSplashZh splash = _TranslationsSplashZh._(_root);
+	@override late final _TranslationsErrorsZh errors = _TranslationsErrorsZh._(_root);
 }
 
 // Path: common
@@ -129,6 +130,22 @@ class _TranslationsSplashZh implements TranslationsSplashEn {
 	@override String get title => 'Flutter Arms';
 }
 
+// Path: errors
+class _TranslationsErrorsZh implements TranslationsErrorsEn {
+	_TranslationsErrorsZh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get network => '网络连接失败，请检查网络设置';
+	@override String get timeout => '请求超时，请检查网络后重试';
+	@override String get badResponse => '服务响应异常';
+	@override String get auth => '登录已过期，请重新登录';
+	@override String get validation => '参数校验失败，请检查后重试';
+	@override String get cancelled => '请求已取消';
+	@override String get unknown => '发生未知错误，请稍后重试';
+}
+
 /// The flat map containing all translations for locale <zh>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -167,6 +184,13 @@ extension on TranslationsZh {
 			'profile.language' => '语言',
 			'profile.guest' => '游客',
 			'splash.title' => 'Flutter Arms',
+			'errors.network' => '网络连接失败，请检查网络设置',
+			'errors.timeout' => '请求超时，请检查网络后重试',
+			'errors.badResponse' => '服务响应异常',
+			'errors.auth' => '登录已过期，请重新登录',
+			'errors.validation' => '参数校验失败，请检查后重试',
+			'errors.cancelled' => '请求已取消',
+			'errors.unknown' => '发生未知错误，请稍后重试',
 			_ => null,
 		};
 	}

@@ -51,4 +51,4 @@ final class AppEnvProvider extends $FunctionalProvider<AppEnv, AppEnv, AppEnv>
   }
 }
 
-String _$appEnvHash() => r'51a0d17e3a7750c994e294ed23370efd32f6f823';
+String _$appEnvHash() => r'dcc68b4d750c640fe4159b14ef7c14167d1d0975';

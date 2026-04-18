@@ -1,4 +1,5 @@
-import 'package:flutter_arms/core/error/failures.dart';
+import 'package:flutter_arms/core/error/failure.dart';
+import 'package:flutter_arms/core/error/failure_code.dart';
 import 'package:flutter_arms/core/result/result.dart';
 import 'package:flutter_arms/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_arms/features/auth/presentation/states/login_state.dart';
@@ -28,7 +29,9 @@ class LoginViewModel extends _$LoginViewModel {
   /// 执行登录。
   Future<void> login() async {
     if (state.username.trim().isEmpty || state.password.trim().isEmpty) {
-      state = state.copyWith(error: const AuthFailure('请输入账号和密码'));
+      state = state.copyWith(
+        error: const Failure(code: FailureCode.validation),
+      );
       return;
     }
 

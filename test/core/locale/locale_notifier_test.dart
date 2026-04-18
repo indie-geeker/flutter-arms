@@ -31,7 +31,7 @@ void main() {
       when(() => mockKvStorage.getLocale()).thenReturn(null);
       final c = createContainer();
 
-      final locale = c.read(localeNotifierProvider);
+      final locale = c.read(localeProvider);
       expect(locale, equals(AppLocale.en));
     });
 
@@ -39,7 +39,7 @@ void main() {
       when(() => mockKvStorage.getLocale()).thenReturn('en');
       final c = createContainer();
 
-      final locale = c.read(localeNotifierProvider);
+      final locale = c.read(localeProvider);
       expect(locale, equals(AppLocale.en));
     });
 
@@ -48,10 +48,10 @@ void main() {
       when(() => mockKvStorage.setLocale(any())).thenAnswer((_) async {});
       final c = createContainer();
 
-      final notifier = c.read(localeNotifierProvider.notifier);
+      final notifier = c.read(localeProvider.notifier);
       await notifier.setLocale(AppLocale.en);
 
-      expect(c.read(localeNotifierProvider), equals(AppLocale.en));
+      expect(c.read(localeProvider), equals(AppLocale.en));
       verify(() => mockKvStorage.setLocale('en')).called(1);
     });
   });

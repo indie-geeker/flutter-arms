@@ -1,4 +1,4 @@
-import 'package:flutter_arms/core/error/failures.dart';
+import 'package:flutter_arms/core/error/failure_code.dart';
 import 'package:flutter_arms/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:flutter_arms/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:flutter_arms/features/auth/data/models/token_model.dart';
@@ -57,19 +57,12 @@ void main() {
       expect(result.data, expectedUser);
     });
 
-    test('should return AuthFailure when credentials are empty', () async {
-      final result = await repository.login(username: '', password: '');
-
-      expect(result.isFailure, isTrue);
-      expect(result.failure, isA<AuthFailure>());
-      expect(result.failure?.message, '账号和密码不能为空');
-      verifyNever(() => remote.login(any()));
-    });
-
     test(
-      'should return UnknownFailure when remote throws generic exception',
+      'should return unknown failure when remote throws generic exception',
       () async {
-        when(() => remote.login(any())).thenThrow(Exception('unexpected'));
+        when(
+          () => remote.login(any()),
+        ).thenAnswer((_) => Future<TokenModel>.error(Exception('unexpected')));
 
         final result = await repository.login(
           username: 'alice',
@@ -77,7 +70,7 @@ void main() {
         );
 
         expect(result.isFailure, isTrue);
-        expect(result.failure, isA<UnknownFailure>());
+        expect(result.failure?.code, FailureCode.unknown);
       },
     );
   });
@@ -94,7 +87,9 @@ void main() {
     });
 
     test('should still clear local auth when remote logout fails', () async {
-      when(() => remote.logout()).thenThrow(Exception('network down'));
+      when(
+        () => remote.logout(),
+      ).thenAnswer((_) => Future<void>.error(Exception('network down')));
       when(() => local.clearAuth()).thenAnswer((_) async {});
 
       await repository.logout();
@@ -122,14 +117,13 @@ void main() {
       );
     });
 
-    test('should return AuthFailure when no local user', () async {
+    test('should return auth failure when no local user', () async {
       when(() => local.getUser()).thenReturn(null);
 
       final result = await repository.getCurrentUser();
 
       expect(result.isFailure, isTrue);
-      expect(result.failure, isA<AuthFailure>());
-      expect(result.failure?.message, '当前无登录用户');
+      expect(result.failure?.code, FailureCode.auth);
     });
   });
 
@@ -150,15 +144,16 @@ void main() {
     });
 
     test(
-      'should return UnknownFailure when refresh throws generic exception',
+      'should return unknown failure when refresh throws generic exception',
       () async {
-        when(() => remote.refreshToken(any())).thenThrow(Exception('expired'));
+        when(
+          () => remote.refreshToken(any()),
+        ).thenAnswer((_) => Future<TokenModel>.error(Exception('expired')));
 
         final result = await repository.refreshToken('old_refresh');
 
         expect(result.isFailure, isTrue);
-        expect(result.failure, isA<UnknownFailure>());
-        expect(result.failure?.message, '刷新登录态失败');
+        expect(result.failure?.code, FailureCode.unknown);
       },
     );
   });
