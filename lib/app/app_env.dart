@@ -25,6 +25,7 @@ class AppEnv {
     required this.appName,
     required this.baseUrl,
     required this.enableLog,
+    required this.useMockApi,
   });
 
   /// 根据 flavor 构造默认配置（带 `String.fromEnvironment` 回退）。
@@ -36,6 +37,11 @@ class AppEnv {
       defaultValue: false,
     );
     const hasEnableLog = bool.hasEnvironment('ENABLE_LOG');
+    const envUseMockApi = bool.fromEnvironment(
+      'USE_MOCK_API',
+      defaultValue: false,
+    );
+    const hasUseMockApi = bool.hasEnvironment('USE_MOCK_API');
 
     switch (flavor) {
       case AppFlavor.dev:
@@ -44,6 +50,8 @@ class AppEnv {
           appName: envAppName.isNotEmpty ? envAppName : 'Flutter Arms Dev',
           baseUrl: envBaseUrl.isNotEmpty ? envBaseUrl : 'https://example.dev.api',
           enableLog: !hasEnableLog || envEnableLog,
+          // dev 默认开启 mock，无需后端即可演示登录/登出。
+          useMockApi: !hasUseMockApi || envUseMockApi,
         );
       case AppFlavor.prod:
         return AppEnv(
@@ -53,6 +61,8 @@ class AppEnv {
               ? envBaseUrl
               : 'https://example.prod.api',
           enableLog: hasEnableLog && envEnableLog,
+          // prod 强制走真实后端；即便 --dart-define 打开也一律拒绝。
+          useMockApi: false,
         );
     }
   }
@@ -68,6 +78,12 @@ class AppEnv {
 
   /// 是否启用日志。
   final bool enableLog;
+
+  /// 是否启用 Mock API（仅 dev flavor 生效）。
+  ///
+  /// 启用后 `MockApiInterceptor` 会短路 `/auth/*` 请求，返回预置响应，
+  /// 使派生项目无需真实后端也能跑通登录/登出流程。
+  final bool useMockApi;
 }
 
 /// 应用环境 Provider。bootstrap 时通过 override 注入。

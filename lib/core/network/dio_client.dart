@@ -3,6 +3,7 @@ import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/core/constants/app_constants.dart';
 import 'package:flutter_arms/core/logger/app_logger.dart';
 import 'package:flutter_arms/core/network/api_interceptor.dart';
+import 'package:flutter_arms/core/network/mock_api_interceptor.dart';
 import 'package:flutter_arms/core/network/token_interceptor.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
 // arch-exempt: TokenInterceptor 需要调用 auth 的 refresh 数据源实现 Token 轮换。
@@ -27,6 +28,13 @@ Dio authRefreshDio(Ref ref) {
   final env = ref.read(appEnvProvider);
   final logger = ref.read(appLoggerProvider);
   final dio = Dio(_baseOptions(env.baseUrl));
+  // Mock 必须位于拦截链首位：
+  // - onRequest：短路 `/auth/*` 早于 Token/Api 拦截器；
+  // - onError：`handler.reject(err, true)` 触发的是**后续** onError，
+  //   只有首位 reject，ApiInterceptor 的 DioException→AppException 映射才会跑。
+  if (env.useMockApi) {
+    dio.interceptors.add(const MockApiInterceptor());
+  }
   dio.interceptors
     ..add(
       TalkerDioLogger(
@@ -53,6 +61,10 @@ Dio dio(Ref ref) {
 
   final dio = Dio(_baseOptions(env.baseUrl));
 
+  // 同上：Mock 必须首位，参见 authRefreshDio 注释。
+  if (env.useMockApi) {
+    dio.interceptors.add(const MockApiInterceptor());
+  }
   dio.interceptors
     ..add(
       TalkerDioLogger(

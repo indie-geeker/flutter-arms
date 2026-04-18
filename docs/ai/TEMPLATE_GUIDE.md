@@ -30,10 +30,30 @@
 ```bash
 cp env/dev.example.json env/dev.json
 cp env/prod.example.json env/prod.json
-# 编辑 env/*.json 填真实 API_BASE_URL / APP_NAME / ENABLE_LOG
+# 编辑 env/*.json 填真实 API_BASE_URL / APP_NAME / ENABLE_LOG / USE_MOCK_API
 ```
 
 `env/*.json` 已在 `.gitignore`，不会误提交。
+
+### 1.4 Mock API（开箱即用的登录演示）
+
+模板**默认开启 `USE_MOCK_API=true`**（仅 dev flavor），`MockApiInterceptor`
+会短路 `/auth/login` / `/auth/me` / `/auth/refresh` / `/auth/logout`，返回预置
+响应。派生项目第一次 `flutter run` 即可走通登录流程（演示凭据：`admin / admin`），
+无需后端同步就绪。
+
+切到真实后端：把 `env/dev.json` 里 `USE_MOCK_API` 置为 `"false"`。
+彻底移除 mock 能力：
+1. 删除 `lib/core/network/mock_api_interceptor.dart`。
+2. 删除 `lib/core/network/dio_client.dart` 中对 `MockApiInterceptor` 的 import
+   与 `if (env.useMockApi)` 两段。
+3. 删除 `lib/app/app_env.dart` 中的 `useMockApi` 字段与相关分支。
+4. 删除 `env/*.example.json` 里的 `USE_MOCK_API`。
+5. 删除 `test/core/network/mock_api_interceptor_test.dart`。
+
+**Prod flavor 永远强制 `useMockApi = false`**，即便 `env/prod.json` 传入
+`"USE_MOCK_API": "true"` 也会被忽略（见 `AppEnv.fromFlavor` 的 prod 分支）——
+防止 Mock 代码被带到线上。
 
 ### 1.4 安全短板处理（见 SECURITY.md §2.1）
 
