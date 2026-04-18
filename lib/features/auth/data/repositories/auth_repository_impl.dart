@@ -29,7 +29,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     if (username.trim().isEmpty || password.trim().isEmpty) {
-      return Result.failure(const AuthFailure('账号和密码不能为空'));
+      return const Result.failure(AuthFailure('账号和密码不能为空'));
     }
 
     try {
@@ -62,7 +62,7 @@ class AuthRepositoryImpl implements AuthRepository {
           : NetworkFailure(e.message ?? '登录失败，请检查账号密码后重试');
       return Result.failure(failure);
     } on Object {
-      return Result.failure(const UnknownFailure('登录失败，请稍后重试'));
+      return const Result.failure(UnknownFailure('登录失败，请稍后重试'));
     }
   }
 
@@ -85,7 +85,7 @@ class AuthRepositoryImpl implements AuthRepository {
           : NetworkFailure(e.message ?? '刷新登录态失败');
       return Result.failure(failure);
     } on Object {
-      return Result.failure(const UnknownFailure('刷新登录态失败'));
+      return const Result.failure(UnknownFailure('刷新登录态失败'));
     }
   }
 
@@ -94,11 +94,11 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final localUser = _local.getUser();
       if (localUser == null) {
-        return Result.failure(const AuthFailure('当前无登录用户'));
+        return const Result.failure(AuthFailure('当前无登录用户'));
       }
       return Result.success(localUser.toEntity());
     } on Object {
-      return Result.failure(const UnknownFailure('读取用户信息失败'));
+      return const Result.failure(UnknownFailure('读取用户信息失败'));
     }
   }
 }

@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Result', () {
     test('should hold data when success', () {
-      const Result<int> result = Result.success(10);
+      const result = Result<int>.success(10);
 
       expect(result.isSuccess, isTrue);
       expect(result.data, 10);
@@ -13,7 +13,9 @@ void main() {
     });
 
     test('should hold failure when failure', () {
-      const Result<int> result = Result.failure(NetworkFailure('network error'));
+      const result = Result<int>.failure(
+        NetworkFailure('network error'),
+      );
 
       expect(result.isFailure, isTrue);
       expect(result.data, isNull);

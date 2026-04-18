@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockRemote extends Mock implements AuthRemoteDataSource {}
+
 class _MockLocal extends Mock implements AuthLocalDataSource {}
 
 void main() {
@@ -27,8 +28,16 @@ void main() {
       accessToken: 'access',
       refreshToken: 'refresh',
     );
-    const userModel = UserModel(id: '1', name: 'Alice', email: 'alice@example.com');
-    const expectedUser = User(id: '1', name: 'Alice', email: 'alice@example.com');
+    const userModel = UserModel(
+      id: '1',
+      name: 'Alice',
+      email: 'alice@example.com',
+    );
+    const expectedUser = User(
+      id: '1',
+      name: 'Alice',
+      email: 'alice@example.com',
+    );
 
     test('should return user on successful remote login', () async {
       when(() => remote.login(any())).thenAnswer((_) async => token);
@@ -36,7 +45,10 @@ void main() {
       when(() => remote.me()).thenAnswer((_) async => userModel);
       when(() => local.saveUser(userModel)).thenAnswer((_) async {});
 
-      final result = await repository.login(username: 'alice', password: 'secret');
+      final result = await repository.login(
+        username: 'alice',
+        password: 'secret',
+      );
 
       expect(result.isSuccess, isTrue);
       expect(result.data, expectedUser);
@@ -51,14 +63,20 @@ void main() {
       verifyNever(() => remote.login(any()));
     });
 
-    test('should return UnknownFailure when remote throws generic exception', () async {
-      when(() => remote.login(any())).thenThrow(Exception('unexpected'));
+    test(
+      'should return UnknownFailure when remote throws generic exception',
+      () async {
+        when(() => remote.login(any())).thenThrow(Exception('unexpected'));
 
-      final result = await repository.login(username: 'alice', password: 'wrong');
+        final result = await repository.login(
+          username: 'alice',
+          password: 'wrong',
+        );
 
-      expect(result.isFailure, isTrue);
-      expect(result.failure, isA<UnknownFailure>());
-    });
+        expect(result.isFailure, isTrue);
+        expect(result.failure, isA<UnknownFailure>());
+      },
+    );
   });
 
   group('logout', () {
@@ -73,13 +91,20 @@ void main() {
 
   group('getCurrentUser', () {
     test('should return user from local cache', () async {
-      const userModel = UserModel(id: '2', name: 'Bob', email: 'bob@example.com');
+      const userModel = UserModel(
+        id: '2',
+        name: 'Bob',
+        email: 'bob@example.com',
+      );
       when(() => local.getUser()).thenReturn(userModel);
 
       final result = await repository.getCurrentUser();
 
       expect(result.isSuccess, isTrue);
-      expect(result.data, const User(id: '2', name: 'Bob', email: 'bob@example.com'));
+      expect(
+        result.data,
+        const User(id: '2', name: 'Bob', email: 'bob@example.com'),
+      );
     });
 
     test('should return AuthFailure when no local user', () async {
@@ -109,14 +134,17 @@ void main() {
       expect(result.data, 'new_access');
     });
 
-    test('should return UnknownFailure when refresh throws generic exception', () async {
-      when(() => remote.refreshToken(any())).thenThrow(Exception('expired'));
+    test(
+      'should return UnknownFailure when refresh throws generic exception',
+      () async {
+        when(() => remote.refreshToken(any())).thenThrow(Exception('expired'));
 
-      final result = await repository.refreshToken('old_refresh');
+        final result = await repository.refreshToken('old_refresh');
 
-      expect(result.isFailure, isTrue);
-      expect(result.failure, isA<UnknownFailure>());
-      expect(result.failure?.message, '刷新登录态失败');
-    });
+        expect(result.isFailure, isTrue);
+        expect(result.failure, isA<UnknownFailure>());
+        expect(result.failure?.message, '刷新登录态失败');
+      },
+    );
   });
 }

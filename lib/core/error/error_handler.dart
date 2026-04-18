@@ -27,7 +27,9 @@ class ErrorHandler {
       case DioExceptionType.connectionError:
         return const NetworkFailure('网络连接失败，请检查网络设置');
       case DioExceptionType.badResponse:
-        return NetworkFailure('服务响应异常（${exception.response?.statusCode ?? '-'}）');
+        return NetworkFailure(
+          '服务响应异常（${exception.response?.statusCode ?? '-'}）',
+        );
       case DioExceptionType.cancel:
         return const UnknownFailure('请求已取消');
       case DioExceptionType.badCertificate:

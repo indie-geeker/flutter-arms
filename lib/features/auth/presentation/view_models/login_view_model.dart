@@ -45,7 +45,7 @@ class LoginViewModel extends _$LoginViewModel {
 
     switch (result) {
       case Success():
-        ref.read(authNotifierProvider.notifier).setAuthenticated(true);
+        ref.read(authProvider.notifier).setAuthenticated(isAuthenticated: true);
         state = state.copyWith(
           isLoading: false,
           isLoginSuccess: true,

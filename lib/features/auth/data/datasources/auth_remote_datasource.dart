@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_arms/core/network/dio_client.dart';
 import 'package:flutter_arms/features/auth/data/models/token_model.dart';
 import 'package:flutter_arms/features/auth/data/models/user_model.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:retrofit/retrofit.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'auth_remote_datasource.g.dart';
 
@@ -11,7 +11,8 @@ part 'auth_remote_datasource.g.dart';
 @RestApi()
 abstract class AuthRemoteDataSource {
   /// 构造函数。
-  factory AuthRemoteDataSource(Dio dio, {String baseUrl}) = _AuthRemoteDataSource;
+  factory AuthRemoteDataSource(Dio dio, {String baseUrl}) =
+      _AuthRemoteDataSource;
 
   /// 登录。
   @POST('/auth/login')

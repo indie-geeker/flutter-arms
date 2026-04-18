@@ -38,7 +38,7 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
       return;
     }
 
-    context.router.replace(const LoginRoute());
+    await context.router.replace(const LoginRoute());
   }
 
   Future<void> _goToNextPage(int currentIndex) async {

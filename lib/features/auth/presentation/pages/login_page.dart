@@ -39,7 +39,9 @@ class _LoginHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       context.t.auth.welcomeBack,
-      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
     );
   }
 }

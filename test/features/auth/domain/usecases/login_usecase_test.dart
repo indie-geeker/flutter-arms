@@ -19,8 +19,9 @@ void main() {
 
   test('should return user when repository login succeeds', () async {
     const expected = User(id: '1', name: 'Tester', email: 'tester@example.com');
-    when(() => repository.login(username: 'tester', password: '123456'))
-        .thenAnswer((_) async => const Result.success(expected));
+    when(
+      () => repository.login(username: 'tester', password: '123456'),
+    ).thenAnswer((_) async => const Result.success(expected));
 
     final result = await useCase(username: 'tester', password: '123456');
 
@@ -29,8 +30,11 @@ void main() {
   });
 
   test('should return failure when repository login fails', () async {
-    when(() => repository.login(username: 'tester', password: 'wrong'))
-        .thenAnswer((_) async => const Result.failure(AuthFailure('invalid credentials')));
+    when(
+      () => repository.login(username: 'tester', password: 'wrong'),
+    ).thenAnswer(
+      (_) async => const Result.failure(AuthFailure('invalid credentials')),
+    );
 
     final result = await useCase(username: 'tester', password: 'wrong');
 

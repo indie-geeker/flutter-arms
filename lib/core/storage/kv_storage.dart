@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_arms/core/constants/app_constants.dart';
+import 'package:flutter_arms/core/theme/app_colors.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -96,7 +97,8 @@ class HiveKvStorage implements KvStorage {
   }
 
   @override
-  String? getAccessToken() => _secureBox.get(AppConstants.accessTokenKey) as String?;
+  String? getAccessToken() =>
+      _secureBox.get(AppConstants.accessTokenKey) as String?;
 
   @override
   Future<void> saveAccessToken(String token) async {
@@ -104,7 +106,8 @@ class HiveKvStorage implements KvStorage {
   }
 
   @override
-  String? getRefreshToken() => _secureBox.get(AppConstants.refreshTokenKey) as String?;
+  String? getRefreshToken() =>
+      _secureBox.get(AppConstants.refreshTokenKey) as String?;
 
   @override
   Future<void> saveRefreshToken(String token) async {
@@ -160,7 +163,7 @@ class HiveKvStorage implements KvStorage {
   Color getThemeSeedColor() {
     final value = _commonBox.get(AppConstants.themeSeedColorKey) as int?;
     if (value == null) {
-      return const Color(0xFF1D4ED8);
+      return kDefaultSeedColor;
     }
 
     return Color(value);
@@ -181,8 +184,7 @@ class HiveKvStorage implements KvStorage {
   }
 
   @override
-  String? getLocale() =>
-      _commonBox.get(AppConstants.localeKey) as String?;
+  String? getLocale() => _commonBox.get(AppConstants.localeKey) as String?;
 
   @override
   Future<void> setLocale(String locale) async {

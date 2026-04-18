@@ -18,9 +18,9 @@ Future<void> bootstrap({required AppFlavor flavor}) async {
   }
 
   runApp(
-    ProviderScope(
-      observers: const [AppProviderObserver()],
-      child: const App(),
+    const ProviderScope(
+      observers: [AppProviderObserver()],
+      child: App(),
     ),
   );
 }

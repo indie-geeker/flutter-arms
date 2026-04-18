@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/core/theme/app_theme.dart';
 import 'package:flutter_arms/core/theme/theme_notifier.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 应用根组件。

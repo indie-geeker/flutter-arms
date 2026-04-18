@@ -6,7 +6,10 @@ class AppTheme {
 
   /// 浅色主题。
   static ThemeData light({required Color seedColor}) {
-    final scheme = ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.light);
+    final scheme = ColorScheme.fromSeed(
+      seedColor: seedColor,
+      brightness: Brightness.light,
+    );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
@@ -21,7 +24,10 @@ class AppTheme {
 
   /// 深色主题。
   static ThemeData dark({required Color seedColor}) {
-    final scheme = ColorScheme.fromSeed(seedColor: seedColor, brightness: Brightness.dark);
+    final scheme = ColorScheme.fromSeed(
+      seedColor: seedColor,
+      brightness: Brightness.dark,
+    );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,

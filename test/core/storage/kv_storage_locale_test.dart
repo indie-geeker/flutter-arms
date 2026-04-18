@@ -1,6 +1,6 @@
+import 'package:flutter_arms/core/storage/kv_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:flutter_arms/core/storage/kv_storage.dart';
 
 class _MockKvStorage extends Mock implements KvStorage {}
 

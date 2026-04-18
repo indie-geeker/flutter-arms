@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_arms/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   setUp(() {
@@ -12,7 +12,7 @@ void main() {
   testWidgets('renders translated login copy', (tester) async {
     await tester.pumpWidget(
       TranslationProvider(
-        child: ProviderScope(child: MaterialApp(home: LoginPage())),
+        child: const ProviderScope(child: MaterialApp(home: LoginPage())),
       ),
     );
 

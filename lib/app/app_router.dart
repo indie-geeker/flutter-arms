@@ -1,5 +1,4 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_arms/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 import 'package:flutter_arms/features/home/presentation/pages/explore_page.dart';
@@ -8,6 +7,7 @@ import 'package:flutter_arms/features/home/presentation/pages/home_page.dart';
 import 'package:flutter_arms/features/home/presentation/pages/profile_page.dart';
 import 'package:flutter_arms/features/onboarding/presentation/pages/onboarding_page.dart';
 import 'package:flutter_arms/features/splash/presentation/pages/splash_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 part 'app_router.gr.dart';
 
@@ -47,7 +47,7 @@ class AuthGuard extends AutoRouteGuard {
 
   @override
   void onNavigation(NavigationResolver resolver, StackRouter router) {
-    final isAuthed = ref.read(authNotifierProvider);
+    final isAuthed = ref.read(authProvider);
     if (isAuthed) {
       resolver.next(true);
       return;

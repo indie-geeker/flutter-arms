@@ -46,7 +46,9 @@ void main() {
   test('should set typed failure when login fails', () async {
     when(
       () => mockLoginUseCase(username: 'tester', password: 'wrong'),
-    ).thenAnswer((_) async => const Result.failure(AuthFailure('invalid credentials')));
+    ).thenAnswer(
+      (_) async => const Result.failure(AuthFailure('invalid credentials')),
+    );
 
     final container = ProviderContainer(
       overrides: [loginUseCaseProvider.overrideWithValue(mockLoginUseCase)],
@@ -65,5 +67,4 @@ void main() {
     expect(state.error, isA<AuthFailure>());
     expect(state.error?.message, 'invalid credentials');
   });
-
 }

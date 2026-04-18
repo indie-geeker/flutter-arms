@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
+
 /// 用户实体（Domain 层，纯 Dart）。
+@immutable
 class User {
   /// 构造函数。
   const User({
@@ -22,7 +25,10 @@ class User {
       return true;
     }
 
-    return other is User && other.id == id && other.name == name && other.email == email;
+    return other is User &&
+        other.id == id &&
+        other.name == name &&
+        other.email == email;
   }
 
   @override

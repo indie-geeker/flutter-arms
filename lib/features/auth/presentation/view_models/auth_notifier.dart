@@ -14,8 +14,9 @@ class AuthNotifier extends _$AuthNotifier {
   }
 
   /// 设置登录状态。
-  void setAuthenticated(bool value) {
-    state = value;
+  // ignore: use_setters_to_change_properties
+  void setAuthenticated({required bool isAuthenticated}) {
+    state = isAuthenticated;
   }
 
   /// 执行登出。
@@ -24,6 +25,3 @@ class AuthNotifier extends _$AuthNotifier {
     state = false;
   }
 }
-
-/// 兼容命名：全局认证状态 Provider。
-final authNotifierProvider = authProvider;

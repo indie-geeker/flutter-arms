@@ -25,4 +25,4 @@ class LocaleNotifier extends _$LocaleNotifier {
 }
 
 /// 兼容命名：语言状态 Provider。
-const localeNotifierProvider = localeProvider;
+const LocaleNotifierProvider localeNotifierProvider = localeProvider;

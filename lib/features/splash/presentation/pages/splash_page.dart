@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arms/app/app_router.dart';
@@ -31,15 +33,15 @@ class _SplashPageState extends ConsumerState<SplashPage> {
 
     final storage = ref.read(kvStorageProvider);
     if (!storage.isOnboardingDone()) {
-      context.router.replace(const OnboardingRoute());
+      unawaited(context.router.replace(const OnboardingRoute()));
       return;
     }
 
-    final authed = ref.read(authNotifierProvider);
+    final authed = ref.read(authProvider);
     if (authed) {
-      context.router.replace(const HomeRoute());
+      unawaited(context.router.replace(const HomeRoute()));
     } else {
-      context.router.replace(const LoginRoute());
+      unawaited(context.router.replace(const LoginRoute()));
     }
   }
 

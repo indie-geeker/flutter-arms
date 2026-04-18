@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_arms/shared/widgets/app_button.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('should call onPressed when not loading and enabled', (tester) async {
+  testWidgets('should call onPressed when not loading and enabled', (
+    tester,
+  ) async {
     var tapped = false;
 
     await tester.pumpWidget(

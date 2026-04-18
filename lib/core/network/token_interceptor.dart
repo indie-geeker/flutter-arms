@@ -10,10 +10,10 @@ class TokenInterceptor extends Interceptor {
     required Future<String?> Function() refreshTokenProvider,
     required Future<bool> Function(String refreshToken) refreshAction,
     required Dio retryDio,
-  })  : _accessTokenProvider = accessTokenProvider,
-        _refreshTokenProvider = refreshTokenProvider,
-        _refreshAction = refreshAction,
-        _retryDio = retryDio;
+  }) : _accessTokenProvider = accessTokenProvider,
+       _refreshTokenProvider = refreshTokenProvider,
+       _refreshAction = refreshAction,
+       _retryDio = retryDio;
 
   final Future<String?> Function() _accessTokenProvider;
   final Future<String?> Function() _refreshTokenProvider;

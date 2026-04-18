@@ -19,9 +19,13 @@ Dio dio(Ref ref) {
   final dio = Dio(
     BaseOptions(
       baseUrl: AppEnv.current.baseUrl,
-      connectTimeout: const Duration(milliseconds: AppConstants.connectTimeoutMs),
-      receiveTimeout: const Duration(milliseconds: AppConstants.connectTimeoutMs),
-      sendTimeout: const Duration(milliseconds: AppConstants.connectTimeoutMs),
+      connectTimeout: const Duration(
+        milliseconds: AppConstants.connectTimeoutMs,
+      ),
+      receiveTimeout: const Duration(
+        milliseconds: AppConstants.receiveTimeoutMs,
+      ),
+      sendTimeout: const Duration(milliseconds: AppConstants.sendTimeoutMs),
       contentType: Headers.jsonContentType,
     ),
   );

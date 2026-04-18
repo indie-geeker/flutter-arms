@@ -1,5 +1,5 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user_model.freezed.dart';
 part 'user_model.g.dart';
@@ -15,7 +15,8 @@ abstract class UserModel with _$UserModel {
   }) = _UserModel;
 
   /// JSON 反序列化。
-  factory UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
 }
 
 /// 用户模型转换。

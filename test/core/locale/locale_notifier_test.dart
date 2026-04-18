@@ -1,9 +1,9 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:flutter_arms/core/locale/locale_notifier.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class _MockKvStorage extends Mock implements KvStorage {}
 
@@ -21,10 +21,9 @@ void main() {
   });
 
   ProviderContainer createContainer() {
-    container = ProviderContainer(
+    return container = ProviderContainer(
       overrides: [kvStorageProvider.overrideWithValue(mockKvStorage)],
     );
-    return container;
   }
 
   group('LocaleNotifier', () {
