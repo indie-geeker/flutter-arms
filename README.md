@@ -65,9 +65,6 @@ flowchart LR
 
 ## 从模板派生新项目
 
-下面以新项目名 `my_app`、包名 `com.example.my_app` 为例，演示一次性完成改名。
-请严格按顺序执行；每步结束后 `git status` 审阅改动再进入下一步。
-
 ### Step 1 — 克隆并断开与模板仓库的关联
 
 ```bash
@@ -87,85 +84,57 @@ git add . && git commit -m "chore: bootstrap from flutter_arms"
 
 > 想保留模板历史？改用 `git remote rename origin upstream` + `git remote add origin <new>`。
 
-### Step 2 — 重命名 Dart 包
+### Step 2 — 一键改名
 
-Dart 包名即 `pubspec.yaml` 的 `name`，决定 `import 'package:xxx/...'` 前缀。
+运行 [tool/rename.dart](tool/rename.dart)。脚本只依赖 Dart SDK，在 **macOS / Linux / Windows（PowerShell 或 cmd）** 上命令完全一致：
 
 ```bash
-# 1) 改 pubspec.yaml
-#    name:        flutter_arms   → my_app
-#    description: Flutter Arms … → My App …（按需）
-
-# 2) 全局替换 import 前缀（macOS 自带的 BSD sed 写法，Linux 去掉 "" 那个空串）
-grep -rl --include='*.dart' 'package:flutter_arms/' lib test \
-  | xargs sed -i '' 's|package:flutter_arms/|package:my_app/|g'
-
-# Linux / CI：
-# grep -rl --include='*.dart' 'package:flutter_arms/' lib test \
-#   | xargs sed -i 's|package:flutter_arms/|package:my_app/|g'
+dart tool/rename.dart \
+  --name my_app \
+  --package com.example.my_app \
+  --display "My App"
 ```
 
-### Step 3 — 重命名 Android 包
+省略任意参数即进入交互式提问。可选的 `--ios-bundle-id` 默认从 `--package` 自动推导（`com.example.my_app` → `com.example.myApp`，规避 iOS 不允许下划线的限制）。
 
-模板当前包名 `com.indiegeeker.flutter_arms`，目标 `com.example.my_app`。
+覆盖范围：
 
-```bash
-# 1) applicationId / namespace
-sed -i '' 's|com\.indiegeeker\.flutter_arms|com.example.my_app|g' \
-  android/app/build.gradle.kts
+| 层级     | 修改项                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------- |
+| Dart     | `pubspec.yaml` 的 `name`；`lib/` 与 `test/` 下所有 `package:flutter_arms/` 引用                  |
+| Android  | `applicationId` / `namespace`；Kotlin 目录搬家 + `MainActivity.kt` 包声明；`android:label`       |
+| iOS      | `project.pbxproj` 的 `PRODUCT_BUNDLE_IDENTIFIER`（含 RunnerTests）；`Info.plist` 显示名          |
+| macOS    | `AppInfo.xcconfig`（PRODUCT_NAME / BUNDLE_IDENTIFIER / COPYRIGHT）+ pbxproj + `Info.plist`      |
+| Linux    | `linux/CMakeLists.txt` 的 `BINARY_NAME` / `APPLICATION_ID`                                     |
+| Windows  | `windows/CMakeLists.txt`、窗口标题、`Runner.rc` 版本元数据                                      |
+| Web      | `web/index.html` 的 `<title>` / apple-mobile-web-app-title；`web/manifest.json` 名称            |
 
-# 2) Kotlin 目录搬家
-mkdir -p android/app/src/main/kotlin/com/example/my_app
-git mv android/app/src/main/kotlin/com/indiegeeker/flutter_arms/MainActivity.kt \
-        android/app/src/main/kotlin/com/example/my_app/MainActivity.kt
-rm -rf android/app/src/main/kotlin/com/indiegeeker
+脚本特性：
 
-# 3) MainActivity.kt 的 package 声明
-sed -i '' 's|package com\.indiegeeker\.flutter_arms|package com.example.my_app|' \
-  android/app/src/main/kotlin/com/example/my_app/MainActivity.kt
+- **幂等**：同参数重跑 no-op；检测到 pubspec 已改成别的名字会直接拒绝，避免把已派生的项目二次破坏。
+- **不破坏重叠前缀**：Kotlin 目录只 `rmdir`（非空目录会失败），所以 `com.indiegeeker.flutter_arms → com.indiegeeker.my_app` 这种共享前缀场景也安全。
+- **只依赖 Dart SDK**：不依赖 `sed` / `PlistBuddy` / `bash`，Windows 原生可跑。
 
-# 4) 应用显示名（桌面图标下的文字）
-sed -i '' 's|android:label="flutter_arms"|android:label="My App"|' \
-  android/app/src/main/AndroidManifest.xml
-```
-
-### Step 4 — 重命名 iOS Bundle ID / 显示名
-
-模板当前 Bundle ID `com.indiegeeker.flutterArms`（含 Runner/RunnerTests 多处），推荐用 Xcode GUI 改；也可直接 `sed`：
+### Step 3 — 替换品牌资源 + 重新生成
 
 ```bash
-# 1) Bundle ID（Runner + 测试 target）
-sed -i '' 's|com\.indiegeeker\.flutterArms|com.example.myApp|g' \
-  ios/Runner.xcodeproj/project.pbxproj
-
-# 2) 应用名（Home 屏下方文字）
-/usr/libexec/PlistBuddy -c 'Set :CFBundleDisplayName "My App"' ios/Runner/Info.plist
-/usr/libexec/PlistBuddy -c 'Set :CFBundleName my_app'           ios/Runner/Info.plist
-```
-
-> 若后续要做代码签名 / Push 证书，建议用 Xcode 打开 `ios/Runner.xcworkspace` 再走一次 Signing & Capabilities 面板，确保 Provisioning Profile 能匹配到新 Bundle ID。
-
-### Step 5 — 替换品牌资源
-
-- `assets/icon/app_icon.png` → 1024×1024 的新图标。
-- `assets/splash/logo.png` → 启动屏 Logo（透明背景 PNG）。
-
-```bash
+# 图标 + 启动屏
+# assets/icon/app_icon.png  → 1024×1024 新图标
+# assets/splash/logo.png     → 启动屏 Logo（透明 PNG）
 dart run flutter_launcher_icons
 dart run flutter_native_splash:create
-```
 
-### Step 6 — 清理 & 重新生成
-
-```bash
+# 清理 + 重新生成代码 + 跑一遍测试
 flutter clean
 flutter pub get
 tool/gen.sh                # build_runner + slang
-tool/test.sh               # 跑一遍架构测试 + 单测，确认改名没踩线
+tool/test.sh               # analyze + test
 flutter run -t lib/main_dev.dart --flavor dev
 ```
 
-更细的派生 checklist（含 Mock API、安全短板）见 [docs/ai/TEMPLATE_GUIDE.md §1](docs/ai/TEMPLATE_GUIDE.md#1-一次性改名派生时)。
+> iOS 代码签名：Bundle ID 改了以后需在 Xcode 的 Signing & Capabilities 面板重新匹配 Provisioning Profile。
+
+更细的派生 checklist（Mock API、安全短板等）见 [docs/ai/TEMPLATE_GUIDE.md §1](docs/ai/TEMPLATE_GUIDE.md#1-一次性改名派生时)。
 
 ## 快速开始
 
