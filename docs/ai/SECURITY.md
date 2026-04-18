@@ -55,11 +55,14 @@
 
 ### 2.4 HTTPS & 证书钉扎
 
-**现状**：Dio 使用系统信任链。
+**现状**：Dio 使用系统信任链（默认）。
 
-**加固建议**（如涉及金融/医疗/IM）：
-- 为生产环境配置 [`dio_cache_interceptor`]/[`certificate_pinning_flutter`]（未内置，按需引入）。
+**深入阅读**：[docs/ai/HTTPS_GUIDE.md](./HTTPS_GUIDE.md) —— 系统信任链 / 自签名 / Pinning 三种方式的原理、优缺点、使用场景、前后端交互流程、Flutter 代码示例、轮换策略、常见坑。
+
+**最小加固建议**（如涉及金融/医疗/IM）：
 - 生产 BaseUrl 必须 HTTPS，`env/prod.json` 里不要放 http 端点。
+- 按 HTTPS_GUIDE §3 接入 SPKI Pinning；pin 走 `--dart-define`，至少维护 2 把 key 支持轮换。
+- 在 CI 中 grep 生产代码不得包含 `badCertificateCallback = (...) => true` 这类全放行语句。
 
 ### 2.5 日志
 
