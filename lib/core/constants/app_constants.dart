@@ -2,8 +2,14 @@
 class AppConstants {
   AppConstants._();
 
-  /// 网络超时时间（毫秒）。
+  /// 网络连接超时（毫秒）。
   static const int connectTimeoutMs = 15000;
+
+  /// 网络接收超时（毫秒）。
+  static const int receiveTimeoutMs = 20000;
+
+  /// 网络发送超时（毫秒）。
+  static const int sendTimeoutMs = 15000;
 
   /// 存储盒子名称。
   static const String keyBoxName = 'app_key_box';

@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
 import 'package:flutter_arms/features/home/presentation/pages/profile_page.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockKvStorage extends Mock implements KvStorage {}
 
 /// Pumps ProfilePage with all required providers wired.
 Future<void> _pumpProfilePage(
-    WidgetTester tester, _MockKvStorage storage) async {
+  WidgetTester tester,
+  _MockKvStorage storage,
+) async {
   await tester.pumpWidget(
     TranslationProvider(
       child: ProviderScope(
-        overrides: [kvStorageProvider.overrideWithValue(storage)],
+        overrides: [
+          kvStorageProvider.overrideWithValue(storage),
+          appEnvProvider.overrideWithValue(AppEnv.fromFlavor(AppFlavor.dev)),
+        ],
         child: const MaterialApp(home: ProfilePage()),
       ),
     ),
@@ -24,9 +30,11 @@ Future<void> _pumpProfilePage(
 /// Returns a fully stubbed MockKvStorage for ProfilePage.
 _MockKvStorage _stubStorage() {
   final s = _MockKvStorage();
-  when(() => s.getThemeMode()).thenReturn(ThemeMode.system);
-  when(() => s.getThemeSeedColor()).thenReturn(const Color(0xFF1D4ED8));
-  when(() => s.getLocale()).thenReturn(null); // defaults to AppLocale.en
+  when(s.getThemeMode).thenReturn(ThemeMode.system);
+  when(s.getThemeSeedColor).thenReturn(const Color(0xFF1D4ED8));
+  when(s.getLocale).thenReturn(null); // defaults to AppLocale.en
+  when(s.getAccessToken).thenReturn(null);
+  when(s.getUserMap).thenReturn(null);
   return s;
 }
 
@@ -44,9 +52,9 @@ void main() {
       final storage = _stubStorage();
       await _pumpProfilePage(tester, storage);
 
-      // User header
+      // User header (未登录 → 显示 Guest)
       expect(find.byIcon(Icons.person), findsOneWidget);
-      expect(find.text('User'), findsOneWidget);
+      expect(find.text('Guest'), findsOneWidget);
 
       // Appearance section
       expect(find.text('Appearance'), findsOneWidget);
@@ -67,8 +75,9 @@ void main() {
       expect(find.byIcon(Icons.logout), findsOneWidget);
     });
 
-    testWidgets('tapping a preset color circle calls setSeedColor',
-        (tester) async {
+    testWidgets('tapping a preset color circle calls setSeedColor', (
+      tester,
+    ) async {
       final storage = _stubStorage();
       Color? capturedColor;
       when(() => storage.setThemeSeedColor(any())).thenAnswer((inv) async {
@@ -94,8 +103,9 @@ void main() {
       expect(capturedColor, equals(const Color(0xFF7C3AED)));
     });
 
-    testWidgets('tapping custom color button opens color picker dialog',
-        (tester) async {
+    testWidgets('tapping custom color button opens color picker dialog', (
+      tester,
+    ) async {
       final storage = _stubStorage();
       await _pumpProfilePage(tester, storage);
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/core/theme/app_theme.dart';
 import 'package:flutter_arms/core/theme/theme_notifier.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 应用根组件。
@@ -26,14 +26,21 @@ class _AppState extends ConsumerState<App> {
   }
 
   @override
+  void dispose() {
+    _router.authListenable.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeNotifierProvider);
+    final env = ref.watch(appEnvProvider);
 
     return TranslationProvider(
       child: Builder(
         builder: (context) {
           return MaterialApp.router(
-            title: AppEnv.current.appName,
+            title: env.appName,
             debugShowCheckedModeBanner: false,
             locale: TranslationProvider.of(context).flutterLocale,
             supportedLocales: AppLocaleUtils.supportedLocales,
@@ -41,7 +48,9 @@ class _AppState extends ConsumerState<App> {
             theme: AppTheme.light(seedColor: themeState.seedColor),
             darkTheme: AppTheme.dark(seedColor: themeState.seedColor),
             themeMode: themeState.mode,
-            routerConfig: _router.config(),
+            routerConfig: _router.config(
+              reevaluateListenable: _router.authListenable,
+            ),
           );
         },
       ),

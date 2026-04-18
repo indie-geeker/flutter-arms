@@ -1,4 +1,4 @@
-import 'package:flutter_arms/core/error/failures.dart';
+import 'package:flutter_arms/core/error/failure.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'login_state.freezed.dart';

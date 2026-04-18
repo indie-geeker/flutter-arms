@@ -1,9 +1,9 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:flutter_arms/core/locale/locale_notifier.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 
 class _MockKvStorage extends Mock implements KvStorage {}
 
@@ -21,10 +21,9 @@ void main() {
   });
 
   ProviderContainer createContainer() {
-    container = ProviderContainer(
+    return container = ProviderContainer(
       overrides: [kvStorageProvider.overrideWithValue(mockKvStorage)],
     );
-    return container;
   }
 
   group('LocaleNotifier', () {
@@ -32,7 +31,7 @@ void main() {
       when(() => mockKvStorage.getLocale()).thenReturn(null);
       final c = createContainer();
 
-      final locale = c.read(localeNotifierProvider);
+      final locale = c.read(localeProvider);
       expect(locale, equals(AppLocale.en));
     });
 
@@ -40,7 +39,7 @@ void main() {
       when(() => mockKvStorage.getLocale()).thenReturn('en');
       final c = createContainer();
 
-      final locale = c.read(localeNotifierProvider);
+      final locale = c.read(localeProvider);
       expect(locale, equals(AppLocale.en));
     });
 
@@ -49,10 +48,10 @@ void main() {
       when(() => mockKvStorage.setLocale(any())).thenAnswer((_) async {});
       final c = createContainer();
 
-      final notifier = c.read(localeNotifierProvider.notifier);
+      final notifier = c.read(localeProvider.notifier);
       await notifier.setLocale(AppLocale.en);
 
-      expect(c.read(localeNotifierProvider), equals(AppLocale.en));
+      expect(c.read(localeProvider), equals(AppLocale.en));
       verify(() => mockKvStorage.setLocale('en')).called(1);
     });
   });

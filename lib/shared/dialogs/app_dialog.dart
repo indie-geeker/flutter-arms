@@ -13,6 +13,8 @@ class AppDialog {
 
   /// 展示普通提示。
   static void showInfo(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

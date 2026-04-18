@@ -11,5 +11,6 @@ class PlatformUtils {
   static bool get isIOS => Platform.isIOS;
 
   /// 是否桌面端。
-  static bool get isDesktop => Platform.isMacOS || Platform.isWindows || Platform.isLinux;
+  static bool get isDesktop =>
+      Platform.isMacOS || Platform.isWindows || Platform.isLinux;
 }

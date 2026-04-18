@@ -50,4 +50,4 @@ class ThemeNotifier extends _$ThemeNotifier {
 }
 
 /// 兼容命名：主题状态 Provider。
-final themeNotifierProvider = themeProvider;
+const ThemeNotifierProvider themeNotifierProvider = themeProvider;

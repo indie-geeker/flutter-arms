@@ -10,10 +10,10 @@ class TokenInterceptor extends Interceptor {
     required Future<String?> Function() refreshTokenProvider,
     required Future<bool> Function(String refreshToken) refreshAction,
     required Dio retryDio,
-  })  : _accessTokenProvider = accessTokenProvider,
-        _refreshTokenProvider = refreshTokenProvider,
-        _refreshAction = refreshAction,
-        _retryDio = retryDio;
+  }) : _accessTokenProvider = accessTokenProvider,
+       _refreshTokenProvider = refreshTokenProvider,
+       _refreshAction = refreshAction,
+       _retryDio = retryDio;
 
   final Future<String?> Function() _accessTokenProvider;
   final Future<String?> Function() _refreshTokenProvider;
@@ -58,21 +58,39 @@ class TokenInterceptor extends Interceptor {
     if (_isRefreshing) {
       final completer = Completer<void>();
       _waitQueue.add(completer);
-      await completer.future;
+      try {
+        await completer.future;
+      } on Object {
+        handler.next(err);
+        return;
+      }
       await _retryRequest(err, handler);
       return;
     }
 
     _isRefreshing = true;
-    final refreshSuccess = await _refreshAction(refreshToken);
-    _isRefreshing = false;
+    var refreshSuccess = false;
+    Object? refreshError;
+    try {
+      refreshSuccess = await _refreshAction(refreshToken);
+    } on Object catch (e) {
+      refreshError = e;
+    } finally {
+      _isRefreshing = false;
+    }
 
-    for (final completer in _waitQueue) {
-      if (!completer.isCompleted) {
+    final queued = List<Completer<void>>.from(_waitQueue);
+    _waitQueue.clear();
+    for (final completer in queued) {
+      if (completer.isCompleted) {
+        continue;
+      }
+      if (refreshSuccess) {
         completer.complete();
+      } else {
+        completer.completeError(refreshError ?? err);
       }
     }
-    _waitQueue.clear();
 
     if (!refreshSuccess) {
       handler.next(err);

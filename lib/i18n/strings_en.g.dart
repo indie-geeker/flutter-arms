@@ -46,6 +46,7 @@ class Translations with BaseTranslations<AppLocale, Translations> {
 	late final TranslationsHomeEn home = TranslationsHomeEn._(_root);
 	late final TranslationsProfileEn profile = TranslationsProfileEn._(_root);
 	late final TranslationsSplashEn splash = TranslationsSplashEn._(_root);
+	late final TranslationsErrorsEn errors = TranslationsErrorsEn._(_root);
 }
 
 // Path: common
@@ -175,6 +176,9 @@ class TranslationsProfileEn {
 
 	/// en: 'Language'
 	String get language => 'Language';
+
+	/// en: 'Guest'
+	String get guest => 'Guest';
 }
 
 // Path: splash
@@ -187,6 +191,36 @@ class TranslationsSplashEn {
 
 	/// en: 'Flutter Arms'
 	String get title => 'Flutter Arms';
+}
+
+// Path: errors
+class TranslationsErrorsEn {
+	TranslationsErrorsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+
+	/// en: 'Network connection failed. Please check your network settings.'
+	String get network => 'Network connection failed. Please check your network settings.';
+
+	/// en: 'The request timed out. Please try again.'
+	String get timeout => 'The request timed out. Please try again.';
+
+	/// en: 'The server returned an unexpected response.'
+	String get badResponse => 'The server returned an unexpected response.';
+
+	/// en: 'Your session has expired. Please sign in again.'
+	String get auth => 'Your session has expired. Please sign in again.';
+
+	/// en: 'Please review the input and try again.'
+	String get validation => 'Please review the input and try again.';
+
+	/// en: 'The request was cancelled.'
+	String get cancelled => 'The request was cancelled.';
+
+	/// en: 'Something went wrong. Please try again.'
+	String get unknown => 'Something went wrong. Please try again.';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -225,7 +259,15 @@ extension on Translations {
 			'profile.custom' => 'Custom',
 			'profile.general' => 'General',
 			'profile.language' => 'Language',
+			'profile.guest' => 'Guest',
 			'splash.title' => 'Flutter Arms',
+			'errors.network' => 'Network connection failed. Please check your network settings.',
+			'errors.timeout' => 'The request timed out. Please try again.',
+			'errors.badResponse' => 'The server returned an unexpected response.',
+			'errors.auth' => 'Your session has expired. Please sign in again.',
+			'errors.validation' => 'Please review the input and try again.',
+			'errors.cancelled' => 'The request was cancelled.',
+			'errors.unknown' => 'Something went wrong. Please try again.',
 			_ => null,
 		};
 	}

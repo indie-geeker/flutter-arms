@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_arms/app/app.dart';
 import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockKvStorage extends Mock implements KvStorage {}
@@ -13,7 +13,6 @@ void main() {
   late _MockKvStorage mockKvStorage;
 
   setUp(() {
-    AppEnv.setup(flavor: AppFlavor.dev);
     LocaleSettings.setLocaleSync(AppLocale.en);
     mockKvStorage = _MockKvStorage();
     when(() => mockKvStorage.getAccessToken()).thenReturn(null);
@@ -32,7 +31,10 @@ void main() {
   ) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [kvStorageProvider.overrideWithValue(mockKvStorage)],
+        overrides: [
+          appEnvProvider.overrideWithValue(AppEnv.fromFlavor(AppFlavor.dev)),
+          kvStorageProvider.overrideWithValue(mockKvStorage),
+        ],
         child: const App(),
       ),
     );

@@ -13,5 +13,6 @@ abstract class TokenModel with _$TokenModel {
   }) = _TokenModel;
 
   /// JSON 反序列化。
-  factory TokenModel.fromJson(Map<String, dynamic> json) => _$TokenModelFromJson(json);
+  factory TokenModel.fromJson(Map<String, dynamic> json) =>
+      _$TokenModelFromJson(json);
 }

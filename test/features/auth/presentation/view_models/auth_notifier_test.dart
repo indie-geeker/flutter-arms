@@ -27,7 +27,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    expect(container.read(authNotifierProvider), isTrue);
+    expect(container.read(authProvider), isTrue);
   });
 
   test('build returns false when access token is missing', () {
@@ -38,7 +38,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    expect(container.read(authNotifierProvider), isFalse);
+    expect(container.read(authProvider), isFalse);
   });
 
   test('logout calls use case and clears auth flag', () async {
@@ -53,11 +53,11 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    expect(container.read(authNotifierProvider), isTrue);
+    expect(container.read(authProvider), isTrue);
 
-    await container.read(authNotifierProvider.notifier).logout();
+    await container.read(authProvider.notifier).logout();
 
     verify(() => mockLogoutUseCase()).called(1);
-    expect(container.read(authNotifierProvider), isFalse);
+    expect(container.read(authProvider), isFalse);
   });
 }

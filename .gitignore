@@ -47,3 +47,7 @@ app.*.map.json
 
 docs/plans
 docs/superpowers
+
+# Environment files with real values (commit only *.example.json)
+env/*.json
+!env/*.example.json

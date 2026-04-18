@@ -1,12 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/core/locale/locale_notifier.dart';
+import 'package:flutter_arms/core/logger/app_logger.dart';
+import 'package:flutter_arms/core/theme/app_colors.dart';
 import 'package:flutter_arms/core/theme/theme_notifier.dart';
+// arch-exempt: Profile 页依赖 auth 登出能力（跨切面）。
 import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 /// Profile Tab 页。
 @RoutePage()
@@ -14,23 +19,11 @@ class ProfilePage extends ConsumerWidget {
   /// 构造函数。
   const ProfilePage({super.key});
 
-  // Preset seed color palette (8 colours).
-  static const List<Color> _presetColors = [
-    Color(0xFF1D4ED8), // Blue (default)
-    Color(0xFF7C3AED), // Purple
-    Color(0xFF4338CA), // Indigo
-    Color(0xFF0D9488), // Teal
-    Color(0xFF16A34A), // Green
-    Color(0xFFEA580C), // Orange
-    Color(0xFFDC2626), // Red
-    Color(0xFFDB2777), // Pink
-  ];
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.t;
     final themeState = ref.watch(themeNotifierProvider);
-    final currentLocale = ref.watch(localeNotifierProvider);
+    final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -41,7 +34,7 @@ class ProfilePage extends ConsumerWidget {
             const SizedBox(height: 24),
             _AppearanceSection(
               themeState: themeState,
-              presetColors: _presetColors,
+              presetColors: kPresetSeedColors,
               onThemeModeChanged: (mode) =>
                   ref.read(themeNotifierProvider.notifier).setThemeMode(mode),
               onColorSelected: (color) =>
@@ -51,14 +44,14 @@ class ProfilePage extends ConsumerWidget {
             _GeneralSection(
               currentLocale: currentLocale,
               onLocaleChanged: (locale) =>
-                  ref.read(localeNotifierProvider.notifier).setLocale(locale),
+                  ref.read(localeProvider.notifier).setLocale(locale),
             ),
             const SizedBox(height: 32),
             FilledButton.icon(
               onPressed: () async {
-                await ref.read(authNotifierProvider.notifier).logout();
+                await ref.read(authProvider.notifier).logout();
                 if (context.mounted) {
-                  context.router.replace(const LoginRoute());
+                  await context.router.replace(const LoginRoute());
                 }
               },
               icon: const Icon(Icons.logout),
@@ -75,26 +68,58 @@ class ProfilePage extends ConsumerWidget {
 // _UserHeader
 // ---------------------------------------------------------------------------
 
-class _UserHeader extends StatelessWidget {
+class _UserHeader extends ConsumerWidget {
   const _UserHeader();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final user = ref.watch(currentUserProvider);
+    final displayName = user?.name ?? context.t.profile.guest;
+    final email = user?.email;
+    final isDevFlavor = ref.watch(appEnvProvider).flavor == AppFlavor.dev;
+
     return Center(
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: colorScheme.primaryContainer,
-            child: Icon(Icons.person, size: 40, color: colorScheme.onPrimaryContainer),
+          GestureDetector(
+            onLongPress: isDevFlavor
+                ? () => _openTalkerScreen(context, ref)
+                : null,
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: colorScheme.primaryContainer,
+              child: Icon(
+                Icons.person,
+                size: 40,
+                color: colorScheme.onPrimaryContainer,
+              ),
+            ),
           ),
           const SizedBox(height: 12),
           Text(
-            'User',
+            displayName,
             style: Theme.of(context).textTheme.titleMedium,
           ),
+          if (email != null && email.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              email,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ],
+      ),
+    );
+  }
+
+  void _openTalkerScreen(BuildContext context, WidgetRef ref) {
+    final talker = ref.read(appLoggerProvider);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TalkerScreen(talker: talker),
       ),
     );
   }
@@ -128,16 +153,20 @@ class _AppearanceSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.profile.appearance,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: colorScheme.primary,
-                    )),
+            Text(
+              t.profile.appearance,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: colorScheme.primary,
+              ),
+            ),
             const SizedBox(height: 16),
-            // Theme mode label
-            Text(t.profile.themeMode,
-                style: Theme.of(context).textTheme.bodyMedium),
+            // 主题模式标签
+            Text(
+              t.profile.themeMode,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             const SizedBox(height: 8),
-            // Theme mode SegmentedButton
+            // 主题模式分段按钮
             SizedBox(
               width: double.infinity,
               child: SegmentedButton<ThemeMode>(
@@ -164,20 +193,24 @@ class _AppearanceSection extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            // Theme color label
-            Text(t.profile.themeColor,
-                style: Theme.of(context).textTheme.bodyMedium),
+            // 主题色标签
+            Text(
+              t.profile.themeColor,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             const SizedBox(height: 8),
-            // Color palette + custom button
+            // 预设色板 + 自定义按钮
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                ...presetColors.map((color) => _ColorCircle(
-                      color: color,
-                      isSelected: themeState.seedColor == color,
-                      onTap: () => onColorSelected(color),
-                    )),
+                ...presetColors.map(
+                  (color) => _ColorCircle(
+                    color: color,
+                    isSelected: themeState.seedColor == color,
+                    onTap: () => onColorSelected(color),
+                  ),
+                ),
                 _CustomColorCircle(
                   currentColor: themeState.seedColor,
                   label: t.profile.custom,
@@ -271,7 +304,7 @@ class _CustomColorCircle extends StatelessWidget {
   }
 
   void _showColorPicker(BuildContext context) {
-    Color pickerColor = currentColor;
+    var pickerColor = currentColor;
     showDialog<void>(
       context: context,
       builder: (context) {
@@ -287,7 +320,9 @@ class _CustomColorCircle extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                child: Text(
+                  MaterialLocalizations.of(context).cancelButtonLabel,
+                ),
               ),
               FilledButton(
                 onPressed: () {
@@ -328,13 +363,17 @@ class _GeneralSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.profile.general,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: colorScheme.primary,
-                    )),
+            Text(
+              t.profile.general,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: colorScheme.primary,
+              ),
+            ),
             const SizedBox(height: 16),
-            Text(t.profile.language,
-                style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              t.profile.language,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,

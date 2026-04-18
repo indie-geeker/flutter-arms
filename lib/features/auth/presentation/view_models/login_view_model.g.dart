@@ -44,7 +44,7 @@ final class LoginViewModelProvider
   }
 }
 
-String _$loginViewModelHash() => r'e362c5cc678cf856e6c573e58946587de0ab50fb';
+String _$loginViewModelHash() => r'c314c1e6e878a770e4329bb0a4a5ecf04950a162';
 
 /// 登录页面 ViewModel。
 

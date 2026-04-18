@@ -56,7 +56,7 @@ class _AppTextFieldState extends State<AppTextField> {
     return TextField(
       controller: _controller,
       keyboardType: widget.keyboardType,
-      obscureText: widget.isPassword ? _obscureText : false,
+      obscureText: widget.isPassword && _obscureText,
       onChanged: widget.onChanged,
       decoration: InputDecoration(
         labelText: widget.label,
@@ -69,7 +69,9 @@ class _AppTextFieldState extends State<AppTextField> {
                     _obscureText = !_obscureText;
                   });
                 },
-                icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
+                icon: Icon(
+                  _obscureText ? Icons.visibility : Icons.visibility_off,
+                ),
               )
             : null,
       ),

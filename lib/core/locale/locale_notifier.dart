@@ -23,6 +23,3 @@ class LocaleNotifier extends _$LocaleNotifier {
     await ref.read(kvStorageProvider).setLocale(locale.languageCode);
   }
 }
-
-/// 兼容命名：语言状态 Provider。
-const localeNotifierProvider = localeProvider;

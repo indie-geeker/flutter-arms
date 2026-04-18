@@ -1,4 +1,5 @@
-import 'package:flutter_arms/core/error/failures.dart';
+import 'package:flutter_arms/core/error/failure.dart';
+import 'package:flutter_arms/core/error/failure_code.dart';
 import 'package:flutter_arms/core/result/result.dart';
 import 'package:flutter_arms/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
@@ -46,7 +47,11 @@ void main() {
   test('should set typed failure when login fails', () async {
     when(
       () => mockLoginUseCase(username: 'tester', password: 'wrong'),
-    ).thenAnswer((_) async => const Result.failure(AuthFailure('invalid credentials')));
+    ).thenAnswer(
+      (_) async => const Result.failure(
+        Failure(code: FailureCode.auth, detail: 'invalid credentials'),
+      ),
+    );
 
     final container = ProviderContainer(
       overrides: [loginUseCaseProvider.overrideWithValue(mockLoginUseCase)],
@@ -62,8 +67,29 @@ void main() {
     final state = container.read(loginViewModelProvider);
     expect(state.isLoading, isFalse);
     expect(state.isLoginSuccess, isFalse);
-    expect(state.error, isA<AuthFailure>());
-    expect(state.error?.message, 'invalid credentials');
+    expect(state.error?.code, FailureCode.auth);
+    expect(state.error?.detail, 'invalid credentials');
   });
 
+  test(
+    'should set validation failure when username or password is empty',
+    () async {
+      final container = ProviderContainer(
+        overrides: [loginUseCaseProvider.overrideWithValue(mockLoginUseCase)],
+      );
+      addTearDown(container.dispose);
+
+      final notifier = container.read(loginViewModelProvider.notifier);
+      await notifier.login();
+
+      final state = container.read(loginViewModelProvider);
+      expect(state.error?.code, FailureCode.validation);
+      verifyNever(
+        () => mockLoginUseCase(
+          username: any(named: 'username'),
+          password: any(named: 'password'),
+        ),
+      );
+    },
+  );
 }
