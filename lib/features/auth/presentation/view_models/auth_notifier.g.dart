@@ -43,7 +43,7 @@ final class AuthNotifierProvider extends $NotifierProvider<AuthNotifier, bool> {
   }
 }
 
-String _$authNotifierHash() => r'63706bbdd0d71f67a807d2dfc0d82a226d8f6f0b';
+String _$authNotifierHash() => r'f29971f9562f19d922c224d5580a3253fc92218a';
 
 /// 全局认证状态。
 
@@ -65,3 +65,48 @@ abstract class _$AuthNotifier extends $Notifier<bool> {
     element.handleValue(ref, created);
   }
 }
+
+/// 当前登录用户（从本地缓存读取）。未登录或本地无缓存时返回 `null`。
+
+@ProviderFor(currentUser)
+const currentUserProvider = CurrentUserProvider._();
+
+/// 当前登录用户（从本地缓存读取）。未登录或本地无缓存时返回 `null`。
+
+final class CurrentUserProvider extends $FunctionalProvider<User?, User?, User?>
+    with $Provider<User?> {
+  /// 当前登录用户（从本地缓存读取）。未登录或本地无缓存时返回 `null`。
+  const CurrentUserProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'currentUserProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$currentUserHash();
+
+  @$internal
+  @override
+  $ProviderElement<User?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  User? create(Ref ref) {
+    return currentUser(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(User? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<User?>(value),
+    );
+  }
+}
+
+String _$currentUserHash() => r'019cb71fdfc455bd028c928f8af4b2fcf28c9ac4';

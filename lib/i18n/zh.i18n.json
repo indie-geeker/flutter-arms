@@ -35,7 +35,8 @@
     "themeColor": "主题色",
     "custom": "自定义",
     "general": "通用",
-    "language": "语言"
+    "language": "语言",
+    "guest": "游客"
   },
   "splash": {
     "title": "Flutter Arms"

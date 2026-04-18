@@ -25,6 +25,10 @@ abstract class AuthRemoteDataSource {
   /// 获取当前用户。
   @GET('/auth/me')
   Future<UserModel> me();
+
+  /// 登出。
+  @POST('/auth/logout')
+  Future<void> logout();
 }
 
 /// 认证远程数据源依赖注入。

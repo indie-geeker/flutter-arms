@@ -52,7 +52,7 @@ final class AuthRepositoryProvider
   }
 }
 
-String _$authRepositoryHash() => r'fc411c7ced7d4e556a8cfaa3cf297767a487041a';
+String _$authRepositoryHash() => r'e1bd0ab13fe9dbbe12e9619fd20e5d915e1342a8';
 
 /// 登录用例依赖注入。
 
@@ -147,11 +147,17 @@ final class LogoutUseCaseProvider
 String _$logoutUseCaseHash() => r'8dabff497d43ce73ee573935c6222a93cefbf70f';
 
 /// 刷新 Token 用例依赖注入。
+///
+/// 当前 UI 未直接消费（刷新由 `TokenInterceptor` 自动处理），
+/// 保留用例以供未来业务主动刷新场景与单元测试复用。
 
 @ProviderFor(refreshTokenUseCase)
 const refreshTokenUseCaseProvider = RefreshTokenUseCaseProvider._();
 
 /// 刷新 Token 用例依赖注入。
+///
+/// 当前 UI 未直接消费（刷新由 `TokenInterceptor` 自动处理），
+/// 保留用例以供未来业务主动刷新场景与单元测试复用。
 
 final class RefreshTokenUseCaseProvider
     extends
@@ -162,6 +168,9 @@ final class RefreshTokenUseCaseProvider
         >
     with $Provider<RefreshTokenUseCase> {
   /// 刷新 Token 用例依赖注入。
+  ///
+  /// 当前 UI 未直接消费（刷新由 `TokenInterceptor` 自动处理），
+  /// 保留用例以供未来业务主动刷新场景与单元测试复用。
   const RefreshTokenUseCaseProvider._()
     : super(
         from: null,

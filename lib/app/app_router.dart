@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_arms/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 import 'package:flutter_arms/features/home/presentation/pages/explore_page.dart';
@@ -18,6 +19,9 @@ class AppRouter extends RootStackRouter {
   AppRouter(this.ref);
 
   final WidgetRef ref;
+
+  /// 认证态变化的 `Listenable`，供 `MaterialApp.router` 的 `reevaluateListenable` 使用。
+  late final AuthListenable authListenable = AuthListenable(ref);
 
   late final AuthGuard _authGuard = AuthGuard(ref);
 
@@ -54,5 +58,29 @@ class AuthGuard extends AutoRouteGuard {
     }
 
     resolver.redirectUntil(const LoginRoute());
+  }
+}
+
+/// 将 `authProvider` 的变化转发为 `Listenable`，供 auto_route 触发守卫重评估。
+class AuthListenable extends ChangeNotifier {
+  /// 构造函数。
+  AuthListenable(this._ref) {
+    _subscription = _ref.listenManual<bool>(
+      authProvider,
+      (previous, next) {
+        if (previous != next) {
+          notifyListeners();
+        }
+      },
+    );
+  }
+
+  final WidgetRef _ref;
+  late final ProviderSubscription<bool> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.close();
+    super.dispose();
   }
 }

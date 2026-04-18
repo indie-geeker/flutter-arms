@@ -7,6 +7,7 @@ import 'package:flutter_arms/features/auth/data/repositories/auth_repository_imp
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:talker/talker.dart';
 
 class _MockRemote extends Mock implements AuthRemoteDataSource {}
 
@@ -15,12 +16,14 @@ class _MockLocal extends Mock implements AuthLocalDataSource {}
 void main() {
   late _MockRemote remote;
   late _MockLocal local;
+  late Talker logger;
   late AuthRepositoryImpl repository;
 
   setUp(() {
     remote = _MockRemote();
     local = _MockLocal();
-    repository = AuthRepositoryImpl(remote, local);
+    logger = Talker(settings: TalkerSettings(enabled: false));
+    repository = AuthRepositoryImpl(remote, local, logger);
   });
 
   group('login', () {
@@ -80,11 +83,23 @@ void main() {
   });
 
   group('logout', () {
-    test('should clear local auth on logout', () async {
+    test('should call remote logout then clear local auth', () async {
+      when(() => remote.logout()).thenAnswer((_) async {});
       when(() => local.clearAuth()).thenAnswer((_) async {});
 
       await repository.logout();
 
+      verify(() => remote.logout()).called(1);
+      verify(() => local.clearAuth()).called(1);
+    });
+
+    test('should still clear local auth when remote logout fails', () async {
+      when(() => remote.logout()).thenThrow(Exception('network down'));
+      when(() => local.clearAuth()).thenAnswer((_) async {});
+
+      await repository.logout();
+
+      verify(() => remote.logout()).called(1);
       verify(() => local.clearAuth()).called(1);
     });
   });

@@ -26,6 +26,12 @@ class _AppState extends ConsumerState<App> {
   }
 
   @override
+  void dispose() {
+    _router.authListenable.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeNotifierProvider);
 
@@ -41,7 +47,9 @@ class _AppState extends ConsumerState<App> {
             theme: AppTheme.light(seedColor: themeState.seedColor),
             darkTheme: AppTheme.dark(seedColor: themeState.seedColor),
             themeMode: themeState.mode,
-            routerConfig: _router.config(),
+            routerConfig: _router.config(
+              reevaluateListenable: _router.authListenable,
+            ),
           );
         },
       ),

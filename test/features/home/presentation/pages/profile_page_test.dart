@@ -29,6 +29,8 @@ _MockKvStorage _stubStorage() {
   when(s.getThemeMode).thenReturn(ThemeMode.system);
   when(s.getThemeSeedColor).thenReturn(const Color(0xFF1D4ED8));
   when(s.getLocale).thenReturn(null); // defaults to AppLocale.en
+  when(s.getAccessToken).thenReturn(null);
+  when(s.getUserMap).thenReturn(null);
   return s;
 }
 
@@ -46,9 +48,9 @@ void main() {
       final storage = _stubStorage();
       await _pumpProfilePage(tester, storage);
 
-      // User header
+      // User header (未登录 → 显示 Guest)
       expect(find.byIcon(Icons.person), findsOneWidget);
-      expect(find.text('User'), findsOneWidget);
+      expect(find.text('Guest'), findsOneWidget);
 
       // Appearance section
       expect(find.text('Appearance'), findsOneWidget);

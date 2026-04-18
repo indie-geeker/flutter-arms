@@ -58,21 +58,39 @@ class TokenInterceptor extends Interceptor {
     if (_isRefreshing) {
       final completer = Completer<void>();
       _waitQueue.add(completer);
-      await completer.future;
+      try {
+        await completer.future;
+      } on Object {
+        handler.next(err);
+        return;
+      }
       await _retryRequest(err, handler);
       return;
     }
 
     _isRefreshing = true;
-    final refreshSuccess = await _refreshAction(refreshToken);
-    _isRefreshing = false;
+    var refreshSuccess = false;
+    Object? refreshError;
+    try {
+      refreshSuccess = await _refreshAction(refreshToken);
+    } on Object catch (e) {
+      refreshError = e;
+    } finally {
+      _isRefreshing = false;
+    }
 
-    for (final completer in _waitQueue) {
-      if (!completer.isCompleted) {
+    final queued = List<Completer<void>>.from(_waitQueue);
+    _waitQueue.clear();
+    for (final completer in queued) {
+      if (completer.isCompleted) {
+        continue;
+      }
+      if (refreshSuccess) {
         completer.complete();
+      } else {
+        completer.completeError(refreshError ?? err);
       }
     }
-    _waitQueue.clear();
 
     if (!refreshSuccess) {
       handler.next(err);

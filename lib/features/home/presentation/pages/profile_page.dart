@@ -64,12 +64,16 @@ class ProfilePage extends ConsumerWidget {
 // _UserHeader
 // ---------------------------------------------------------------------------
 
-class _UserHeader extends StatelessWidget {
+class _UserHeader extends ConsumerWidget {
   const _UserHeader();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
+    final user = ref.watch(currentUserProvider);
+    final displayName = user?.name ?? context.t.profile.guest;
+    final email = user?.email;
+
     return Center(
       child: Column(
         children: [
@@ -84,9 +88,18 @@ class _UserHeader extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'User',
+            displayName,
             style: Theme.of(context).textTheme.titleMedium,
           ),
+          if (email != null && email.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              email,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ],
       ),
     );

@@ -35,7 +35,8 @@
     "themeColor": "Theme color",
     "custom": "Custom",
     "general": "General",
-    "language": "Language"
+    "language": "Language",
+    "guest": "Guest"
   },
   "splash": {
     "title": "Flutter Arms"

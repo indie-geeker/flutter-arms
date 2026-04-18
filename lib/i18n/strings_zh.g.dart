@@ -116,6 +116,7 @@ class _TranslationsProfileZh implements TranslationsProfileEn {
 	@override String get custom => '自定义';
 	@override String get general => '通用';
 	@override String get language => '语言';
+	@override String get guest => '游客';
 }
 
 // Path: splash
@@ -164,6 +165,7 @@ extension on TranslationsZh {
 			'profile.custom' => '自定义',
 			'profile.general' => '通用',
 			'profile.language' => '语言',
+			'profile.guest' => '游客',
 			'splash.title' => 'Flutter Arms',
 			_ => null,
 		};

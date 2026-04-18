@@ -175,6 +175,9 @@ class TranslationsProfileEn {
 
 	/// en: 'Language'
 	String get language => 'Language';
+
+	/// en: 'Guest'
+	String get guest => 'Guest';
 }
 
 // Path: splash
@@ -225,6 +228,7 @@ extension on Translations {
 			'profile.custom' => 'Custom',
 			'profile.general' => 'General',
 			'profile.language' => 'Language',
+			'profile.guest' => 'Guest',
 			'splash.title' => 'Flutter Arms',
 			_ => null,
 		};

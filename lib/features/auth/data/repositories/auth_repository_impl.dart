@@ -1,10 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/core/error/failures.dart';
+import 'package:flutter_arms/core/logger/app_logger.dart';
 import 'package:flutter_arms/core/result/result.dart';
 import 'package:flutter_arms/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:flutter_arms/features/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:flutter_arms/features/auth/data/models/token_model.dart';
 import 'package:flutter_arms/features/auth/data/models/user_model.dart';
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
 import 'package:flutter_arms/features/auth/domain/repositories/auth_repository.dart';
@@ -12,16 +11,18 @@ import 'package:flutter_arms/features/auth/domain/usecases/login_usecase.dart';
 import 'package:flutter_arms/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:flutter_arms/features/auth/domain/usecases/refresh_token_usecase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:talker/talker.dart';
 
 part 'auth_repository_impl.g.dart';
 
 /// 认证仓储实现。
 class AuthRepositoryImpl implements AuthRepository {
   /// 构造函数。
-  const AuthRepositoryImpl(this._remote, this._local);
+  const AuthRepositoryImpl(this._remote, this._local, this._logger);
 
   final AuthRemoteDataSource _remote;
   final AuthLocalDataSource _local;
+  final Talker _logger;
 
   @override
   Future<Result<User>> login({
@@ -43,20 +44,6 @@ class AuthRepositoryImpl implements AuthRepository {
       await _local.saveUser(userModel);
       return Result.success(userModel.toEntity());
     } on DioException catch (e) {
-      if (AppEnv.current.flavor == AppFlavor.dev && password == '123456') {
-        const fallbackToken = TokenModel(
-          accessToken: 'dev_access_token',
-          refreshToken: 'dev_refresh_token',
-        );
-        final fallbackUser = UserModel(
-          id: 'dev_$username',
-          name: username,
-          email: '$username@example.com',
-        );
-        await _local.saveToken(fallbackToken);
-        await _local.saveUser(fallbackUser);
-        return Result.success(fallbackUser.toEntity());
-      }
       final failure = e.error is Failure
           ? e.error! as Failure
           : NetworkFailure(e.message ?? '登录失败，请检查账号密码后重试');
@@ -68,6 +55,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
+    try {
+      await _remote.logout();
+    } on Object catch (e, st) {
+      _logger.warning('remote logout failed, clearing local anyway', e, st);
+    }
     await _local.clearAuth();
   }
 
@@ -91,15 +83,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<User>> getCurrentUser() async {
-    try {
-      final localUser = _local.getUser();
-      if (localUser == null) {
-        return const Result.failure(AuthFailure('当前无登录用户'));
-      }
-      return Result.success(localUser.toEntity());
-    } on Object {
-      return const Result.failure(UnknownFailure('读取用户信息失败'));
+    final localUser = _local.getUser();
+    if (localUser == null) {
+      return const Result.failure(AuthFailure('当前无登录用户'));
     }
+    return Result.success(localUser.toEntity());
   }
 }
 
@@ -109,6 +97,7 @@ AuthRepository authRepository(Ref ref) {
   return AuthRepositoryImpl(
     ref.read(authRemoteDataSourceProvider),
     ref.read(authLocalDataSourceProvider),
+    ref.read(appLoggerProvider),
   );
 }
 
@@ -125,6 +114,9 @@ LogoutUseCase logoutUseCase(Ref ref) {
 }
 
 /// 刷新 Token 用例依赖注入。
+///
+/// 当前 UI 未直接消费（刷新由 `TokenInterceptor` 自动处理），
+/// 保留用例以供未来业务主动刷新场景与单元测试复用。
 @Riverpod(keepAlive: true)
 RefreshTokenUseCase refreshTokenUseCase(Ref ref) {
   return RefreshTokenUseCase(ref.read(authRepositoryProvider));
