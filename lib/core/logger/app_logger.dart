@@ -4,21 +4,14 @@ import 'package:talker/talker.dart';
 
 part 'app_logger.g.dart';
 
-/// 全局日志封装。
-class AppLogger {
-  AppLogger._();
-
-  static final Talker _talker = Talker(
+/// 日志依赖注入。根据 `appEnvProvider.enableLog` 决定是否启用。
+@Riverpod(keepAlive: true)
+Talker appLogger(Ref ref) {
+  final env = ref.watch(appEnvProvider);
+  return Talker(
     settings: TalkerSettings(
-      enabled: AppEnv.current.enableLog,
+      enabled: env.enableLog,
       useConsoleLogs: true,
     ),
   );
-
-  /// 获取日志实例。
-  static Talker get instance => _talker;
 }
-
-/// 日志依赖注入。
-@Riverpod(keepAlive: true)
-Talker appLogger(Ref ref) => AppLogger.instance;

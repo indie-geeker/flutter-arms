@@ -34,12 +34,13 @@ class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
     final themeState = ref.watch(themeNotifierProvider);
+    final env = ref.watch(appEnvProvider);
 
     return TranslationProvider(
       child: Builder(
         builder: (context) {
           return MaterialApp.router(
-            title: AppEnv.current.appName,
+            title: env.appName,
             debugShowCheckedModeBanner: false,
             locale: TranslationProvider.of(context).flutterLocale,
             supportedLocales: AppLocaleUtils.supportedLocales,

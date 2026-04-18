@@ -13,7 +13,6 @@ void main() {
   late _MockKvStorage mockKvStorage;
 
   setUp(() {
-    AppEnv.setup(flavor: AppFlavor.dev);
     LocaleSettings.setLocaleSync(AppLocale.en);
     mockKvStorage = _MockKvStorage();
     when(() => mockKvStorage.getAccessToken()).thenReturn(null);
@@ -32,7 +31,10 @@ void main() {
   ) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [kvStorageProvider.overrideWithValue(mockKvStorage)],
+        overrides: [
+          appEnvProvider.overrideWithValue(AppEnv.fromFlavor(AppFlavor.dev)),
+          kvStorageProvider.overrideWithValue(mockKvStorage),
+        ],
         child: const App(),
       ),
     );

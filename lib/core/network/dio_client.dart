@@ -11,8 +11,8 @@ import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 part 'dio_client.g.dart';
 
-BaseOptions _baseOptions() => BaseOptions(
-  baseUrl: AppEnv.current.baseUrl,
+BaseOptions _baseOptions(String baseUrl) => BaseOptions(
+  baseUrl: baseUrl,
   connectTimeout: const Duration(milliseconds: AppConstants.connectTimeoutMs),
   receiveTimeout: const Duration(milliseconds: AppConstants.receiveTimeoutMs),
   sendTimeout: const Duration(milliseconds: AppConstants.sendTimeoutMs),
@@ -23,8 +23,9 @@ BaseOptions _baseOptions() => BaseOptions(
 /// 避免 `TokenInterceptor` 在刷新过程中自调用造成递归。
 @Riverpod(keepAlive: true)
 Dio authRefreshDio(Ref ref) {
+  final env = ref.read(appEnvProvider);
   final logger = ref.read(appLoggerProvider);
-  final dio = Dio(_baseOptions());
+  final dio = Dio(_baseOptions(env.baseUrl));
   dio.interceptors
     ..add(
       TalkerDioLogger(
@@ -45,10 +46,11 @@ AuthRemoteDataSource authRefreshDataSource(Ref ref) {
 /// 主 Dio 客户端：注入 Token，自动刷新，统一错误拦截。
 @Riverpod(keepAlive: true)
 Dio dio(Ref ref) {
+  final env = ref.read(appEnvProvider);
   final logger = ref.read(appLoggerProvider);
   final storage = ref.read(kvStorageProvider);
 
-  final dio = Dio(_baseOptions());
+  final dio = Dio(_baseOptions(env.baseUrl));
 
   dio.interceptors
     ..add(
