@@ -5,6 +5,7 @@ import 'package:flutter_arms/core/logger/app_logger.dart';
 import 'package:flutter_arms/core/network/api_interceptor.dart';
 import 'package:flutter_arms/core/network/token_interceptor.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
+// arch-exempt: TokenInterceptor 需要调用 auth 的 refresh 数据源实现 Token 轮换。
 import 'package:flutter_arms/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';

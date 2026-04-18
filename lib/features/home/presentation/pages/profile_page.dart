@@ -1,13 +1,17 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/core/locale/locale_notifier.dart';
+import 'package:flutter_arms/core/logger/app_logger.dart';
 import 'package:flutter_arms/core/theme/app_colors.dart';
 import 'package:flutter_arms/core/theme/theme_notifier.dart';
+// arch-exempt: Profile 页依赖 auth 登出能力（跨切面）。
 import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 /// Profile Tab 页。
 @RoutePage()
@@ -73,17 +77,23 @@ class _UserHeader extends ConsumerWidget {
     final user = ref.watch(currentUserProvider);
     final displayName = user?.name ?? context.t.profile.guest;
     final email = user?.email;
+    final isDevFlavor = ref.watch(appEnvProvider).flavor == AppFlavor.dev;
 
     return Center(
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: colorScheme.primaryContainer,
-            child: Icon(
-              Icons.person,
-              size: 40,
-              color: colorScheme.onPrimaryContainer,
+          GestureDetector(
+            onLongPress: isDevFlavor
+                ? () => _openTalkerScreen(context, ref)
+                : null,
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: colorScheme.primaryContainer,
+              child: Icon(
+                Icons.person,
+                size: 40,
+                color: colorScheme.onPrimaryContainer,
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -101,6 +111,15 @@ class _UserHeader extends ConsumerWidget {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  void _openTalkerScreen(BuildContext context, WidgetRef ref) {
+    final talker = ref.read(appLoggerProvider);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TalkerScreen(talker: talker),
       ),
     );
   }

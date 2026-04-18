@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
 import 'package:flutter_arms/features/home/presentation/pages/profile_page.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
@@ -16,7 +17,10 @@ Future<void> _pumpProfilePage(
   await tester.pumpWidget(
     TranslationProvider(
       child: ProviderScope(
-        overrides: [kvStorageProvider.overrideWithValue(storage)],
+        overrides: [
+          kvStorageProvider.overrideWithValue(storage),
+          appEnvProvider.overrideWithValue(AppEnv.fromFlavor(AppFlavor.dev)),
+        ],
         child: const MaterialApp(home: ProfilePage()),
       ),
     ),

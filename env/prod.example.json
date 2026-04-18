@@ -1,0 +1,5 @@
+{
+  "APP_NAME": "Flutter Arms",
+  "API_BASE_URL": "https://example.prod.api",
+  "ENABLE_LOG": "false"
+}

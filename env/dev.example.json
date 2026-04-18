@@ -1,0 +1,5 @@
+{
+  "APP_NAME": "Flutter Arms Dev",
+  "API_BASE_URL": "https://example.dev.api",
+  "ENABLE_LOG": "true"
+}
