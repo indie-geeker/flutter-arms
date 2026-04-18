@@ -54,7 +54,7 @@ final class AuthRefreshDioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$authRefreshDioHash() => r'923c8ad230e12c66639fcebfff3604b728f3480b';
+String _$authRefreshDioHash() => r'495358991694103d18bccd70809379af1a214a38';
 
 /// 刷新专用的数据源。仅用于 `TokenInterceptor.refreshAction`。
 
@@ -152,4 +152,4 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$dioHash() => r'bf70faf3584dd0a1d250bd95188c8a436ee91596';
+String _$dioHash() => r'3072cf39a994d207f03e0de7d2773c7c400d52e7';
