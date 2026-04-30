@@ -48,7 +48,9 @@ class AppEnv {
         return AppEnv(
           flavor: AppFlavor.dev,
           appName: envAppName.isNotEmpty ? envAppName : 'Flutter Arms Dev',
-          baseUrl: envBaseUrl.isNotEmpty ? envBaseUrl : 'https://example.dev.api',
+          baseUrl: envBaseUrl.isNotEmpty
+              ? envBaseUrl
+              : 'https://example.dev.api',
           enableLog: !hasEnableLog || envEnableLog,
           // dev 默认开启 mock，无需后端即可演示登录/登出。
           useMockApi: !hasUseMockApi || envUseMockApi,

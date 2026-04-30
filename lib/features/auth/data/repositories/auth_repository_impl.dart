@@ -37,9 +37,10 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     try {
-      final token = await _remote
-          .login(<String, dynamic>{'username': username, 'password': password})
-          .asApi();
+      final token = await _remote.login(<String, dynamic>{
+        'username': username,
+        'password': password,
+      }).asApi();
       await _local.saveToken(token);
 
       final userModel = await _remote.me().asApi();
@@ -63,9 +64,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<String>> refreshToken(String refreshToken) async {
     try {
-      final token = await _remote
-          .refreshToken(<String, dynamic>{'refreshToken': refreshToken})
-          .asApi();
+      final token = await _remote.refreshToken(<String, dynamic>{
+        'refreshToken': refreshToken,
+      }).asApi();
       await _local.saveToken(token);
       return Result.success(token.accessToken);
     } on AppException catch (e) {

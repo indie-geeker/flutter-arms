@@ -48,6 +48,11 @@ app.*.map.json
 docs/plans
 docs/superpowers
 
+# Local Claude/Codex state. Project skills under .claude/skills are template assets.
+.code-review-graph/
+.claude/settings.local.json
+.claude/worktrees/
+
 # Environment files with real values (commit only *.example.json)
 env/*.json
 !env/*.example.json

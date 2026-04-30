@@ -28,7 +28,8 @@ sealed class AppException implements Exception {
   final String? detail;
 
   @override
-  String toString() => 'AppException(code: $code, detail: $detail, cause: $cause)';
+  String toString() =>
+      'AppException(code: $code, detail: $detail, cause: $cause)';
 }
 
 /// 网络连接异常。
