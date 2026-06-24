@@ -17,23 +17,14 @@
 
 ## 2. 已知风险与对策
 
-### 2.1 🚨 Hive cipher key 明文落盘（S1，**模板已知短板**）
+### 2.1 ✅ Hive cipher key 安全存储（已修复 S1 模板已知短板）
 
-**现状**：`HiveKvStorage` 启用了 AES cipher，但 cipher key 生成后以**明文形式**存储在 `SharedPreferences` / `NSUserDefaults`。
+**现状**：`HiveKvStorage` 启用了 AES cipher，加密 Key 目前已被妥善保存在 `flutter_secure_storage` 中（iOS 走 Keychain，Android 走 Keystore）。
 
-**等价于**：
-- iOS → `NSUserDefaults`（plist 可读）。
-- Android → `SharedPreferences`（`/data/data/<pkg>/shared_prefs/*.xml`，root 可读）。
-
-**为什么未修复**：
-- iOS/Android 推荐走 Keychain / Keystore（`flutter_secure_storage`）。
-- 鸿蒙（HarmonyOS）对 `flutter_secure_storage` 尚无稳定方案，贸然引入会丢失平台覆盖。
-- 故本模板**搁置**，等待上线前 / 接鸿蒙时统一决策（决策编号 D1）。
-
-**派生新项目前必做**：
-1. 若不需要鸿蒙 → 接入 `flutter_secure_storage`，将 cipher key 存到 Keychain/Keystore。
-2. 若需要鸿蒙 → 参考 `@ohos/security` 或原生 HUKS，自行封装一层 `SecureKeyStorage` 抽象。
-3. 修改 `lib/core/storage/hive_kv_storage.dart` 的 key 获取路径。
+**鸿蒙（HarmonyOS）兼容注意**：
+- 由于 `flutter_secure_storage` 在 HarmonyOS 上支持暂不完善，我们在 `kv_storage.dart` 内添加了 `try/catch` 降级逻辑。
+- 如果部署在不支持的环境中，程序会在控制台抛出警告 `Secure Storage unavailable` 并降级为原生 Hive 明文存储加密 Key。
+- 如果你的项目强烈依赖鸿蒙端，建议后续自行桥接鸿蒙 `HUKS` API 替换降级逻辑。
 
 ### 2.2 Token 存储
 

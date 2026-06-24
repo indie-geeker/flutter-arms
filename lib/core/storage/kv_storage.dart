@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_arms/core/constants/app_constants.dart';
 import 'package:flutter_arms/core/theme/app_colors.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -79,18 +80,37 @@ class HiveKvStorage implements KvStorage {
     }
 
     await Hive.initFlutter();
-    final keyBox = await Hive.openBox<dynamic>(AppConstants.keyBoxName);
-
-    var key = keyBox.get(AppConstants.cipherKey);
-    if (key is! List<int>) {
-      key = List<int>.generate(32, (_) => Random.secure().nextInt(256));
-      await keyBox.put(AppConstants.cipherKey, key);
+    
+    List<int>? keyBytes;
+    try {
+      const secureStorage = FlutterSecureStorage();
+      final secureKey = await secureStorage.read(key: AppConstants.cipherKey);
+      if (secureKey == null) {
+        final newKey = Hive.generateSecureKey();
+        await secureStorage.write(
+          key: AppConstants.cipherKey,
+          value: base64UrlEncode(newKey),
+        );
+        keyBytes = newKey;
+      } else {
+        keyBytes = base64Url.decode(secureKey);
+      }
+    } catch (e) {
+      // 如果平台不支持或出现 MissingPluginException 等，回退到原有逻辑
+      debugPrint('Secure Storage unavailable, falling back to plain text box for cipher key: \$e');
+      final keyBox = await Hive.openBox<dynamic>(AppConstants.keyBoxName);
+      var key = keyBox.get(AppConstants.cipherKey);
+      if (key is! List<int>) {
+        key = Hive.generateSecureKey();
+        await keyBox.put(AppConstants.cipherKey, key);
+      }
+      keyBytes = key as List<int>;
     }
 
     _commonBox = await Hive.openBox<dynamic>(AppConstants.commonBoxName);
     _secureBox = await Hive.openBox<dynamic>(
       AppConstants.secureBoxName,
-      encryptionCipher: HiveAesCipher(Uint8List.fromList(key)),
+      encryptionCipher: HiveAesCipher(Uint8List.fromList(keyBytes)),
     );
 
     _initialized = true;

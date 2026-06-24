@@ -6,6 +6,7 @@ import 'package:flutter_arms/core/theme/theme_notifier.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 
 /// 应用根组件。
 class App extends ConsumerStatefulWidget {
@@ -50,7 +51,9 @@ class _AppState extends ConsumerState<App> {
             themeMode: themeState.mode,
             routerConfig: _router.config(
               reevaluateListenable: _router.authListenable,
+              navigatorObservers: () => [FlutterSmartDialog.observer],
             ),
+            builder: FlutterSmartDialog.init(),
           );
         },
       ),

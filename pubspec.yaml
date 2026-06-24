@@ -18,6 +18,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_riverpod: ^3.0.3
+  flutter_secure_storage: ^10.3.1
+  flutter_smart_dialog: ^5.1.0
   freezed_annotation: ^3.1.0
   hive_ce: ^2.13.0
   hive_ce_flutter: ^2.3.0
@@ -25,6 +27,7 @@ dependencies:
   meta: ^1.16.0
   retrofit: ^4.7.2
   riverpod_annotation: ^3.0.3
+  shimmer: ^3.0.0
   slang: ^4.8.2
   slang_flutter: ^4.14.0
   talker: ^5.0.0

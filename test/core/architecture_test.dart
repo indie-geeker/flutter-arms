@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 /// 2. `lib/features/**/domain/**` 与 `lib/features/**/presentation/**` 不得 import `AppException` 及其子类。
 /// 3. `lib/core/**` 不得 import `lib/features/**`（允许例外在源文件标注 `// arch-exempt`）。
 /// 4. 任意 `features/<X>` 不得 import 其他 `features/<Y>`。
+/// 5. `lib/features/**/presentation/**` 默认不得 import 本 feature 的 `data/**` 或 `domain/repositories/**`，除非文件内包含 `// fast-track`。
 void main() {
   final libDir = Directory(p.normalize(p.join(Directory.current.path, 'lib')));
 
@@ -128,6 +129,36 @@ void main() {
         offenders,
         isEmpty,
         reason: 'Cross-feature import detected (feature isolation broken)',
+      );
+    });
+
+    test('presentation must not import data or repositories unless fast-track', () {
+      final featuresDir = Directory(p.join(libDir.path, 'features'));
+      if (!featuresDir.existsSync()) return;
+
+      final offenders = <String>[];
+      for (final feature in featuresDir.listSync().whereType<Directory>()) {
+        final featureName = p.basename(feature.path);
+        final presentationDir = Directory(p.join(feature.path, 'presentation'));
+        if (!presentationDir.existsSync()) continue;
+
+        final forbiddenData = RegExp(r"import\s+['\x22]package:flutter_arms/features/" + featureName + r"/data/");
+        final forbiddenRepo = RegExp(r"import\s+['\x22]package:flutter_arms/features/" + featureName + r"/domain/repositories/");
+
+        for (final file in dartFiles(presentationDir)) {
+          final content = file.readAsStringSync();
+          // 如果开发者希望快速开发，跳过 UseCase 层，可以使用 // fast-track 豁免
+          if (content.contains('// fast-track')) continue;
+
+          if (forbiddenData.hasMatch(content) || forbiddenRepo.hasMatch(content)) {
+            offenders.add(rel(file));
+          }
+        }
+      }
+      expect(
+        offenders,
+        isEmpty,
+        reason: 'Presentation layer imports Data/Repositories without // fast-track',
       );
     });
   });

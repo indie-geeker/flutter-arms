@@ -21,7 +21,7 @@ class LoginForm extends ConsumerWidget {
     ref.listen(loginViewModelProvider, (previous, next) {
       final failure = next.error;
       if (failure != null) {
-        AppDialog.showError(context, context.failureMessage(failure));
+        AppDialog.showError(context.failureMessage(failure));
       }
 
       if (next.isLoginSuccess) {

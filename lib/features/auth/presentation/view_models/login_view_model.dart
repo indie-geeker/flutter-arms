@@ -1,3 +1,4 @@
+// fast-track
 import 'package:flutter_arms/core/error/failure.dart';
 import 'package:flutter_arms/core/error/failure_code.dart';
 import 'package:flutter_arms/core/result/result.dart';
