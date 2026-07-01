@@ -85,9 +85,11 @@ lib/
 
 1. `lib/features/**/domain/**` 不得 import Data 层运输包（dio/hive/retrofit）。
 2. `lib/features/**/{domain,presentation}/**` 不得 import `app_exception*.dart`。
-3. `lib/core/**` 不得 import `lib/features/**`（允许文件级 `// arch-exempt` 豁免）。
-4. `features/<X>` 不得 import `features/<Y>`（允许文件级 `// arch-exempt` 豁免）。
-5. `features/**/presentation/**` 默认不得 import 本 feature 的 `data/**` 或 `domain/repositories/**`。
+3. `lib/core/**` 不得 import `lib/features/**`（确需例外时，在违规 import 上一行写 `// arch-exempt: <reason>`）。
+4. `features/<X>` 不得 import `features/<Y>`（同样只允许行级、带理由的 `// arch-exempt: <reason>`）。
+5. `ApiClient` datasource adapter 不得 import 具体 Dio provider。
+6. Repository / application service 不得 import `dio_ext.dart` 或调用 `.asApi()`。
+7. `features/**/presentation/**` 默认不得 import 本 feature 的 `data/**` 或 `domain/repositories/**`。
 
 `// fast-track` 只保留给明确的小实验页面，不作为核心示例默认写法。
 

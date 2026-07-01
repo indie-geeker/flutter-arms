@@ -3,14 +3,19 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 
+import 'architecture_rules.dart';
+
 /// 架构层级约束测试。
 ///
 /// 规则（对应 IMPROVEMENT_PLAN.md §7）：
 /// 1. `lib/features/**/domain/**` 不得 import `dio` / `hive` / `retrofit`。
 /// 2. `lib/features/**/domain/**` 与 `lib/features/**/presentation/**` 不得 import `AppException` 及其子类。
-/// 3. `lib/core/**` 不得 import `lib/features/**`（允许例外在源文件标注 `// arch-exempt`）。
+/// 3. `lib/core/**` 不得 import `lib/features/**`（确需例外时在 import 上一行标注
+///    `// arch-exempt: <reason>`）。
 /// 4. 任意 `features/<X>` 不得 import 其他 `features/<Y>`。
-/// 5. `lib/features/**/presentation/**` 默认不得 import 本 feature 的 `data/**` 或
+/// 5. `ApiClient` datasource adapter 不得 import 具体 Dio provider。
+/// 6. Repository / application service 不得 import `dio_ext.dart` 或调用 `.asApi()`。
+/// 7. `lib/features/**/presentation/**` 默认不得 import 本 feature 的 `data/**` 或
 ///    `domain/repositories/**`，除非文件内包含带理由的 `// fast-track: ...`。
 void main() {
   final libDir = Directory(p.normalize(p.join(Directory.current.path, 'lib')));
@@ -93,10 +98,11 @@ void main() {
       );
       for (final file in dartFiles(coreDir)) {
         final content = file.readAsStringSync();
-        // 允许在 import 行上一行用 `// arch-exempt` 标注豁免。
-        if (content.contains('// arch-exempt')) continue;
-        if (forbidden.hasMatch(content)) {
-          offenders.add(rel(file));
+        final lines = content.split('\n');
+        for (var i = 0; i < lines.length; i++) {
+          if (!forbidden.hasMatch(lines[i])) continue;
+          if (hasArchExemptForImport(lines, i)) continue;
+          offenders.add('${rel(file)}:${i + 1} -> ${lines[i].trim()}');
         }
       }
       expect(offenders, isEmpty, reason: 'core/ imports features/');
@@ -181,13 +187,15 @@ void main() {
         );
         for (final file in dartFiles(feature)) {
           final content = file.readAsStringSync();
-          // 允许文件级 `// arch-exempt` 豁免（用于 auth 等跨切面能力）。
-          if (content.contains('// arch-exempt')) continue;
-          for (final match in importRe.allMatches(content)) {
+          final lines = content.split('\n');
+          for (var i = 0; i < lines.length; i++) {
+            final match = importRe.firstMatch(lines[i]);
+            if (match == null) continue;
             final importedFeature = match.group(1)!;
             if (importedFeature != featureName) {
+              if (hasArchExemptForImport(lines, i)) continue;
               offenders.add(
-                '${rel(file)} -> features/$importedFeature',
+                '${rel(file)}:${i + 1} -> features/$importedFeature',
               );
             }
           }

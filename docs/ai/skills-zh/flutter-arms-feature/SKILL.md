@@ -72,7 +72,7 @@ features/<f>/
 
 8. **i18n key 同时加进 `lib/i18n/en.i18n.json` 和 `lib/i18n/zh.i18n.json`**，结构对称。然后重跑 slang。通过 `context.t.<path>` 访问。
 
-9. **禁止跨 feature import。** feature X 要用 feature Y 的东西，要么 (a) 提升到 `core/`（优先），要么 (b) 加 `// arch-exempt: <reason>` 并写真实理由。不要悄悄 import。
+9. **禁止跨 feature import。** feature X 要用 feature Y 的东西，要么 (a) 提升到 `core/`（优先），要么 (b) 在违规 import 上一行加 `// arch-exempt: <reason>` 并写真实理由。不要悄悄 import。
 
 10. **代码风格**：80 字符行宽、尾随逗号、每个 public 符号带中文 `///` 文档注释、import 顺序 dart → package → relative。
 

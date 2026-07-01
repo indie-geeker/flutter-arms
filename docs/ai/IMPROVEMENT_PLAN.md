@@ -3,6 +3,8 @@
 > 版本：v1.0 · 最后更新：2026-04-17
 > 目的：将 Flutter Arms 打磨为一套可直接衍生新项目的独立开发者模板，填补安全/正确性坑，统一架构，补齐工程化最后一公里。
 
+> 状态说明（2026-07-01）：本文保留为历史落地计划，表格中的旧路径与中间态设计不代表当前代码边界。当前架构以 [ARCHITECTURE.md](ARCHITECTURE.md) 和 `docs/ai/skills-zh/**` 为准：token 刷新通过 `core/auth/AuthTokenRefresher` 端口注入，`.asApi()` 只属于 Retrofit DataSource adapter 边界，ApiClient adapter 通过 `ApiClient.send(...)` 接收规范化后的 `AppException`。
+
 ---
 
 ## 1. 背景与目标

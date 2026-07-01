@@ -26,13 +26,13 @@
 
 ### 规则 3：`core/` 不得 import `features/`
 
-`lib/core/**` 下的文件不得 import `package:flutter_arms/features/...`。例外口子：在文件任意位置加一行 `// arch-exempt`（约定写在被豁免 import 的上一行），整个文件就被跳过。
+`lib/core/**` 下的文件不得 import `package:flutter_arms/features/...`。例外口子：在被豁免 import 的上一行加 `// arch-exempt: <真实理由>`，只豁免这一条 import。
 
 token 刷新不再用这里的豁免：`core/network` 只依赖 `core/auth/AuthTokenRefresher` 端口，具体 auth 实现在 app bootstrap 的 provider override 中接入。
 
 ### 规则 4：`features/<X>` 不得 import `features/<Y>`
 
-`lib/features/<X>/**` 下的文件不得 import `package:flutter_arms/features/<Y>/...`（`Y != X`）。同样的 `// arch-exempt` 口子可用。
+`lib/features/<X>/**` 下的文件不得 import `package:flutter_arms/features/<Y>/...`（`Y != X`）。同样的行级 `// arch-exempt: <真实理由>` 口子可用。
 
 当前合法的豁免：
 
@@ -86,7 +86,7 @@ Actual: ['features/post/presentation/post_page.dart -> features/user']
 import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 ```
 
-测试寻找的是 `// arch-exempt` 字面子串，文件内任何位置均可。约定写在违规 import 的上一行（理由就近贴着代码）。一份豁免注释就能覆盖整个文件里的所有跨层 import。
+测试要求 `// arch-exempt: <理由>` 紧贴违规 import 的上一行。文件其他位置的注释不会生效；一份豁免也不会覆盖同文件里的其他跨层 import。
 
 **什么时候加豁免：**
 
@@ -115,10 +115,11 @@ test('features must not import analytics directly', () {
   );
   for (final feature in featuresDir.listSync().whereType<Directory>()) {
     for (final file in dartFiles(feature)) {
-      final content = file.readAsStringSync();
-      if (content.contains('// arch-exempt')) continue;
-      if (forbidden.hasMatch(content)) {
-        offenders.add(rel(file));
+      final lines = file.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        if (!forbidden.hasMatch(lines[i])) continue;
+        if (hasArchExemptForImport(lines, i)) continue;
+        offenders.add('${rel(file)}:${i + 1} -> ${lines[i].trim()}');
       }
     }
   }
@@ -134,11 +135,11 @@ test('features must not import analytics directly', () {
 - **修法几乎永远是下列之一：**
   1. 把文件移到正确的层（domain → data，或 features/X → core）。
   2. 把 import 换成一个 domain 纯净替身。
-  3. 若跨层确有必要，加 `// arch-exempt: <真实理由>`。
+  3. 若跨层确有必要，在违规 import 上一行加 `// arch-exempt: <真实理由>`。
 
 ## 避免清单
 
 - "先把测试禁了把 PR 推过去" —— 一旦禁用，约束迅速腐烂。
-- 加 `// arch-exempt` 不写真实理由 —— 让未来的自己在扩大豁免前多想一步。
+- 加 `// arch-exempt` 不写真实理由，或把豁免写到远离 import 的地方。
 - 为了放过某一处违规去改测试规则 —— 收紧设计，而不是放宽测试。
 - 写通过测试但违背精神的代码（比如用 domain 文件 re-export `dio`）。测试是必要条件，不是充分条件；设计仍然重要。

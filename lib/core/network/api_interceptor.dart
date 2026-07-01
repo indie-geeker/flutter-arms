@@ -4,7 +4,7 @@ import 'package:flutter_arms/core/error/app_exception_mapper.dart';
 /// 统一错误拦截器。
 ///
 /// 将 [DioException] 映射为 `AppException` 并填入 `error` 字段，
-/// 由上层通过 `.asApi()` 扩展解封。
+/// 由 Retrofit DataSource adapter 的 `.asApi()` 或 `DioApiClient` 边界解封。
 class ApiInterceptor extends Interceptor {
   /// 构造函数。
   const ApiInterceptor();
