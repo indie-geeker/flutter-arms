@@ -70,9 +70,9 @@ void onError(DioException err, ErrorInterceptorHandler handler) {
 }
 ```
 
-这是关键技巧：Retrofit 调用抛出的**仍然**是 `DioException`，但它的 `error` 字段里藏着 `AppException`。真正拆包在 `.asApi()` 里完成。
+这是关键技巧：Retrofit 调用抛出的**仍然**是 `DioException`，但它的 `error` 字段里藏着 `AppException`。真正拆包在 Retrofit DataSource adapter 的 `.asApi()` 里完成。
 
-## `.asApi()` 扩展（在 Repository 边界拆包）
+## `.asApi()` 扩展（在 Retrofit DataSource adapter 边界拆包）
 
 位置：`lib/core/network/dio_ext.dart`：
 
@@ -92,13 +92,21 @@ extension ThrowAppExceptionX<T> on Future<T> {
 }
 ```
 
-Repository 里每一次 Retrofit 调用都**必须**包起来：
+Retrofit DataSource adapter 里每一次 Retrofit 调用都**必须**包起来：
 
 ```dart
-final dto = await _remote.getThing().asApi();
+Future<ThingDto> getThing() {
+  return _api.getThing().asApi();
+}
 ```
 
-少了这一步，捕获到的就是 `DioException`，`on AppException catch` 会静默漏掉。这是本错误模型里最常见的 bug，要特别留意。
+Repository 只调用纯 DataSource 接口：
+
+```dart
+final dto = await _remote.getThing();
+```
+
+少了 adapter 里的 `.asApi()`，Repository 收到的就可能是 `DioException`，`on AppException catch` 会静默漏掉。这是本错误模型里最常见的 bug，要特别留意。
 
 ## 新增 AppException 子类
 
@@ -117,4 +125,4 @@ final dto = await _remote.getThing().asApi();
 - 在 `lib/core/`、`lib/features/*/data/` 或这些层的测试之外 import `app_exception.dart`。架构测试强制这一条。
 - 在 `AppExceptionMapper` 或测试以外的地方手工构造 `AppException` 子类 —— mapper 是 DioException 转换的唯一来源。
 - 在 Repository 里裸抛 `Exception('something')` —— 如果必须 throw，抛一个 `AppException` 子类，这样 `on AppException catch` 才能接住。
-- 对已经映射过的错误再映射 —— `.asApi()` 对重入是安全的，但两次包起来也没任何价值。
+- 在 Repository 或 application service 里调用 `.asApi()` —— 传输异常转换属于 DataSource adapter。

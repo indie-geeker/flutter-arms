@@ -1,5 +1,5 @@
 import 'package:flutter_arms/core/storage/kv_storage.dart';
-import 'package:flutter_arms/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:flutter_arms/features/auth/application/auth_usecases.dart';
 import 'package:flutter_arms/features/auth/domain/usecases/logout_usecase.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

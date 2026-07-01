@@ -23,11 +23,13 @@ Domain 与 Presentation 只认 `Failure` + `FailureCode`。Repository 实现是�
 
 ## 规则 3：`core/` 不得 import `features/`
 
-`lib/core/**` 下的文件**禁止** import 任何 `lib/features/` 的东西。如果 `core` 真的需要（auth 是典型场景），在 import 正上方加一行注释：
+`lib/core/**` 下的文件**禁止** import 任何 `lib/features/` 的东西。如果 `core` 真的需要跨切面能力，优先在 `core/` 定义端口，让 feature 在 app composition 层覆盖实现。例如 token 刷新现在走 `core/auth/AuthTokenRefresher` 端口，而不是让 `core/network` 直接 import auth datasource。
+
+确有必要豁免时，在 import 正上方加一行注释：
 
 ```dart
-// arch-exempt: TokenInterceptor needs auth's refresh datasource to rotate tokens.
-import 'package:flutter_arms/features/auth/data/datasources/auth_remote_datasource.dart';
+// arch-exempt: Profile owns the logout entry point for auth UI state.
+import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifier.dart';
 ```
 
 注释要说明跨层理由。不要把 `arch-exempt` 当通用逃生口——如果一个文件有 3+ 处豁免，请把依赖提升到 `core/`。
@@ -63,7 +65,31 @@ Actual: ['features/profile/presentation/profile_page.dart -> features/auth']
 - 共享 DI provider（logger、storage、dio client——已在 `core/{logger,storage,network}/`）。
 - 跨层关切（错误模型、Result、主题——已在 `core/{error,result,theme}/`）。
 
-auth 本身如果 arch-exempt 越来越多，可以提升到 `core/auth/`。目前是 3 处，都有记录。
+auth 的跨切面端口已经提升到 `core/auth/`。如果新的 feature 需要被 core 消费，先考虑同样的端口化，而不是增加 `arch-exempt`。
+
+## 规则 5：ApiClient adapter 不得 import 具体 Dio provider
+
+`lib/features/*/data/datasources/api_client_*_remote_datasource.dart` 只允许依赖应用级 `ApiClient` / `ApiRequest` 和本 feature 的纯接口/模型。不要 import `core/network/dio_api_client.dart`。
+
+如果需要 provider 接线，把它放到单独的 datasource provider 文件里：
+
+```dart
+import 'package:flutter_arms/core/network/dio_api_client.dart';
+import 'package:flutter_arms/features/post/data/datasources/api_client_post_remote_datasource.dart';
+
+@Riverpod(keepAlive: true)
+PostRemoteDataSource postApiClientRemoteDataSource(Ref ref) {
+  return ApiClientPostRemoteDataSource(ref.read(apiClientProvider));
+}
+```
+
+这样 ApiClient adapter 仍然是可替换网络库的对照写法。
+
+## 规则 6：Repository / Application 不得调用 `.asApi()`
+
+`.asApi()` 是 Retrofit DataSource adapter 的职责。Repository 和 application service 只依赖纯接口，并只在 `on AppException catch` 处处理已经规范化的异常。
+
+失败消息里如果出现 `features/auth/data/repositories/auth_repository_impl.dart` 或 `features/auth/application/auth_token_refresher_impl.dart`，说明传输层细节又漏回了上层。
 
 ## 扩展架构测试
 

@@ -23,11 +23,20 @@ class TokenInterceptor extends Interceptor {
   bool _isRefreshing = false;
   final List<Completer<void>> _waitQueue = <Completer<void>>[];
 
+  bool _requiresAuth(RequestOptions options) {
+    return options.extra['requiresAuth'] != false;
+  }
+
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    if (!_requiresAuth(options)) {
+      handler.next(options);
+      return;
+    }
+
     final token = await _accessTokenProvider();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
@@ -44,7 +53,9 @@ class TokenInterceptor extends Interceptor {
     final statusCode = err.response?.statusCode;
     final alreadyRetried = err.requestOptions.extra['retried'] == true;
 
-    if (statusCode != 401 || alreadyRetried) {
+    if (statusCode != 401 ||
+        alreadyRetried ||
+        !_requiresAuth(err.requestOptions)) {
       handler.next(err);
       return;
     }
@@ -106,9 +117,11 @@ class TokenInterceptor extends Interceptor {
   ) async {
     final options = err.requestOptions;
     options.extra = <String, dynamic>{...options.extra, 'retried': true};
-    final token = await _accessTokenProvider();
-    if (token != null && token.isNotEmpty) {
-      options.headers['Authorization'] = 'Bearer $token';
+    if (_requiresAuth(options)) {
+      final token = await _accessTokenProvider();
+      if (token != null && token.isNotEmpty) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
     }
 
     try {

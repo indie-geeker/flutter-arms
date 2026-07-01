@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'auth_remote_datasource.dart';
+part of 'retrofit_auth_remote_datasource.dart';
 
 // dart format off
 
@@ -10,8 +10,8 @@ part of 'auth_remote_datasource.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations,unused_element_parameter,avoid_unused_constructor_parameters,unreachable_from_main
 
-class _AuthRemoteDataSource implements AuthRemoteDataSource {
-  _AuthRemoteDataSource(this._dio, {this.baseUrl, this.errorLogger});
+class _RetrofitAuthApi implements RetrofitAuthApi {
+  _RetrofitAuthApi(this._dio, {this.baseUrl, this.errorLogger});
 
   final Dio _dio;
 
@@ -157,12 +157,12 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// 认证远程数据源依赖注入。
+/// 默认认证远程数据源：Retrofit 写法，适合快速 REST CRUD。
 
 @ProviderFor(authRemoteDataSource)
 const authRemoteDataSourceProvider = AuthRemoteDataSourceProvider._();
 
-/// 认证远程数据源依赖注入。
+/// 默认认证远程数据源：Retrofit 写法，适合快速 REST CRUD。
 
 final class AuthRemoteDataSourceProvider
     extends
@@ -172,7 +172,7 @@ final class AuthRemoteDataSourceProvider
           AuthRemoteDataSource
         >
     with $Provider<AuthRemoteDataSource> {
-  /// 认证远程数据源依赖注入。
+  /// 默认认证远程数据源：Retrofit 写法，适合快速 REST CRUD。
   const AuthRemoteDataSourceProvider._()
     : super(
         from: null,
@@ -208,4 +208,58 @@ final class AuthRemoteDataSourceProvider
 }
 
 String _$authRemoteDataSourceHash() =>
-    r'8253f8c189f8093f9b176ae6f1f3eda2f5afc0dd';
+    r'7bc88b37a016c94c364d8f43c071237d6e9f6a20';
+
+/// 刷新专用认证远程数据源：不挂 TokenInterceptor，避免刷新递归。
+
+@ProviderFor(authRefreshRemoteDataSource)
+const authRefreshRemoteDataSourceProvider =
+    AuthRefreshRemoteDataSourceProvider._();
+
+/// 刷新专用认证远程数据源：不挂 TokenInterceptor，避免刷新递归。
+
+final class AuthRefreshRemoteDataSourceProvider
+    extends
+        $FunctionalProvider<
+          AuthRemoteDataSource,
+          AuthRemoteDataSource,
+          AuthRemoteDataSource
+        >
+    with $Provider<AuthRemoteDataSource> {
+  /// 刷新专用认证远程数据源：不挂 TokenInterceptor，避免刷新递归。
+  const AuthRefreshRemoteDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'authRefreshRemoteDataSourceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$authRefreshRemoteDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<AuthRemoteDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AuthRemoteDataSource create(Ref ref) {
+    return authRefreshRemoteDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AuthRemoteDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AuthRemoteDataSource>(value),
+    );
+  }
+}
+
+String _$authRefreshRemoteDataSourceHash() =>
+    r'28ce817c979b9d99ddf9afabb1fd3134d479e2d7';

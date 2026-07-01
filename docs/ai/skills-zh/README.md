@@ -9,7 +9,7 @@
 | Skill | 触发场景 | 包含内容 |
 |---|---|---|
 | **[flutter-arms-feature](./flutter-arms-feature/)** | 新增/修改 feature、页面、API、ViewModel、路由、i18n、Retrofit 数据源 | 10 条核心规则 + 9 步 checklist + 8 份 reference + 一整套 data/domain/presentation 代码模板 |
-| **[flutter-arms-error-handling](./flutter-arms-error-handling/)** | 处理 DioException、错误展示、401 刷新、`Result<T>`、`Failure`、`AppException`、`.asApi()`、`failureMessage` | Result/Exception/Failure 三件套详解 + Repository 错误流 + UI 展示模式 |
+| **[flutter-arms-error-handling](./flutter-arms-error-handling/)** | 处理 DioException、错误展示、401 刷新、`Result<T>`、`Failure`、`AppException`、`.asApi()`、`failureMessage` | Result/Exception/Failure 三件套详解 + DataSource/Repository 错误流 + UI 展示模式 |
 | **[flutter-arms-testing](./flutter-arms-testing/)** | 写测试（unit/widget/integration）、调试失败测试、理解 `architecture_test.dart`、mock、`ProviderContainer` | Repository/ViewModel/Widget 测试模板 + 架构测试规则 + 复用 fixture |
 
 ## 触发示例
@@ -35,7 +35,7 @@
 
 这些 skill **不是**独立于项目存在的——它们记录的是 flutter_arms 项目本身的 conventions。具体来说，skill 里的每条规则都能在项目代码中找到对应的实现证据：
 
-- "`.asApi()` 是必需的" → `lib/core/network/dio_ext.dart` + `auth_repository_impl.dart`
+- "DataSource adapter 负责异常转换" → `lib/core/network/dio_ext.dart` + `retrofit_auth_remote_datasource.dart` + `dio_api_client.dart`
 - "Domain 不得 import AppException" → `test/core/architecture_test.dart` 静态强制
 - "`XxxViewModel` vs `XxxNotifier` 命名" → `login_view_model.dart` vs `auth_notifier.dart`
 - "`context.failureMessage` 是 UI 错误出口" → `core/extensions/build_context_ext.dart` + `login_form.dart`

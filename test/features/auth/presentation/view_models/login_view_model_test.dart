@@ -1,7 +1,7 @@
 import 'package:flutter_arms/core/error/failure.dart';
 import 'package:flutter_arms/core/error/failure_code.dart';
 import 'package:flutter_arms/core/result/result.dart';
-import 'package:flutter_arms/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:flutter_arms/features/auth/application/auth_usecases.dart';
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
 import 'package:flutter_arms/features/auth/domain/usecases/login_usecase.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/login_view_model.dart';

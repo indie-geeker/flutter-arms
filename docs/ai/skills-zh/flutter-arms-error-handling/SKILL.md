@@ -1,6 +1,6 @@
 ---
 name: flutter-arms-error-handling
-description: Apply the flutter_arms error-handling contract — Result<T> (sealed class) + AppException (sealed, Data layer) + Failure/FailureCode (Domain/Presentation), with `.asApi()` as the conversion boundary and `context.failureMessage(failure)` as the UI sink. Use this skill whenever the task touches error handling in a flutter_arms project — including catching DioException, mapping HTTP errors, adding a new FailureCode, adding a new AppException subclass, wiring try/catch in a Repository, deciding whether to throw or return Result, displaying an error in the UI, writing retry logic, handling 401/refresh, or debugging "why is my error message not localized". Also use when the user says: "how do I handle errors here", "why is this throwing DioException", "add a new error type", "the error message shows a stack trace", "refresh token failed", "请求失败时弹什么", "这个 retrofit 报错没被 catch 住". Do NOT use Dartz Either, do NOT let DioException leak above the repository, do NOT use try/catch in UI. This skill is mandatory reading for any error-related change because flutter_arms has a specific two-layer error model that generic Flutter advice gets wrong.
+description: Apply the flutter_arms error-handling contract — Result<T> (sealed class) + AppException (sealed, Data layer) + Failure/FailureCode (Domain/Presentation), with DataSource adapters as the transport conversion boundary and `context.failureMessage(failure)` as the UI sink. Use this skill whenever the task touches error handling in a flutter_arms project — including catching DioException, mapping HTTP errors, adding a new FailureCode, adding a new AppException subclass, wiring try/catch in a Repository, deciding whether to throw or return Result, displaying an error in the UI, writing retry logic, handling 401/refresh, or debugging "why is my error message not localized". Also use when the user says: "how do I handle errors here", "why is this throwing DioException", "add a new error type", "the error message shows a stack trace", "refresh token failed", "请求失败时弹什么", "这个 retrofit 报错没被 catch 住". Do NOT use Dartz Either, do NOT let DioException leak above DataSource adapters, do NOT use try/catch in UI. This skill is mandatory reading for any error-related change because flutter_arms has a specific two-layer error model that generic Flutter advice gets wrong.
 ---
 
 # flutter-arms-error-handling
@@ -19,11 +19,11 @@ flutter_arms 采用**双层错误模型**，并在层间设定严格的转换边
 
 ```
 ┌────────────┐   DioException  ┌─────────────────┐  AppException  ┌──────────────┐  Result<T>  ┌────────────┐
-│  Retrofit  │────────────────▶│ ApiInterceptor  │───────────────▶│  Repository  │────────────▶│  ViewModel │
-│   (Dio)    │                 │   (maps Dio     │  (via .asApi())│  (on         │             │  (switch   │
-│            │                 │   → AppEx,      │                │  AppException│             │   Result)  │
-│            │                 │   packs in      │                │  catch →     │             │            │
-│            │                 │   ex.error)     │                │  Failure)    │             │            │
+│  Retrofit  │────────────────▶│  DataSource     │───────────────▶│  Repository  │────────────▶│  ViewModel │
+│ /ApiClient │                 │ adapter boundary│                │  (on         │             │  (switch   │
+│   (Dio)    │                 │ .asApi()/send() │                │  AppException│             │   Result)  │
+│            │                 │ → AppException  │                │  catch →     │             │            │
+│            │                 │                 │                │  Failure)    │             │            │
 └────────────┘                 └─────────────────┘                └──────────────┘             └────────────┘
                                                                                                     │
                                                                                                     ▼
@@ -37,7 +37,7 @@ flutter_arms 采用**双层错误模型**，并在层间设定严格的转换边
 
 ## 关键规则（CRITICAL）
 
-1. **Repository 中的每一次 Retrofit 调用都必须加 `.asApi()`。** 少了它，`on AppException catch` 就会漏掉——因为 `ApiInterceptor` 把 `AppException` 塞进了 `DioException.error` 字段，真正抛出的仍是 `DioException`。
+1. **DataSource adapter 是传输异常转换边界。** Retrofit adapter 在 `_api.xxx().asApi()` 处拆 `DioException`；ApiClient adapter 通过 `DioApiClient.send(...)` 得到已规范化的 `AppException`。Repository 不 import `dio_ext.dart`，也不调用 `.asApi()`。
 
 2. **Repository 返回 `Future<Result<T>>`，永远不向上抛。** 始终使用 `try { ... } on AppException catch (e) { return Result.failure(Failure.fromException(e)); }`。
 
@@ -50,16 +50,16 @@ flutter_arms 采用**双层错误模型**，并在层间设定严格的转换边
 ## 遇到不同问题时查阅哪份 reference
 
 - **`references/result.md`** —— `Result<T>` sealed 类型、`switch` 模式匹配、`ResultX` 扩展方法（`when`、`map`、`mapFailure`、`getOrElse`、`getOrNull`）、禁用清单。
-- **`references/exceptions.md`** —— `AppException` sealed 层级、`AppExceptionMapper`（DioException → 子类映射）、`.asApi()` 实现、`ApiInterceptor` 如何预先打包异常。
+- **`references/exceptions.md`** —— `AppException` sealed 层级、`AppExceptionMapper`（DioException → 子类映射）、`.asApi()` / `DioApiClient.send` 如何在 DataSource 边界规范化异常。
 - **`references/failure.md`** —— `Failure` 结构、`FailureCode` 枚举、`Failure.fromException`、`context.failureMessage`、badResponse/validation 的 detail 优先级规则。
 - **`references/repository_flow.md`** —— Repository 的标准 try/catch 模式、新增方法的写法、部分失败场景（如 logout：远端失败但本地成功）的处理。
 - **`references/ui_display.md`** —— `AppDialog.showError`、`ErrorStateWidget`、`SelectableText.rich`，各自的适用场景，以及触发弹窗的 `ref.listen` 模式。
 
 ## 快速决策树
 
-**"我在 `core/network/` 以外的地方 catch 了 DioException"** → 不对。用 `.asApi()` + `on AppException catch`。`DioException` 只存在于 `core/network/` 内部链路。
+**"我在 DataSource adapter 以外的地方 catch 了 DioException"** → 不对。DataSource adapter 把它转成 `AppException`；Repository 只 `on AppException catch`。
 
-**"我的错误消息显示 'Instance of DioException'"** → 你忘了在 Retrofit 调用上加 `.asApi()`，导致 Repository catch 到的是 `DioException`，`Failure.fromException` 永远没被调用。
+**"我的错误消息显示 'Instance of DioException'"** → Retrofit adapter 可能漏了 `.asApi()`，或 ApiClient 实现没有把 Dio 异常转成 `AppException`，导致 Repository 收到未规范化异常。
 
 **"现有 `FailureCode` 枚举覆盖不到我要的错误类别"** → 新增一个 `FailureCode`、一个对应的 `AppException` 子类；如果是 Dio 侧的，更新 `AppExceptionMapper`；`Failure.fromException` 会自动透传 `code`；更新 `context.failureMessage` 的 switch；在两份 i18n 文件都加上 `errors.<newCode>`。
 
@@ -73,14 +73,24 @@ flutter_arms 采用**双层错误模型**，并在层间设定严格的转换边
 
 ```dart
 // data/datasources/post_remote_datasource.dart
+abstract interface class PostRemoteDataSource {
+  Future<PostDto> detail(String id);
+}
+
+// data/datasources/retrofit_post_remote_datasource.dart
 @GET('/posts/{id}')
 Future<PostDto> detail(@Path('id') String id);
+
+@override
+Future<PostDto> detail(String id) {
+  return _api.detail(id).asApi();
+}
 
 // data/repositories/post_repository_impl.dart
 @override
 Future<Result<Post>> detail(String id) async {
   try {
-    final dto = await _remote.detail(id).asApi();
+    final dto = await _remote.detail(id);
     return Result.success(dto.toEntity());
   } on AppException catch (e) {
     return Result.failure(Failure.fromException(e));

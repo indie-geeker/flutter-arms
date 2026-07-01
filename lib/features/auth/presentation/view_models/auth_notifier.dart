@@ -1,8 +1,6 @@
-// fast-track
 import 'package:flutter_arms/core/storage/kv_storage.dart';
-import 'package:flutter_arms/features/auth/data/datasources/auth_local_datasource.dart';
-import 'package:flutter_arms/features/auth/data/models/user_model.dart';
-import 'package:flutter_arms/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:flutter_arms/features/auth/application/auth_session.dart';
+import 'package:flutter_arms/features/auth/application/auth_usecases.dart';
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -38,5 +36,5 @@ User? currentUser(Ref ref) {
     return null;
   }
 
-  return ref.read(authLocalDataSourceProvider).getUser()?.toEntity();
+  return ref.watch(cachedCurrentUserProvider);
 }

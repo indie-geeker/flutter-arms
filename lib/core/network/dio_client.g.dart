@@ -54,60 +54,7 @@ final class AuthRefreshDioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$authRefreshDioHash() => r'6f7c684471ac6238eaf88f85528ef22ab9f7c6ee';
-
-/// 刷新专用的数据源。仅用于 `TokenInterceptor.refreshAction`。
-
-@ProviderFor(authRefreshDataSource)
-const authRefreshDataSourceProvider = AuthRefreshDataSourceProvider._();
-
-/// 刷新专用的数据源。仅用于 `TokenInterceptor.refreshAction`。
-
-final class AuthRefreshDataSourceProvider
-    extends
-        $FunctionalProvider<
-          AuthRemoteDataSource,
-          AuthRemoteDataSource,
-          AuthRemoteDataSource
-        >
-    with $Provider<AuthRemoteDataSource> {
-  /// 刷新专用的数据源。仅用于 `TokenInterceptor.refreshAction`。
-  const AuthRefreshDataSourceProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'authRefreshDataSourceProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$authRefreshDataSourceHash();
-
-  @$internal
-  @override
-  $ProviderElement<AuthRemoteDataSource> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  AuthRemoteDataSource create(Ref ref) {
-    return authRefreshDataSource(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AuthRemoteDataSource value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<AuthRemoteDataSource>(value),
-    );
-  }
-}
-
-String _$authRefreshDataSourceHash() =>
-    r'c53bb176047e1f32e16e3e9630c76adc2f053dbe';
+String _$authRefreshDioHash() => r'ffe8f1fa59134ef3cc746637e7930bdbc381c93e';
 
 /// 主 Dio 客户端：注入 Token，自动刷新，统一错误拦截。
 
@@ -152,4 +99,4 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$dioHash() => r'0a70ab06cdc3322ca95ff21a4f63dbebded0d000';
+String _$dioHash() => r'9b38ed65874bd0530ca2469d2a30c7f84c214598';

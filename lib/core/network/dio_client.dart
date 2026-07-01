@@ -1,15 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_arms/app/app_env.dart';
+import 'package:flutter_arms/core/auth/auth_token_refresher.dart';
 import 'package:flutter_arms/core/constants/app_constants.dart';
 import 'package:flutter_arms/core/logger/app_logger.dart';
+import 'package:flutter_arms/core/logger/talker_dio_interceptor.dart';
 import 'package:flutter_arms/core/network/api_interceptor.dart';
 import 'package:flutter_arms/core/network/mock_api_interceptor.dart';
 import 'package:flutter_arms/core/network/token_interceptor.dart';
 import 'package:flutter_arms/core/storage/kv_storage.dart';
-// arch-exempt: TokenInterceptor 需要调用 auth 的 refresh 数据源实现 Token 轮换。
-import 'package:flutter_arms/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 part 'dio_client.g.dart';
 
@@ -36,20 +35,9 @@ Dio authRefreshDio(Ref ref) {
     dio.interceptors.add(const MockApiInterceptor());
   }
   dio.interceptors
-    ..add(
-      TalkerDioLogger(
-        talker: logger,
-        settings: const TalkerDioLoggerSettings(printRequestData: true),
-      ),
-    )
+    ..add(dioLogInterceptor(logger))
     ..add(const ApiInterceptor());
   return dio;
-}
-
-/// 刷新专用的数据源。仅用于 `TokenInterceptor.refreshAction`。
-@Riverpod(keepAlive: true)
-AuthRemoteDataSource authRefreshDataSource(Ref ref) {
-  return AuthRemoteDataSource(ref.read(authRefreshDioProvider));
 }
 
 /// 主 Dio 客户端：注入 Token，自动刷新，统一错误拦截。
@@ -58,6 +46,7 @@ Dio dio(Ref ref) {
   final env = ref.read(appEnvProvider);
   final logger = ref.read(appLoggerProvider);
   final storage = ref.read(kvStorageProvider);
+  final tokenRefresher = ref.read(authTokenRefresherProvider);
 
   final dio = Dio(_baseOptions(env.baseUrl));
 
@@ -66,34 +55,12 @@ Dio dio(Ref ref) {
     dio.interceptors.add(const MockApiInterceptor());
   }
   dio.interceptors
-    ..add(
-      TalkerDioLogger(
-        talker: logger,
-        settings: const TalkerDioLoggerSettings(printRequestData: true),
-      ),
-    )
+    ..add(dioLogInterceptor(logger))
     ..add(
       TokenInterceptor(
         accessTokenProvider: () async => storage.getAccessToken(),
         refreshTokenProvider: () async => storage.getRefreshToken(),
-        refreshAction: (refreshToken) async {
-          try {
-            final tokenModel = await ref
-                .read(authRefreshDataSourceProvider)
-                .refreshToken(<String, dynamic>{'refreshToken': refreshToken});
-
-            if (tokenModel.accessToken.isEmpty) {
-              return false;
-            }
-            await storage.saveAccessToken(tokenModel.accessToken);
-            if (tokenModel.refreshToken.isNotEmpty) {
-              await storage.saveRefreshToken(tokenModel.refreshToken);
-            }
-            return true;
-          } on Object {
-            return false;
-          }
-        },
+        refreshAction: tokenRefresher.refresh,
         retryDio: dio,
       ),
     )

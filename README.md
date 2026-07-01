@@ -4,33 +4,47 @@
 [![CI](https://github.com/your-org/flutter_arms/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/flutter_arms/actions/workflows/ci.yml)
 
 Flutter Arms 是一套面向**独立开发者**的 Flutter 快速开发模板，开箱可用：
-**Clean Architecture + MVVM**、Riverpod 3、AutoRoute、Dio/Retrofit、Hive_ce（AES）、slang i18n、Talker 日志，并内置全局错误捕获、架构层级测试与 CI。
+**Clean Architecture + MVVM**、Riverpod 3、AutoRoute、Dio/Retrofit + ApiClient 对照写法、Hive_ce（AES）、slang i18n、Talker 日志，并内置全局错误捕获、架构层级测试与 CI。
 
 > **目标**：派生新项目后，无需补安全短板、无需重写错误模型、无需重新搭工程化。
+
+## 架构取舍
+
+Flutter Arms 默认采用**单体仓库 + 内部分层模块化**，不默认引入 Melos。
+对独立开发者来说，单 package 更容易改名、调试、运行、发布，也减少了代码生成、
+依赖联动和 IDE workspace 成本。模板通过 `app/core/shared/features` 分层、
+Riverpod 注入和架构测试来维持边界，而不是用 package 拆分来制造复杂度。
+
+Melos 适合后续条件触发：同一仓库维护多个 app、`core`/`ui` 需要跨项目复用或发布、
+CI 需要 package 级并行，或者 feature 已经形成稳定团队边界。没有这些信号时，
+优先保持单体仓库，并只对日志、存储、网络、认证会话这类基础设施建立可替换端口。当前默认仍用 Talker、Hive、Dio/Retrofit，但业务代码通过 `AppLog`、`KvStorage`、`ApiClient`、`AuthTokenRefresher` 这些端口接入。
 
 ## 为什么选它
 
 - **分层不是摆设**：`test/core/architecture_test.dart` 静态强制 domain/presentation/core/features 的依赖方向，违反即测试红。
 - **错误模型开箱可用**：AppException（Data 层） ↔ Failure/FailureCode（Domain/UI）双层分离，文案走 i18n，不会再硬编码中文。
 - **环境隔离**：`--dart-define-from-file` + `env/*.json` + 两套 `main_*.dart` + flavor 区分。
-- **运行时可观测**：`runZonedGuarded` + `FlutterError.onError` + `PlatformDispatcher.onError` + Riverpod `providerDidFail` 全线收敛；dev 环境长按 Profile 头像可查看 Talker 面板。
+- **运行时可观测**：`runZonedGuarded` + `FlutterError.onError` + `PlatformDispatcher.onError` + Riverpod `providerDidFail` 全线收敛；dev 环境长按 Profile 头像可通过日志面板查看运行日志。
 - **关键路径有测试**：Token 刷新、AuthGuard、Locale 持久化、Profile 页交互等核心链路均有单测/Widget 测覆盖。
 
 ## 架构分层
 
 ```mermaid
 flowchart LR
-  UI[Presentation Layer\nPage / ViewModel / State] --> Domain[Domain Layer\nEntity / UseCase / Repo API]
-  Domain --> Data[Data Layer\nDTO / Retrofit / Hive]
-  Data --> External[(Network / Storage)]
+  UI[Presentation Layer\nPage / ViewModel / State] --> AppLayer[Application Layer\nUseCase Providers / Ports]
+  AppLayer --> Domain[Domain Layer\nEntity / UseCase / Repo API]
+  AppLayer --> Data[Data Layer\nRepository Impl / Adapters]
+  Domain --> Data
+  Data --> External[(Retrofit / ApiClient / Hive)]
   Core[core/ shared] --> UI
   Core --> Domain
   Core --> Data
 ```
 
-- **Data**：Retrofit 客户端 + Hive box + DTO↔Entity mapper。抛 `AppException` 子类。
+- **Application**：用例 Provider、auth/session 等组合层，隔离 presentation 和 data implementation。
+- **Data**：纯 data source 接口 + Retrofit adapter + ApiClient adapter + Hive box + DTO↔Entity mapper。抛 `AppException` 子类。
 - **Domain**：纯 Dart。Entity / Repository 接口 / UseCase。只消费 `Result<T>` 与 `Failure`。
-- **Presentation**：Page + Riverpod Notifier + Freezed state。读 `context.failureMessage(failure)` 显示本地化文案。
+- **Presentation**：Page + Riverpod Notifier + Freezed state。读取 application 暴露的 use case Provider，读 `context.failureMessage(failure)` 显示本地化文案。
 
 详见 [docs/ai/ARCHITECTURE.md](docs/ai/ARCHITECTURE.md)。
 
@@ -55,7 +69,7 @@ flowchart LR
 |------|------|
 | 状态管理 & DI | `flutter_riverpod`、`riverpod_annotation`、`riverpod_generator` |
 | 路由 | `auto_route`、`auto_route_generator` |
-| 网络 | `dio`、`retrofit`、`retrofit_generator`、`talker_dio_logger` |
+| 网络 | `dio`、`retrofit`、`retrofit_generator`、`ApiClient`/`ApiRequest` 端口、`talker_dio_logger` |
 | 模型 / 状态 | `freezed`、`json_serializable`、`build_runner` |
 | 存储 | `hive_ce`、`hive_ce_flutter`（AES cipher）|
 | 国际化 | `slang`、`slang_flutter`、`flutter_localizations` |
@@ -187,12 +201,13 @@ lib/
 │   ├── error/            # AppException + Failure + FailureCode + mapper
 │   ├── locale/
 │   ├── logger/
-│   ├── network/          # dio_client + TokenInterceptor + ApiInterceptor + dio_ext
+│   ├── auth/             # AuthTokenRefresher 端口
+│   ├── network/          # ApiClient/ApiRequest + Dio adapter + TokenInterceptor
 │   ├── result/           # Result<T> + ResultX
 │   ├── storage/
 │   └── theme/
 ├── features/
-│   ├── auth/             # data / domain / presentation
+│   ├── auth/             # application / data / domain / presentation
 │   ├── home/
 │   ├── onboarding/
 │   └── splash/

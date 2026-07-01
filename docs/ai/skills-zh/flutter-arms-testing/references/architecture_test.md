@@ -2,7 +2,7 @@
 
 位置：`test/core/architecture_test.dart`。随 `flutter test` 和 `tool/test.sh` 自动运行。没有 DI、没有 widget —— 只是用 `RegExp` 扫描 `lib/` 下的文件。
 
-## 强制什么（四条规则）
+## 强制什么（七类规则）
 
 ### 规则 1：Domain 不得 import Data 层传输依赖
 
@@ -28,9 +28,7 @@
 
 `lib/core/**` 下的文件不得 import `package:flutter_arms/features/...`。例外口子：在文件任意位置加一行 `// arch-exempt`（约定写在被豁免 import 的上一行），整个文件就被跳过。
 
-当前合法的豁免：
-
-- `lib/core/network/dio_client.dart` —— 需要 `features/auth/data/datasources/auth_remote_datasource.dart` 给 TokenInterceptor 刷新链用。
+token 刷新不再用这里的豁免：`core/network` 只依赖 `core/auth/AuthTokenRefresher` 端口，具体 auth 实现在 app bootstrap 的 provider override 中接入。
 
 ### 规则 4：`features/<X>` 不得 import `features/<Y>`
 
@@ -40,6 +38,24 @@
 
 - `lib/features/home/presentation/pages/profile_page.dart` —— 从 Profile 调 logout，import `AuthNotifier`。
 - `lib/features/splash/presentation/pages/splash_page.dart` —— 根据登录状态路由，import `AuthNotifier`。
+
+### 规则 5：ApiClient datasource adapter 不得 import 具体 Dio provider
+
+`lib/features/*/data/datasources/api_client_*_remote_datasource.dart` 不得 import：
+
+- `package:flutter_arms/core/network/dio_api_client.dart`
+
+ApiClient adapter 只写应用级 request 描述。需要 `apiClientProvider` 的 Riverpod 接线放在单独 provider 文件里，避免 adapter 绑定 Dio 默认实现。
+
+### 规则 6：Repository / Application 不得调用 `.asApi()`
+
+`lib/features/*/data/repositories/**` 和 `lib/features/*/application/**` 不得 import `dio_ext.dart`，也不得出现 `.asApi(`。
+
+DataSource adapter 负责把底层异常规范化成 `AppException`；Repository 只处理 `AppException -> Failure`。
+
+### 规则 7：Presentation 不得 import data/repositories，除非 fast-track
+
+`lib/features/*/presentation/**` 默认不得 import 本 feature 的 `data/**` 或 `domain/repositories/**`。短期快速开发确有必要时，用 `// fast-track: <reason>` 标注理由。
 
 ## 解读失败消息
 

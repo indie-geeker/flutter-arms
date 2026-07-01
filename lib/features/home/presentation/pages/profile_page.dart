@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_arms/app/app_env.dart';
 import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/core/locale/locale_notifier.dart';
-import 'package:flutter_arms/core/logger/app_logger.dart';
+import 'package:flutter_arms/core/logger/dev_log_viewer.dart';
 import 'package:flutter_arms/core/theme/app_colors.dart';
 import 'package:flutter_arms/core/theme/theme_notifier.dart';
 // arch-exempt: Profile 页依赖 auth 登出能力（跨切面）。
@@ -11,7 +11,6 @@ import 'package:flutter_arms/features/auth/presentation/view_models/auth_notifie
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:talker_flutter/talker_flutter.dart';
 
 /// Profile Tab 页。
 @RoutePage()
@@ -84,7 +83,7 @@ class _UserHeader extends ConsumerWidget {
         children: [
           GestureDetector(
             onLongPress: isDevFlavor
-                ? () => _openTalkerScreen(context, ref)
+                ? () => _openLogViewer(context, ref)
                 : null,
             child: CircleAvatar(
               radius: 40,
@@ -115,13 +114,8 @@ class _UserHeader extends ConsumerWidget {
     );
   }
 
-  void _openTalkerScreen(BuildContext context, WidgetRef ref) {
-    final talker = ref.read(appLoggerProvider);
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => TalkerScreen(talker: talker),
-      ),
-    );
+  void _openLogViewer(BuildContext context, WidgetRef ref) {
+    ref.read(devLogViewerProvider).open(context);
   }
 }
 

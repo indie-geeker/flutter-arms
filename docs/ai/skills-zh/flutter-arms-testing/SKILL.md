@@ -11,7 +11,7 @@ flutter_arms 的测试用一套特定组合：`flutter_test`（内置）+ `mockt
 
 | 形态 | 验证什么 | 工具 | Reference |
 |---|---|---|---|
-| **Repository 测试** | Data → Domain 转换：远/本地调用、`.asApi()` 拆包、`on AppException catch` | mocktail 的 `Mock` 打在 DataSource 上 | `references/repository_tests.md` |
+| **Repository 测试** | Data → Domain 转换：远/本地调用、`on AppException catch` | mocktail 的 `Mock` 打在 DataSource 上 | `references/repository_tests.md` |
 | **ViewModel 测试** | 用户动作引起的状态迁移、Result 分支 | `ProviderContainer` + `overrideWithValue` 覆盖 UseCase | `references/viewmodel_tests.md` |
 | **Widget 测试** | 页面渲染正确、点击派发正确动作 | `TranslationProvider` + `ProviderScope.overrides` | `references/widget_tests.md` |
 | **架构测试** | 静态层级边界规则 | 文本扫描 `lib/`，不做 DI | `references/architecture_test.md` |
@@ -111,7 +111,7 @@ testWidgets('renders guest header when not authenticated', (tester) async {
 
 ## 遇到不同问题时查阅哪份 reference
 
-- **`references/repository_tests.md`** —— mocktail 配置、间接 stub `remote.xxx().asApi()`、测试 `on AppException catch` 分支、测试部分失败方法（logout 式）。
+- **`references/repository_tests.md`** —— mocktail 配置、stub DataSource 抛 `AppException`、测试 `on AppException catch` 分支、测试部分失败方法（logout 式）。
 - **`references/viewmodel_tests.md`** —— `ProviderContainer` 模式、覆盖 UseCase provider、测试状态迁移、测试未触达 Repository 的校验路径。
 - **`references/widget_tests.md`** —— `TranslationProvider` 配置、Profile 式测试中 override storage、`testWidgets` 与 `pumpAndSettle` 的区别、通过 predicate 查找自定义绘制控件。
 - **`references/architecture_test.md`** —— 四条规则各自在查什么、如何解读失败、何时添加 `// arch-exempt`、何时在 test 文件里扩新规则。

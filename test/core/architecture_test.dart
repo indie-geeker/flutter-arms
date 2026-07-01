@@ -10,7 +10,8 @@ import 'package:path/path.dart' as p;
 /// 2. `lib/features/**/domain/**` 与 `lib/features/**/presentation/**` 不得 import `AppException` 及其子类。
 /// 3. `lib/core/**` 不得 import `lib/features/**`（允许例外在源文件标注 `// arch-exempt`）。
 /// 4. 任意 `features/<X>` 不得 import 其他 `features/<Y>`。
-/// 5. `lib/features/**/presentation/**` 默认不得 import 本 feature 的 `data/**` 或 `domain/repositories/**`，除非文件内包含 `// fast-track`。
+/// 5. `lib/features/**/presentation/**` 默认不得 import 本 feature 的 `data/**` 或
+///    `domain/repositories/**`，除非文件内包含带理由的 `// fast-track: ...`。
 void main() {
   final libDir = Directory(p.normalize(p.join(Directory.current.path, 'lib')));
 
@@ -101,6 +102,73 @@ void main() {
       expect(offenders, isEmpty, reason: 'core/ imports features/');
     });
 
+    test(
+      'ApiClient datasource adapters must not import concrete Dio provider',
+      () {
+        final featuresDir = Directory(p.join(libDir.path, 'features'));
+        if (!featuresDir.existsSync()) return;
+
+        final offenders = <String>[];
+        for (final feature in featuresDir.listSync().whereType<Directory>()) {
+          final datasourcesDir = Directory(
+            p.join(feature.path, 'data', 'datasources'),
+          );
+          if (!datasourcesDir.existsSync()) continue;
+
+          for (final file in dartFiles(datasourcesDir)) {
+            final basename = p.basename(file.path);
+            if (!basename.startsWith('api_client_') ||
+                !basename.endsWith('_remote_datasource.dart')) {
+              continue;
+            }
+            if (fileHas(
+              file,
+              "import 'package:flutter_arms/core/network/dio_api_client.dart'",
+            )) {
+              offenders.add(rel(file));
+            }
+          }
+        }
+
+        expect(
+          offenders,
+          isEmpty,
+          reason:
+              'ApiClient adapters should only depend on ApiClient/ApiRequest',
+        );
+      },
+    );
+
+    test('repositories and application services must not call asApi', () {
+      final featuresDir = Directory(p.join(libDir.path, 'features'));
+      if (!featuresDir.existsSync()) return;
+
+      final offenders = <String>[];
+      for (final feature in featuresDir.listSync().whereType<Directory>()) {
+        final dirs = <Directory>[
+          Directory(p.join(feature.path, 'application')),
+          Directory(p.join(feature.path, 'data', 'repositories')),
+        ];
+        for (final dir in dirs.where((d) => d.existsSync())) {
+          for (final file in dartFiles(dir)) {
+            final content = file.readAsStringSync();
+            if (content.contains(
+                  "import 'package:flutter_arms/core/network/dio_ext.dart'",
+                ) ||
+                content.contains('.asApi(')) {
+              offenders.add(rel(file));
+            }
+          }
+        }
+      }
+
+      expect(
+        offenders,
+        isEmpty,
+        reason: 'DataSource adapters own transport exception conversion',
+      );
+    });
+
     test('features/<X> must not import features/<Y>', () {
       final featuresDir = Directory(p.join(libDir.path, 'features'));
       if (!featuresDir.existsSync()) return;
@@ -132,34 +200,51 @@ void main() {
       );
     });
 
-    test('presentation must not import data or repositories unless fast-track', () {
-      final featuresDir = Directory(p.join(libDir.path, 'features'));
-      if (!featuresDir.existsSync()) return;
+    test(
+      'presentation must not import data or repositories unless fast-track',
+      () {
+        final featuresDir = Directory(p.join(libDir.path, 'features'));
+        if (!featuresDir.existsSync()) return;
 
-      final offenders = <String>[];
-      for (final feature in featuresDir.listSync().whereType<Directory>()) {
-        final featureName = p.basename(feature.path);
-        final presentationDir = Directory(p.join(feature.path, 'presentation'));
-        if (!presentationDir.existsSync()) continue;
+        final offenders = <String>[];
+        for (final feature in featuresDir.listSync().whereType<Directory>()) {
+          final featureName = p.basename(feature.path);
+          final presentationDir = Directory(
+            p.join(feature.path, 'presentation'),
+          );
+          if (!presentationDir.existsSync()) continue;
 
-        final forbiddenData = RegExp(r"import\s+['\x22]package:flutter_arms/features/" + featureName + r"/data/");
-        final forbiddenRepo = RegExp(r"import\s+['\x22]package:flutter_arms/features/" + featureName + r"/domain/repositories/");
+          final forbiddenData = RegExp(
+            'import\\s+[\\x27"]package:flutter_arms/features/$featureName/data/',
+          );
+          final forbiddenRepo = RegExp(
+            'import\\s+[\\x27"]package:flutter_arms/features/$featureName/domain/repositories/',
+          );
 
-        for (final file in dartFiles(presentationDir)) {
-          final content = file.readAsStringSync();
-          // 如果开发者希望快速开发，跳过 UseCase 层，可以使用 // fast-track 豁免
-          if (content.contains('// fast-track')) continue;
+          for (final file in dartFiles(presentationDir)) {
+            final content = file.readAsStringSync();
+            // 如果开发者希望快速开发，跳过 UseCase 层，可以使用
+            // `// fast-track: <reason>` 豁免。
+            if (content.contains('// fast-track')) {
+              if (!RegExp(r'//\s*fast-track:\s*\S').hasMatch(content)) {
+                offenders.add('${rel(file)} -> fast-track requires reason');
+              }
+              continue;
+            }
 
-          if (forbiddenData.hasMatch(content) || forbiddenRepo.hasMatch(content)) {
-            offenders.add(rel(file));
+            if (forbiddenData.hasMatch(content) ||
+                forbiddenRepo.hasMatch(content)) {
+              offenders.add(rel(file));
+            }
           }
         }
-      }
-      expect(
-        offenders,
-        isEmpty,
-        reason: 'Presentation layer imports Data/Repositories without // fast-track',
-      );
-    });
+        expect(
+          offenders,
+          isEmpty,
+          reason:
+              'Presentation layer imports Data/Repositories without // fast-track',
+        );
+      },
+    );
   });
 }

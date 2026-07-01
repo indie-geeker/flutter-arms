@@ -3,7 +3,7 @@
 Repository 是 Data 与 Domain 之间的边界。测试要验证：
 
 1. Success 路径：远端 + 本地调用顺序正确，`Result.success` 携带映射后的 Entity。
-2. Failure 路径：远端抛出（经 `.asApi()` 转换）的 `AppException` 变成 `Result.failure(Failure.fromException(e))`，`FailureCode` 正确。
+2. Failure 路径：DataSource 抛出的 `AppException` 变成 `Result.failure(Failure.fromException(e))`，`FailureCode` 正确。
 3. 部分失败路径（logout 式方法）：远端失败但本地清理仍然执行。
 
 ## 文件位置
@@ -13,6 +13,7 @@ Repository 是 Data 与 Domain 之间的边界。测试要验证：
 ## 骨架
 
 ```dart
+import 'package:flutter_arms/core/error/app_exception.dart';
 import 'package:flutter_arms/core/error/failure_code.dart';
 import 'package:flutter_arms/features/<f>/data/datasources/<f>_local_datasource.dart';
 import 'package:flutter_arms/features/<f>/data/datasources/<f>_remote_datasource.dart';
@@ -88,12 +89,14 @@ test('should return auth failure when remote throws AuthException', () async {
 });
 ```
 
-对"任何异常都会变成 unknown"这个兜底路径也要测，因为 `.asApi()` 会把非 `AppException` 的错误转成 `UnknownException`：
+对 unknown 兜底路径也要测，但 Repository 层应接收已经规范化的 `UnknownException`：
 
 ```dart
-test('should return unknown failure when remote throws generic exception', () async {
+test('should return unknown failure when remote throws UnknownException', () async {
   when(() => remote.getPost('1')).thenAnswer(
-    (_) => Future<PostDto>.error(Exception('unexpected')),
+    (_) => Future<PostDto>.error(
+      const UnknownException(detail: 'unexpected'),
+    ),
   );
 
   final result = await repository.getPost('1');
@@ -103,7 +106,7 @@ test('should return unknown failure when remote throws generic exception', () as
 });
 ```
 
-这就是 `auth_repository_impl_test.dart` 里那条测试——演练 `.asApi()` 的 catch-all 路径。
+这就是 `auth_repository_impl_test.dart` 里那条测试——Repository 不测传输层拆包，只测 `AppException -> Failure`。
 
 ## 部分失败测试（logout 式）
 
@@ -111,8 +114,11 @@ test('should return unknown failure when remote throws generic exception', () as
 
 ```dart
 test('should still clear local auth when remote logout fails', () async {
-  when(() => remote.logout())
-      .thenAnswer((_) => Future<void>.error(Exception('network down')));
+  when(() => remote.logout()).thenAnswer(
+    (_) => Future<void>.error(
+      const UnknownException(detail: 'network down'),
+    ),
+  );
   when(() => local.clearAuth()).thenAnswer((_) async {});
 
   await repository.logout();
@@ -149,7 +155,7 @@ setUpAll(() {
 
 ## 直接测试 `.asApi()` 拆包
 
-通常不必 —— Repository 测试已间接覆盖。真需要单独测 `.asApi()`，看 `test/core/network/` 或 `test/core/error/app_exception_mapper_test.dart` 里的映射规则。
+不要放在 Repository 测试里测。`.asApi()` 属于 Retrofit DataSource adapter / 网络层边界；真需要单独测，看 `test/core/network/` 或 `test/core/error/app_exception_mapper_test.dart` 里的映射规则。
 
 ## Repository 方法的覆盖率清单
 
@@ -158,5 +164,5 @@ setUpAll(() {
 - [ ] 超时：`TimeoutException` → `FailureCode.timeout`。
 - [ ] 异常响应（如 500）：`BadResponseException` → `FailureCode.badResponse`，且 `detail` 透传。
 - [ ] 未授权（401）：`AuthException` → `FailureCode.auth`。
-- [ ] 一般异常：任意 `Exception` → `FailureCode.unknown`（覆盖 `.asApi()` 兜底）。
+- [ ] 未知异常：`UnknownException` → `FailureCode.unknown`。
 - [ ] 方法同时写本地：验证本地写入仅在成功时发生（或始终发生——部分失败方法）。

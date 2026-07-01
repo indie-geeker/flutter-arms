@@ -1,19 +1,18 @@
 # Repository 错误处理流程
 
-这里是 AppException 变成 Failure、`.asApi()` 发挥作用的地方。`lib/features/*/data/repositories/` 下的每个 Repository 都必须遵循以下模式。
+这里是 AppException 变成 Failure 的地方。`lib/features/*/data/repositories/` 下的每个 Repository 都必须遵循以下模式；`.asApi()` 已经在 Retrofit DataSource adapter 中完成。
 
 ## 标准模式（happy path + 错误）
 
 ```dart
 import 'package:flutter_arms/core/error/app_exception.dart';
 import 'package:flutter_arms/core/error/failure.dart';
-import 'package:flutter_arms/core/network/dio_ext.dart';
 import 'package:flutter_arms/core/result/result.dart';
 
 @override
 Future<Result<Post>> getPost(String id) async {
   try {
-    final dto = await _remote.getPost(id).asApi();
+    final dto = await _remote.getPost(id);
     return Result.success(dto.toEntity());
   } on AppException catch (e) {
     return Result.failure(Failure.fromException(e));
@@ -22,7 +21,7 @@ Future<Result<Post>> getPost(String id) async {
 ```
 
 三个步骤，顺序不能变：
-1. Retrofit 调用**加 `.asApi()`**（必需）。
+1. 调用纯 DataSource 接口（该接口只返回 DTO 或抛 `AppException`）。
 2. `on AppException catch` —— 不是 `catch (e)`，也不是 `on Exception catch`。具体类型让编译器为你把关。
 3. `return Result.failure(Failure.fromException(e))` —— 保留 `code`、`detail`、`cause`、`stackTrace`。
 
@@ -36,10 +35,10 @@ Future<Result<User>> login({required String username, required String password})
   try {
     final token = await _remote.login(
       <String, dynamic>{'username': username, 'password': password},
-    ).asApi();
+    );
     await _local.saveToken(token);
 
-    final userModel = await _remote.me().asApi();
+    final userModel = await _remote.me();
     await _local.saveUser(userModel);
 
     return Result.success(userModel.toEntity());
@@ -49,7 +48,7 @@ Future<Result<User>> login({required String username, required String password})
 }
 ```
 
-两次 `.asApi()` 都在同一个 `try` 里。任意一次远端失败，`on AppException catch` 都能接住，且之后的本地写入会被跳过。
+两次远端调用都在同一个 `try` 里。任意一次远端失败，`on AppException catch` 都能接住，且之后的本地写入会被跳过。
 
 ## 部分失败模式（远端可选 / 本地必达）
 
@@ -59,7 +58,7 @@ Future<Result<User>> login({required String username, required String password})
 @override
 Future<void> logout() async {
   try {
-    await _remote.logout().asApi();
+    await _remote.logout();
   } on AppException catch (e, st) {
     _logger.warning('remote logout failed, clearing local anyway', e, st);
   }
@@ -106,14 +105,15 @@ Future<Result<User>> getCurrentUser() async {
 
 - **不要用 `try { ... } catch (e) { ... }` 裸 catch**：太宽，会吞 Dart 层 bug。始终 `on AppException catch`。
 - **Repository 方法不要 throw**：契约是 `Future<Result<T>>`，不是"要么返回 Result，要么抛异常"。
-- **Repository 之上不要出现 `DioException`**：`.asApi()` 会拆成 `AppException`。Repository 里还能看到 `DioException`，就说明漏了 `.asApi()`。
+- **Repository 之上不要出现 `DioException`**：DataSource adapter 应该已经拆成 `AppException`。Repository 里还能看到 `DioException`，就说明 adapter 漏了转换。
+- **Repository 不要 import `dio_ext.dart` 或调用 `.asApi()`**：这是传输层细节。
 - **不要让 Domain import 漏到 Data 之上**：这是反方向问题。Data **可以** import Domain（DTO.toEntity()）。Domain **不能** import Data。
 - **不要在同一个 Repository 接口里混用 Result 返回和 throw 方法**：要么所有可能失败的方法都返回 `Result`，要么都不这样做。混用会让调用方不知道哪些需要 `try/catch`。
 
 ## 新增 Repository 方法的 checklist
 
 - [ ] 方法签名返回 `Future<Result<T>>`，或 `Future<void>`（适用于 logout 这种副作用型操作）。
-- [ ] Retrofit 调用包在 `.asApi()` 里。
+- [ ] DataSource adapter 已经把传输异常规范化为 `AppException`。
 - [ ] `on AppException catch (e)`（不是裸 catch）。
 - [ ] 用了 `Failure.fromException(e)` —— 当来源是 Retrofit 调用时，禁止手工构造。
 - [ ] 若同时写远端+本地，都在同一个 try 块里。

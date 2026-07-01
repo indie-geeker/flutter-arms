@@ -35,6 +35,7 @@ dependencies:
   talker_flutter: ^5.0.0
 
 dev_dependencies:
+  args: ^2.7.0
   auto_route_generator: ^10.2.4
   build_runner: ^2.6.0
   custom_lint: ^0.8.1

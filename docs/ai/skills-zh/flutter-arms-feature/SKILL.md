@@ -1,6 +1,6 @@
 ---
 name: flutter-arms-feature
-description: Scaffold and modify features in a flutter_arms project (Clean Architecture + MVVM + Riverpod 3 + AutoRoute + Retrofit + Freezed + hive_ce + slang). Use this skill whenever the user asks to add, modify, rename, or extend a feature — including new pages, new API endpoints, new ViewModels/Notifiers, new entities/DTOs, new routes, new i18n keys, or new Retrofit datasources. Also use it when the request is phrased as "添加登录页", "add a settings screen", "wire up /users API", "新增 feature", "写一个 profile 页", "make a search module", or anything that touches data/domain/presentation layers. Do NOT write generic Flutter code in this project — flutter_arms has its own Result<T>, Failure, .asApi() conventions that must be followed. Apply this skill proactively even when the user doesn't say "feature" explicitly, as long as the change involves any of: Riverpod providers, AutoRoute pages, Retrofit interfaces, Hive storage, Freezed states, slang i18n, or Clean Architecture layers.
+description: Scaffold and modify features in a flutter_arms project (Clean Architecture + MVVM + Riverpod 3 + AutoRoute + Retrofit/ApiClient adapters + Freezed + hive_ce + slang). Use this skill whenever the user asks to add, modify, rename, or extend a feature — including new pages, new API endpoints, new ViewModels/Notifiers, new entities/DTOs, new routes, new i18n keys, or new remote datasources. Also use it when the request is phrased as "添加登录页", "add a settings screen", "wire up /users API", "新增 feature", "写一个 profile 页", "make a search module", or anything that touches data/domain/presentation layers. Do NOT write generic Flutter code in this project — flutter_arms has its own Result<T>, Failure, and DataSource-side exception conversion conventions that must be followed. Apply this skill proactively even when the user doesn't say "feature" explicitly, as long as the change involves any of: Riverpod providers, AutoRoute pages, Retrofit interfaces, Hive storage, Freezed states, slang i18n, or Clean Architecture layers.
 ---
 
 # flutter-arms-feature
@@ -28,9 +28,9 @@ description: Scaffold and modify features in a flutter_arms project (Clean Archi
 ```
 features/<f>/
 ├── data/              ← dio、retrofit、hive_ce、AppException 仅允许在此
-│   ├── datasources/   ← @RestApi()（远端）、Hive 封装（本地）
+│   ├── datasources/   ← 纯接口 + Retrofit/ApiClient adapter + Hive 封装
 │   ├── models/        ← DTO @freezed + toEntity() 扩展
-│   └── repositories/  ← impl：try { ... .asApi() } on AppException catch
+│   └── repositories/  ← impl：try { await _remote.xxx() } on AppException catch
 ├── domain/            ← 纯 Dart；禁 dio/hive/retrofit/AppException
 │   ├── entities/      ← @immutable 普通类或 freezed
 │   ├── repositories/  ← abstract class，方法返回 Future<Result<T>>
@@ -49,14 +49,14 @@ features/<f>/
 1. **Repository 始终返回 `Future<Result<T>>`**，永远不向 UI 抛异常。标准写法：
    ```dart
    try {
-     final dto = await _remote.xxx(body).asApi();
+    final dto = await _remote.xxx(body);
      return Result.success(dto.toEntity());
    } on AppException catch (e) {
      return Result.failure(Failure.fromException(e));
    }
    ```
 
-2. **`.asApi()` 必不可少**——Repository 里每一次 Retrofit 调用都要加。它在边界把 `DioException` 转成 `AppException`。漏了就意味着 `on AppException catch` 不命中，裸 `DioException` 外泄。
+2. **DataSource adapter 负责底层异常转换。** Retrofit adapter 在 `_api.xxx().asApi()` 处把 `DioException` 转成 `AppException`；ApiClient adapter 通过 `DioApiClient.send(...)` 得到同样的 `AppException`。Repository 不再 import `dio_ext.dart`，也不调用 `.asApi()`。
 
 3. **Domain / Presentation 从不 import `app_exception.dart`** —— 只认 `Failure` + `FailureCode`。否则架构测试失败。
 
@@ -84,7 +84,9 @@ feature 名为 `<name>`（单数、snake_case，例如 `settings`、`post`、`se
 
 2. **填充 Data 层：**
    - `data/models/<name>_dto.dart` —— Retrofit 响应 DTO，用 `@freezed`；加 `toEntity()` 扩展。
-   - `data/datasources/<name>_remote_datasource.dart` —— `@RestApi()` 接口 + `@Riverpod(keepAlive: true)` provider，读 `dioProvider`。
+   - `data/datasources/<name>_remote_datasource.dart` —— 纯远程数据源接口。
+   - `data/datasources/retrofit_<name>_remote_datasource.dart` —— Retrofit adapter + 默认 provider，读 `dioProvider`。
+   - `data/datasources/api_client_<name>_remote_datasource.dart` —— ApiClient adapter，只依赖 `ApiClient` / `ApiRequest`；provider 接线放在单独 provider 文件。
    - `data/datasources/<name>_local_datasource.dart` —— 仅当 feature 有缓存。包装 `KvStorage`。
    - `data/repositories/<name>_repository_impl.dart` —— `implements <Name>Repository` + repository provider + 每个 UseCase 一个 provider。标准形态看 `auth_repository_impl.dart`。
 

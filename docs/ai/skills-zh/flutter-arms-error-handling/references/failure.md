@@ -53,7 +53,7 @@ enum FailureCode {
 
 ```dart
 try {
-  final dto = await _remote.xxx().asApi();
+  final dto = await _remote.xxx();
   return Result.success(dto.toEntity());
 } on AppException catch (e) {
   return Result.failure(Failure.fromException(e));

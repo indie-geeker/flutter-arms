@@ -1,4 +1,6 @@
+import 'package:flutter_arms/core/error/app_exception.dart';
 import 'package:flutter_arms/core/error/failure_code.dart';
+import 'package:flutter_arms/core/logger/app_log.dart';
 import 'package:flutter_arms/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:flutter_arms/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:flutter_arms/features/auth/data/models/token_model.dart';
@@ -7,22 +9,38 @@ import 'package:flutter_arms/features/auth/data/repositories/auth_repository_imp
 import 'package:flutter_arms/features/auth/domain/entities/user.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:talker/talker.dart';
 
 class _MockRemote extends Mock implements AuthRemoteDataSource {}
 
 class _MockLocal extends Mock implements AuthLocalDataSource {}
 
+class _FakeAppLog implements AppLog {
+  @override
+  void debug(Object message, [Object? error, StackTrace? stackTrace]) {}
+
+  @override
+  void error(Object message, [Object? error, StackTrace? stackTrace]) {}
+
+  @override
+  void handle(Object error, StackTrace? stackTrace, [String? context]) {}
+
+  @override
+  void info(Object message, [Object? error, StackTrace? stackTrace]) {}
+
+  @override
+  void warning(Object message, [Object? error, StackTrace? stackTrace]) {}
+}
+
 void main() {
   late _MockRemote remote;
   late _MockLocal local;
-  late Talker logger;
+  late AppLog logger;
   late AuthRepositoryImpl repository;
 
   setUp(() {
     remote = _MockRemote();
     local = _MockLocal();
-    logger = Talker(settings: TalkerSettings(enabled: false));
+    logger = _FakeAppLog();
     repository = AuthRepositoryImpl(remote, local, logger);
   });
 
@@ -58,11 +76,15 @@ void main() {
     });
 
     test(
-      'should return unknown failure when remote throws generic exception',
+      'should return unknown failure when remote throws AppException',
       () async {
         when(
           () => remote.login(any()),
-        ).thenAnswer((_) => Future<TokenModel>.error(Exception('unexpected')));
+        ).thenAnswer(
+          (_) => Future<TokenModel>.error(
+            const UnknownException(detail: 'unexpected'),
+          ),
+        );
 
         final result = await repository.login(
           username: 'alice',
@@ -89,7 +111,10 @@ void main() {
     test('should still clear local auth when remote logout fails', () async {
       when(
         () => remote.logout(),
-      ).thenAnswer((_) => Future<void>.error(Exception('network down')));
+      ).thenAnswer(
+        (_) =>
+            Future<void>.error(const UnknownException(detail: 'network down')),
+      );
       when(() => local.clearAuth()).thenAnswer((_) async {});
 
       await repository.logout();
@@ -144,11 +169,15 @@ void main() {
     });
 
     test(
-      'should return unknown failure when refresh throws generic exception',
+      'should return unknown failure when refresh throws AppException',
       () async {
         when(
           () => remote.refreshToken(any()),
-        ).thenAnswer((_) => Future<TokenModel>.error(Exception('expired')));
+        ).thenAnswer(
+          (_) => Future<TokenModel>.error(
+            const UnknownException(detail: 'expired'),
+          ),
+        );
 
         final result = await repository.refreshToken('old_refresh');
 

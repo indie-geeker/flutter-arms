@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -80,7 +79,7 @@ class HiveKvStorage implements KvStorage {
     }
 
     await Hive.initFlutter();
-    
+
     List<int>? keyBytes;
     try {
       const secureStorage = FlutterSecureStorage();
@@ -95,16 +94,20 @@ class HiveKvStorage implements KvStorage {
       } else {
         keyBytes = base64Url.decode(secureKey);
       }
-    } catch (e) {
+    } on Object catch (e) {
       // 如果平台不支持或出现 MissingPluginException 等，回退到原有逻辑
-      debugPrint('Secure Storage unavailable, falling back to plain text box for cipher key: \$e');
+      debugPrint(
+        'Secure Storage unavailable, falling back to plain text box for cipher key: $e',
+      );
       final keyBox = await Hive.openBox<dynamic>(AppConstants.keyBoxName);
-      var key = keyBox.get(AppConstants.cipherKey);
-      if (key is! List<int>) {
-        key = Hive.generateSecureKey();
-        await keyBox.put(AppConstants.cipherKey, key);
+      final storedKey = keyBox.get(AppConstants.cipherKey);
+      if (storedKey is List<int>) {
+        keyBytes = storedKey;
+      } else {
+        final newKey = Hive.generateSecureKey();
+        await keyBox.put(AppConstants.cipherKey, newKey);
+        keyBytes = newKey;
       }
-      keyBytes = key as List<int>;
     }
 
     _commonBox = await Hive.openBox<dynamic>(AppConstants.commonBoxName);

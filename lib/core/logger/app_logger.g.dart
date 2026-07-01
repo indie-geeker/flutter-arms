@@ -16,8 +16,8 @@ const appLoggerProvider = AppLoggerProvider._();
 /// 日志依赖注入。根据 `appEnvProvider.enableLog` 决定是否启用。
 
 final class AppLoggerProvider
-    extends $FunctionalProvider<Talker, Talker, Talker>
-    with $Provider<Talker> {
+    extends $FunctionalProvider<AppLog, AppLog, AppLog>
+    with $Provider<AppLog> {
   /// 日志依赖注入。根据 `appEnvProvider.enableLog` 决定是否启用。
   const AppLoggerProvider._()
     : super(
@@ -35,21 +35,21 @@ final class AppLoggerProvider
 
   @$internal
   @override
-  $ProviderElement<Talker> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<AppLog> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  Talker create(Ref ref) {
+  AppLog create(Ref ref) {
     return appLogger(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(Talker value) {
+  Override overrideWithValue(AppLog value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<Talker>(value),
+      providerOverride: $SyncValueProvider<AppLog>(value),
     );
   }
 }
 
-String _$appLoggerHash() => r'4d294512150d518579b6e6b875e7354029ee4ccf';
+String _$appLoggerHash() => r'8e0a6862172f1b2117935e7b188d7144f0af9480';

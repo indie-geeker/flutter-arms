@@ -1,7 +1,7 @@
 # Flutter Arms 模板派生指南
 
 > 目的：从本模板衍生一个新 Flutter 项目的最短路径。
-> 最后更新：2026-04-17
+> 最后更新：2026-07-01
 
 ## 1. 一次性改名（派生时）
 
@@ -81,13 +81,19 @@ tool/format.sh                            # dart format + --set-exit-if-changed
 
 新增一个 `xxx` feature，例如 `settings`：
 
+可先运行 `dart tool/gen_feature.dart --name settings` 生成基础骨架。生成器默认同时产出 Retrofit adapter 和 ApiClient adapter，Repository 默认接入 Retrofit adapter；ApiClient adapter 作为对比学习和未来替换网络库的参考。
+
 ### 3.1 目录结构
 
 ```
 lib/features/xxx/
+├── application/
+│   └── xxx_usecases.dart                 # 用例 Provider / 组合层
 ├── data/
 │   ├── datasources/
-│   │   └── xxx_remote_datasource.dart    # @RestApi(Retrofit)
+│   │   ├── xxx_remote_datasource.dart    # 纯 Dart 接口
+│   │   ├── retrofit_xxx_remote_datasource.dart
+│   │   └── api_client_xxx_remote_datasource.dart
 │   ├── models/
 │   │   └── xxx_dto.dart                  # Freezed + json_serializable
 │   └── repositories/
@@ -110,16 +116,19 @@ lib/features/xxx/
 ```
 
 ### 3.2 Data 层要点
-- Retrofit 接口加 `@RestApi(baseUrl: '')`，baseUrl 走 `dioProvider`。
-- Repository 包裹 `Future<T>.asApi()`（见 `core/network/dio_ext.dart`）：
+- `xxx_remote_datasource.dart` 只定义纯 Dart 接口，不 import `dio` / `retrofit`。
+- Retrofit 写法放在 `retrofit_xxx_remote_datasource.dart`，默认 Provider 注入这个 adapter，适合快速 REST CRUD。
+- ApiClient 写法放在 `api_client_xxx_remote_datasource.dart`，用于学习和长期替换网络库；它只依赖 `ApiClient` / `ApiRequest`，不直接依赖 Dio。
+- Repository 只依赖纯 data source 接口，并捕获 `AppException` 转 `Failure`：
   ```dart
   try {
-    final dto = await _remote.get().asApi();
+    final dto = await _remote.get();
     return Result.success(dto.toEntity());
   } on AppException catch (e) {
     return Result.failure(Failure.fromException(e));
   }
   ```
+- Retrofit adapter 内部调用 `.asApi()`；ApiClient adapter 由 `ApiClient.send(...)` 统一抛 `AppException`。
 - DTO → Entity 的 mapper 写在 DTO 文件的扩展里（不要反向污染）。
 
 ### 3.3 Domain 层要点
@@ -132,6 +141,7 @@ lib/features/xxx/
 - 在 `lib/app/app_router.dart` 的 `routes` 列表里添加新路由（如需守卫，加 `guards: [authGuard]`）。
 - ViewModel 使用 `@riverpod` 注解。
 - State 使用 `@freezed`。
+- ViewModel 读取 `application/**` 暴露的 use case Provider，不直接 import `data/**` 或 `domain/repositories/**`。
 - 错误展示：`context.failureMessage(failure)` 直接拿到本地化文案；badResponse/validation 会优先使用 `detail`。
 
 ### 3.5 i18n
@@ -142,6 +152,7 @@ lib/features/xxx/
 ### 3.6 测试
 每个新 feature 至少补齐：
 - Repository 单测（mocktail mock DataSource，覆盖成功 / 404 / 401 / 超时）。
+- ApiClient adapter 单测（fake `ApiClient`，断言 `ApiRequest` 的 method/path/body/decode）。
 - ViewModel 单测（`ProviderContainer` + override）。
 - Page widget 测（`TranslationProvider` + `ProviderScope.overrides`）。
 
@@ -154,15 +165,33 @@ lib/features/xxx/
 无需手动维护。每次 `flutter test` 会自动跑 `test/core/architecture_test.dart`：
 - 若新 feature 跨 feature 引用，会立即红线。如确实无法解耦，在 import 行上一行加 `// arch-exempt: <理由>`。
 - 若 domain 误 import 了 dio/hive/retrofit，会立即红线。
+- 若 presentation 直接 import data 或 repository 接口，会立即红线；临时 `// fast-track` 只用于小实验，不用于核心示例。
 
 ## 4. 常用扩展点
 
-- **接入第三方 API**：在 `features/<f>/data/datasources/` 新建 Retrofit 接口，复用 `dioProvider`。
+- **接入第三方 API**：优先用纯 data source 接口 + Retrofit adapter；如果希望降低未来换库成本，补 ApiClient adapter。
+- **替换网络库**：保留 `ApiRequest` 语义，替换 `apiClientProvider` 的 adapter，再逐步迁移 data source。
+- **替换日志**：实现 `AppLog`，override `appLoggerProvider`；普通 feature 不依赖 Talker。
+- **替换存储初始化**：实现 `StorageInitializer`，在 bootstrap 注入新的 `KvStorage`。
 - **离线缓存**：Hive box（`core/storage/kv_storage.dart` 已示范；新增时请遵循同一 cipher 策略）。
-- **推送/埋点**：不进入模板内核。在 `app/bootstrap.dart` 里初始化，并通过 Provider 暴露。
+- **推送/埋点**：不进入模板内核。在 `app/bootstrap.dart` 里初始化，并通过 Provider/端口暴露。
 - **自定义主题**：`core/theme/theme_notifier.dart` + `app_colors.dart`，seedColor 已持久化到 storage。
 
-## 5. 发布前 Checklist
+## 5. 什么时候升级到 Melos
+
+默认不要升级。单体仓库更适合独立开发者派生模板、快速迭代和发布。
+如果出现以下信号，再考虑把 `core`、`shared UI` 或多个 app 拆到 Melos workspace：
+
+- 一个仓库需要维护多个 Flutter app。
+- `core` 或 UI 组件要跨项目复用，甚至作为 package 发布。
+- CI 时间明显受单 package 限制，需要 package 级缓存和并行测试。
+- 团队/模块所有权稳定，拆包能降低协作成本，而不是只增加导入和生成复杂度。
+
+即使升级，也优先拆基础设施和共享 UI，不要默认按 feature 拆 package。
+
+详细预案见 [MELOS_DECISION.md](./MELOS_DECISION.md)。
+
+## 6. 发布前 Checklist
 
 - [ ] `docs/ai/SECURITY.md` §3 Checklist 逐项过一遍。
 - [ ] `env/prod.json` 通过 CI Secret 注入，不进 git。
@@ -170,4 +199,4 @@ lib/features/xxx/
 - [ ] `flutter test` 全绿，包含 `test/core/architecture_test.dart`。
 - [ ] `flutter build appbundle --flavor prod --dart-define-from-file=env/prod.json --obfuscate --split-debug-info=build/symbols`。
 - [ ] 自测：无网 / 断网 / 弱网 / 401 刷新成功 / 401 刷新失败 / 连续 401。
-- [ ] Profile → 长按头像（dev flavor）可打开 `TalkerScreen`（release 构建里入口被 flavor 判断关闭）。
+- [ ] Profile → 长按头像（dev flavor）可通过 `devLogViewerProvider` 打开日志面板（release 构建里入口被 flavor 判断关闭）。

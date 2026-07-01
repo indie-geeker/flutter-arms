@@ -37,7 +37,7 @@
 7. [ ] 填 DTO 的 `toEntity()` 扩展。
 8. [ ] 填 Entity 字段（domain —— 不要 JSON 注解）。
 9. [ ] 填 Repository 接口方法（全部返回 `Future<Result<T>>`）。
-10. [ ] 用 `try { ... .asApi() } on AppException catch` 模式填 Repository 实现。
+10. [ ] 用 `try { await _remote.xxx(); } on AppException catch` 模式填 Repository 实现；`.asApi()` 只放在 Retrofit DataSource adapter。
 11. [ ] 把每个 UseCase 写成小类，带 `call(...)` 方法。
 12. [ ] 为 repository 和每个 UseCase 增加 Riverpod provider（函数式），与 impl 同一文件。
 13. [ ] 填 State 字段（必有 `isLoading` + `Failure? error`；再加领域数据字段）。
@@ -53,7 +53,7 @@
 
 ## 常见错误
 
-- ❌ Retrofit 调用漏了 `.asApi()` → `DioException` 外泄，`on AppException catch` 漏接。
+- ❌ 把 `.asApi()` 写在 Repository，而不是 Retrofit DataSource adapter → 传输细节泄漏进仓储层。
 - ❌ 在 ViewModel 或 Page 里 import `app_exception.dart` → 架构测试挂（规则 2）。
 - ❌ 跨 feature import 没加 `// arch-exempt: <reason>` → 架构测试挂（规则 4）。
 - ❌ `zh.i18n.json` 缺了对应 key → `dart run slang` 代码生成失败。
@@ -63,7 +63,7 @@
 - ❌ 用 `StateProvider<bool>(...)` 而非 `@riverpod class` —— 老 API，不在批准清单。
 - ❌ Entity import 了 DTO 或 DTO 的 freezed 文件 → domain 应当只有 domain 类型。
 - ❌ 手写 `copyWith` —— 让 Freezed 生成。
-- ❌ 把 repository provider 放在 impl 文件**之外** —— 违反"一个 feature 模块、一个 DI 接线点"。
+- ❌ 把默认 repository provider 放在 impl 文件**之外** —— 违反"一个 feature 模块、一个 DI 接线点"；网络 adapter 的可替换 provider 可以单独放在 datasource provider 文件。
 
 ## 命名约定一览
 
