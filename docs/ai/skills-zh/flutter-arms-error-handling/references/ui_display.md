@@ -2,7 +2,7 @@
 
 UI 的活儿很少：从 state 读 `Failure?`，通过 `context.failureMessage(failure)` 转成字符串，显示出来。三种常见渲染形式，以及各自的适用场景。
 
-## 1. 错误对话框（大多数瞬时失败）
+## 1. 全局错误提示（大多数瞬时失败）
 
 适用：用户发起了动作（登录、保存、删除），失败了，他们应该看到消息并可选重试。
 
@@ -11,7 +11,7 @@ UI 的活儿很少：从 state 读 `Failure?`，通过 `context.failureMessage(f
 ref.listen(featureViewModelProvider, (previous, next) {
   final failure = next.error;
   if (failure != null && failure != previous?.error) {
-    AppDialog.showError(context, context.failureMessage(failure));
+    AppDialog.showError(context.failureMessage(failure));
   }
 });
 ```
@@ -28,7 +28,7 @@ ref.listen(featureViewModelProvider, (previous, next) {
 ref.listen(loginViewModelProvider, (previous, next) {
   final failure = next.error;
   if (failure != null) {
-    AppDialog.showError(context, context.failureMessage(failure));
+    AppDialog.showError(context.failureMessage(failure));
   }
   if (next.isLoginSuccess) {
     context.router.replace(const HomeRoute());
@@ -135,10 +135,10 @@ SnackBar：
 
 ```dart
 // ❌ 错
-AppDialog.showError(context, '登录失败，请重试');
+AppDialog.showError('登录失败，请重试');
 
 // ✅ 对
-AppDialog.showError(context, context.failureMessage(failure));
+AppDialog.showError(context.failureMessage(failure));
 ```
 
 正确版本：
@@ -148,7 +148,7 @@ AppDialog.showError(context, context.failureMessage(failure));
 
 ## 可访问性加成
 
-`SelectableText.rich` 与屏幕阅读器配合良好。对话框消息用 `AppDialog.showError` helper，它会把内容包在可访问的 `AlertDialog` 中。
+`SelectableText.rich` 与屏幕阅读器配合良好。瞬时错误消息统一用 `AppDialog.showError` helper，避免各 feature 直接依赖 overlay 实现。
 
 ## Checklist
 

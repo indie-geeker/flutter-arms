@@ -539,14 +539,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
-  flutter_smart_dialog:
-    dependency: "direct main"
-    description:
-      name: flutter_smart_dialog
-      sha256: "18ee3a53e898e4b0c2898e498bb61ab65cedf56f00fc412ac66d986d33e246bf"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.1.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -1061,6 +1053,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.28.0"
+  screen_size_adapter:
+    dependency: "direct main"
+    description:
+      name: screen_size_adapter
+      sha256: b6b3f4d86260e18b86c7af4c48260a0d99e112cc24f2c696bccfb4f3a1170318
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   serial_csv:
     dependency: transitive
     description:
@@ -1274,6 +1274,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  super_overlay:
+    dependency: "direct main"
+    description:
+      name: super_overlay
+      sha256: "8869fe19e0fdaa50aec59c9bea3c07481b236e21575455f5f778abc720d0a5c0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   synchronized:
     dependency: transitive
     description:

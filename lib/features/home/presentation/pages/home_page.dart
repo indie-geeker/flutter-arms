@@ -15,8 +15,7 @@ class HomePage extends StatelessWidget {
 
     return AutoTabsScaffold(
       routes: const <PageRouteInfo<dynamic>>[
-        FeedRoute(),
-        ExploreRoute(),
+        HomeTabRoute(),
         ProfileRoute(),
       ],
       bottomNavigationBuilder: (context, tabsRouter) {
@@ -26,11 +25,7 @@ class HomePage extends StatelessWidget {
           destinations: <NavigationDestination>[
             NavigationDestination(
               icon: const Icon(Icons.home_outlined),
-              label: t.home.feed,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.explore_outlined),
-              label: t.home.explore,
+              label: t.home.home,
             ),
             NavigationDestination(
               icon: const Icon(Icons.person_outline),

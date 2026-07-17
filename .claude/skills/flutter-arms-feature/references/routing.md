@@ -38,15 +38,14 @@ AutoRoute(
 ),
 ```
 
-For nested (tab / shell) routes — see how `HomeRoute` wraps `Feed/Explore/Profile`:
+For nested (tab / shell) routes — see how `HomeRoute` wraps `HomeTab/Profile`:
 
 ```dart
 AutoRoute(
   page: HomeRoute.page,
   guards: <AutoRouteGuard>[_authGuard],
   children: <AutoRoute>[
-    AutoRoute(page: FeedRoute.page, initial: true),
-    AutoRoute(page: ExploreRoute.page),
+    AutoRoute(page: HomeTabRoute.page, initial: true),
     AutoRoute(page: ProfileRoute.page),
   ],
 ),
@@ -87,7 +86,7 @@ Use `context.router`, not `Navigator.of(context)`, for top-level nav.
 `AuthGuard` (in `app_router.dart`) reads `authProvider`:
 
 - If authed → `resolver.next(true)`.
-- If not → `resolver.redirectUntil(const LoginRoute())`.
+- If not → `resolver.redirectUntil(const LoginRoute(), replace: true)`.
 
 The router listens to auth changes via `AuthListenable` — a `ChangeNotifier` wrapping `ref.listenManual<bool>(authProvider, …)`. When the bool flips, `MaterialApp.router`'s `reevaluateListenable` re-runs all guards. So logging out from any page auto-redirects to `LoginRoute`.
 

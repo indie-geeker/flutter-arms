@@ -1,19 +1,25 @@
 # Flutter Arms 模板派生指南
 
 > 目的：从本模板衍生一个新 Flutter 项目的最短路径。
-> 最后更新：2026-07-01
+> 最后更新：2026-07-16
 
 ## 1. 一次性改名（派生时）
 
-### 1.1 替换包名
+### 1.1 一键改名
 
-假设新项目叫 `my_app`：
+不要手工全局替换。运行跨平台脚本：
 
-1. `pubspec.yaml`：`name: flutter_arms` → `name: my_app`，`description` 同步更新。
-2. 全局替换 `package:flutter_arms/` → `package:my_app/`（IDE 或 `grep -rl`）。
-3. Android：`android/app/build.gradle.kts` 的 `applicationId` 和 `android/app/src/main/AndroidManifest.xml` 的 label / kotlin 包路径。
-4. iOS：Xcode 里改 `PRODUCT_BUNDLE_IDENTIFIER`、`Display Name`。
-5. `flutter clean && flutter pub get && dart run build_runner build --delete-conflicting-outputs && dart run slang`。
+```bash
+dart tool/rename.dart \
+  --name my_app \
+  --package com.example.my_app \
+  --display "My App"
+```
+
+脚本会同步 Dart package/import、Android applicationId/namespace/Kotlin 路径、
+iOS/macOS bundle id、Linux/Windows/Web 名称。省略参数会进入交互提问；
+`--ios-bundle-id` 可覆盖自动推导值。完成后按脚本输出执行
+`flutter clean && flutter pub get && tool/gen.sh`，再检查 `git status`。
 
 ### 1.2 替换品牌资源
 
@@ -35,12 +41,13 @@ cp env/prod.example.json env/prod.json
 
 `env/*.json` 已在 `.gitignore`，不会误提交。
 
-### 1.4 Mock API（开箱即用的登录演示）
+### 1.4 Mock API（开箱即用的登录与反馈中心）
 
 模板**默认开启 `USE_MOCK_API=true`**（仅 dev flavor），`MockApiInterceptor`
-会短路 `/auth/login` / `/auth/me` / `/auth/refresh` / `/auth/logout`，返回预置
-响应。派生项目第一次 `flutter run` 即可走通登录流程（演示凭据：`admin / admin`），
-无需后端同步就绪。
+会短路 `/auth/*` 与 `/feedback/*`，返回确定性响应。派生项目第一次
+`flutter run` 即可走通登录（演示凭据：`admin / admin`）、FAQ 搜索、反馈提交、
+历史与详情，无需等待后端同步就绪。Mock 只替换 transport，页面仍经过
+Retrofit/Dio、Repository、UseCase 与 ViewModel 的生产链路。
 
 切到真实后端：把 `env/dev.json` 里 `USE_MOCK_API` 置为 `"false"`。
 彻底移除 mock 能力：
@@ -50,12 +57,26 @@ cp env/prod.example.json env/prod.json
 3. 删除 `lib/app/app_env.dart` 中的 `useMockApi` 字段与相关分支。
 4. 删除 `env/*.example.json` 里的 `USE_MOCK_API`。
 5. 删除 `test/core/network/mock_api_interceptor_test.dart`。
+6. 删除依赖 Mock transport 的
+   `test/features/feedback/data/datasources/retrofit_feedback_remote_datasource_test.dart`。
 
 **Prod flavor 永远强制 `useMockApi = false`**，即便 `env/prod.json` 传入
 `"USE_MOCK_API": "true"` 也会被忽略（见 `AppEnv.fromFlavor` 的 prod 分支）——
 防止 Mock 代码被带到线上。
 
-### 1.4 安全短板处理（见 SECURITY.md §2.1）
+### 1.5 默认功能边界
+
+- `features/feedback` 默认启用并建议保留。它是通用产品能力，也是模板完整架构的
+  canonical example；真实后端契约为 `GET /feedback/faqs?q=`、
+  `GET /feedback`、`GET /feedback/{id}`、`POST /feedback`。
+- `features/showcase` 是 dev-only Developer Lab，生产路由表不注册。派生项目验证完
+  `AppDialog`/`super_overlay` 等基础能力后可直接删除。
+- 默认底栏只有 Home 与 Profile；FAQ 搜索属于反馈中心，不提供全局 Search 占位页。
+
+如果产品明确不需要反馈中心，删除 `lib/features/feedback`、对应三条路由、Profile
+入口、`feedback` i18n 节点与 `test/features/feedback`，然后运行 `tool/gen.sh`。
+
+### 1.6 安全短板处理（见 SECURITY.md §2.1）
 
 上线前必须评估 Hive cipher key 存储方案（`flutter_secure_storage` 或鸿蒙兼容方案）。
 
@@ -143,6 +164,8 @@ lib/features/xxx/
 - State 使用 `@freezed`。
 - ViewModel 读取 `application/**` 暴露的 use case Provider，不直接 import `data/**` 或 `domain/repositories/**`。
 - 错误展示：`context.failureMessage(failure)` 直接拿到本地化文案；badResponse/validation 会优先使用 `detail`。
+- 全局 loading / toast / confirm dialog / popup 统一调用 `AppDialog`；feature 不直接 import `super_overlay`。
+- 页面离开期间仍可能完成的请求，必须在 `finally` 中先关闭全局 loading，再检查 `context.mounted`。
 
 ### 3.5 i18n
 - 在 `lib/i18n/en.i18n.json` 与 `zh.i18n.json` 对称添加文案。

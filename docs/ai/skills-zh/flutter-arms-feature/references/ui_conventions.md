@@ -40,7 +40,7 @@ class _LoginHeader extends StatelessWidget { ... }
 - `EmptyStateWidget` —— "无数据"屏。
 - `ErrorStateWidget` —— 全屏错误；与 `context.failureMessage` 搭配。
 - `LoadingWidget` / `SkeletonLoader` —— 加载屏 / 占位。
-- `AppDialog.showError(context, String message)` —— 本地化错误对话框。
+- `AppDialog.showError(String message)` —— 本地化全局错误提示。
 
 不要内联新变体。扩展共享 widget（加一个具名构造或新属性），或在 `lib/shared/widgets/` 下新建文件。
 
@@ -52,7 +52,7 @@ class _LoginHeader extends StatelessWidget { ... }
 ref.listen(%feature%ViewModelProvider, (previous, next) {
   final failure = next.error;
   if (failure != null && failure != previous?.error) {
-    AppDialog.showError(context, context.failureMessage(failure));
+    AppDialog.showError(context.failureMessage(failure));
   }
 });
 ```

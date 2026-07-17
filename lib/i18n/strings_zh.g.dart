@@ -42,6 +42,7 @@ class TranslationsZh with BaseTranslations<AppLocale, Translations> implements T
 	@override late final _TranslationsOnboardingZh onboarding = _TranslationsOnboardingZh._(_root);
 	@override late final _TranslationsHomeZh home = _TranslationsHomeZh._(_root);
 	@override late final _TranslationsProfileZh profile = _TranslationsProfileZh._(_root);
+	@override late final _TranslationsFeedbackZh feedback = _TranslationsFeedbackZh._(_root);
 	@override late final _TranslationsSplashZh splash = _TranslationsSplashZh._(_root);
 	@override late final _TranslationsErrorsZh errors = _TranslationsErrorsZh._(_root);
 }
@@ -96,8 +97,7 @@ class _TranslationsHomeZh implements TranslationsHomeEn {
 	final TranslationsZh _root; // ignore: unused_field
 
 	// Translations
-	@override String get feed => '首页';
-	@override String get explore => '探索';
+	@override String get home => '首页';
 	@override String get profile => '我的';
 }
 
@@ -118,6 +118,53 @@ class _TranslationsProfileZh implements TranslationsProfileEn {
 	@override String get general => '通用';
 	@override String get language => '语言';
 	@override String get guest => '游客';
+	@override String get support => '支持';
+	@override String get helpFeedback => '帮助与反馈';
+	@override String get helpFeedbackSubtitle => '查找帮助或向我们反馈问题';
+	@override String get developer => '开发者';
+	@override String get showcase => '功能展示';
+	@override String get showcaseSubtitle => '可选的模板能力演示';
+}
+
+// Path: feedback
+class _TranslationsFeedbackZh implements TranslationsFeedbackEn {
+	_TranslationsFeedbackZh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => '帮助与反馈';
+	@override String get searchLabel => '搜索帮助';
+	@override String get searchHint => '搜索常见问题';
+	@override String get faqTitle => '常见问题';
+	@override String get noFaqs => '没有找到相关解答';
+	@override String get noFaqsHint => '请尝试其他关键词，或直接向我们反馈。';
+	@override String get submitCta => '发送反馈';
+	@override String get submitCtaSubtitle => '报告问题或提出改进建议';
+	@override String get historyTitle => '我的反馈';
+	@override String get noTickets => '还没有反馈记录';
+	@override String get noTicketsHint => '提交后的反馈会显示在这里。';
+	@override String get loadError => '反馈内容加载失败';
+	@override String get detailTitle => '反馈详情';
+	@override String get detailLoadError => '反馈详情加载失败';
+	@override String get ticketUnavailable => '当前反馈不可用。';
+	@override String get categoryLabel => '反馈类型';
+	@override String get messageLabel => '反馈内容';
+	@override String get messageHelper => '请描述发生的问题以及你的预期。';
+	@override String get messageRequired => '请输入反馈内容';
+	@override String get statusLabel => '处理状态';
+	@override String get submittedAtLabel => '提交时间';
+	@override String get replyLabel => '回复';
+	@override String get noReply => '暂时还没有回复';
+	@override String get submitButton => '发送反馈';
+	@override String get confirmTitle => '确认发送反馈？';
+	@override String get confirmMessage => '反馈内容将发送给支持团队。';
+	@override String get confirmAction => '发送';
+	@override String get cancelAction => '取消';
+	@override String get submitting => '正在发送反馈...';
+	@override String get successMessage => '感谢反馈，我们已经收到。';
+	@override late final _TranslationsFeedbackCategoriesZh categories = _TranslationsFeedbackCategoriesZh._(_root);
+	@override late final _TranslationsFeedbackStatusesZh statuses = _TranslationsFeedbackStatusesZh._(_root);
 }
 
 // Path: splash
@@ -146,6 +193,31 @@ class _TranslationsErrorsZh implements TranslationsErrorsEn {
 	@override String get unknown => '发生未知错误，请稍后重试';
 }
 
+// Path: feedback.categories
+class _TranslationsFeedbackCategoriesZh implements TranslationsFeedbackCategoriesEn {
+	_TranslationsFeedbackCategoriesZh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get bug => '问题反馈';
+	@override String get suggestion => '功能建议';
+	@override String get other => '其他';
+}
+
+// Path: feedback.statuses
+class _TranslationsFeedbackStatusesZh implements TranslationsFeedbackStatusesEn {
+	_TranslationsFeedbackStatusesZh._(this._root);
+
+	final TranslationsZh _root; // ignore: unused_field
+
+	// Translations
+	@override String get submitted => '已提交';
+	@override String get reviewing => '处理中';
+	@override String get resolved => '已解决';
+	@override String get closed => '已关闭';
+}
+
 /// The flat map containing all translations for locale <zh>.
 /// Only for edge cases! For simple maps, use the map function of this library.
 ///
@@ -170,8 +242,7 @@ extension on TranslationsZh {
 			'onboarding.skip' => '跳过',
 			'onboarding.next' => '下一步',
 			'onboarding.start' => '开始使用',
-			'home.feed' => '首页',
-			'home.explore' => '探索',
+			'home.home' => '首页',
 			'home.profile' => '我的',
 			'profile.appearance' => '外观',
 			'profile.themeMode' => '主题模式',
@@ -183,6 +254,49 @@ extension on TranslationsZh {
 			'profile.general' => '通用',
 			'profile.language' => '语言',
 			'profile.guest' => '游客',
+			'profile.support' => '支持',
+			'profile.helpFeedback' => '帮助与反馈',
+			'profile.helpFeedbackSubtitle' => '查找帮助或向我们反馈问题',
+			'profile.developer' => '开发者',
+			'profile.showcase' => '功能展示',
+			'profile.showcaseSubtitle' => '可选的模板能力演示',
+			'feedback.title' => '帮助与反馈',
+			'feedback.searchLabel' => '搜索帮助',
+			'feedback.searchHint' => '搜索常见问题',
+			'feedback.faqTitle' => '常见问题',
+			'feedback.noFaqs' => '没有找到相关解答',
+			'feedback.noFaqsHint' => '请尝试其他关键词，或直接向我们反馈。',
+			'feedback.submitCta' => '发送反馈',
+			'feedback.submitCtaSubtitle' => '报告问题或提出改进建议',
+			'feedback.historyTitle' => '我的反馈',
+			'feedback.noTickets' => '还没有反馈记录',
+			'feedback.noTicketsHint' => '提交后的反馈会显示在这里。',
+			'feedback.loadError' => '反馈内容加载失败',
+			'feedback.detailTitle' => '反馈详情',
+			'feedback.detailLoadError' => '反馈详情加载失败',
+			'feedback.ticketUnavailable' => '当前反馈不可用。',
+			'feedback.categoryLabel' => '反馈类型',
+			'feedback.messageLabel' => '反馈内容',
+			'feedback.messageHelper' => '请描述发生的问题以及你的预期。',
+			'feedback.messageRequired' => '请输入反馈内容',
+			'feedback.statusLabel' => '处理状态',
+			'feedback.submittedAtLabel' => '提交时间',
+			'feedback.replyLabel' => '回复',
+			'feedback.noReply' => '暂时还没有回复',
+			'feedback.submitButton' => '发送反馈',
+			'feedback.confirmTitle' => '确认发送反馈？',
+			'feedback.confirmMessage' => '反馈内容将发送给支持团队。',
+			'feedback.confirmAction' => '发送',
+			'feedback.cancelAction' => '取消',
+			'feedback.submitting' => '正在发送反馈...',
+			'feedback.successMessage' => '感谢反馈，我们已经收到。',
+			'feedback.categories.bug' => '问题反馈',
+			'feedback.categories.suggestion' => '功能建议',
+			'feedback.categories.other' => '其他',
+			'feedback.statuses.submitted' => '已提交',
+			'feedback.statuses.reviewing' => '处理中',
+			'feedback.statuses.resolved' => '已解决',
+			'feedback.statuses.closed' => '已关闭',
 			'splash.title' => 'Flutter Arms',
 			'errors.network' => '网络连接失败，请检查网络设置',
 			'errors.timeout' => '请求超时，请检查网络后重试',

@@ -22,8 +22,7 @@
     "start": "Get started"
   },
   "home": {
-    "feed": "Feed",
-    "explore": "Explore",
+    "home": "Home",
     "profile": "Profile"
   },
   "profile": {
@@ -36,7 +35,56 @@
     "custom": "Custom",
     "general": "General",
     "language": "Language",
-    "guest": "Guest"
+    "guest": "Guest",
+    "support": "Support",
+    "helpFeedback": "Help & Feedback",
+    "helpFeedbackSubtitle": "Find answers or send feedback",
+    "developer": "Developer",
+    "showcase": "Feature Showcase",
+    "showcaseSubtitle": "Optional template capability demos"
+  },
+  "feedback": {
+    "title": "Help & Feedback",
+    "searchLabel": "Search help",
+    "searchHint": "Search frequently asked questions",
+    "faqTitle": "Frequently asked questions",
+    "noFaqs": "No matching answers",
+    "noFaqsHint": "Try another search or send us feedback.",
+    "submitCta": "Send feedback",
+    "submitCtaSubtitle": "Report a problem or suggest an improvement",
+    "historyTitle": "Your feedback",
+    "noTickets": "No feedback yet",
+    "noTicketsHint": "Submitted feedback will appear here.",
+    "loadError": "Could not load feedback",
+    "detailTitle": "Feedback details",
+    "detailLoadError": "Could not load feedback details",
+    "ticketUnavailable": "This feedback is not available.",
+    "categoryLabel": "Category",
+    "messageLabel": "Feedback",
+    "messageHelper": "Describe what happened and what you expected.",
+    "messageRequired": "Please enter your feedback.",
+    "statusLabel": "Status",
+    "submittedAtLabel": "Submitted",
+    "replyLabel": "Reply",
+    "noReply": "No reply yet",
+    "submitButton": "Send feedback",
+    "confirmTitle": "Send feedback?",
+    "confirmMessage": "Your feedback will be sent to the support team.",
+    "confirmAction": "Send",
+    "cancelAction": "Cancel",
+    "submitting": "Sending feedback...",
+    "successMessage": "Thanks — your feedback was sent.",
+    "categories": {
+      "bug": "Bug report",
+      "suggestion": "Suggestion",
+      "other": "Other"
+    },
+    "statuses": {
+      "submitted": "Submitted",
+      "reviewing": "In review",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    }
   },
   "splash": {
     "title": "Flutter Arms"

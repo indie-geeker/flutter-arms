@@ -97,9 +97,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
                     width: selected ? 20 : 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: selected
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.outlineVariant,
+                      color:
+                          selected
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outlineVariant,
                       borderRadius: BorderRadius.circular(999),
                     ),
                   );
@@ -107,9 +108,10 @@ class _OnboardingPageState extends ConsumerState<OnboardingPage> {
               ),
               const SizedBox(height: 24),
               FilledButton(
-                onPressed: isLastPage
-                    ? _completeAndNavigate
-                    : () => _goToNextPage(state.pageIndex),
+                onPressed:
+                    isLastPage
+                        ? _completeAndNavigate
+                        : () => _goToNextPage(state.pageIndex),
                 child: Text(
                   isLastPage ? t.onboarding.start : t.onboarding.next,
                 ),

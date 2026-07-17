@@ -139,7 +139,7 @@ Repository 不 import `dio_ext.dart`。传输层异常转换由 DataSource adapt
 
 主 Dio（`dioProvider`）：
 
-1. `MockApiInterceptor` —— **仅 dev flavor**。对 `/auth/*` 短路，返回 canned 响应。必须在最前，才能在 Token/Api 之前生效。
+1. `MockApiInterceptor` —— **仅 dev flavor**。对 `/auth/*` 与 `/feedback/*` 短路，返回确定性响应。必须在最前，才能在 Token/Api 之前生效。
 2. `TalkerDioLogger` —— 打日志。
 3. `TokenInterceptor` —— 对 `requiresAuth != false` 的请求注入 `Authorization: Bearer <access>`；401 时把请求排队，调用 `refreshAction`，重试。
 4. `ApiInterceptor` —— 把 `DioException` 映射成 `AppException`，塞进 `DioException.error`。
@@ -150,7 +150,7 @@ Repository 不 import `dio_ext.dart`。传输层异常转换由 DataSource adapt
 
 ## Mock API（仅 dev）
 
-`env/dev.json` 设 `USE_MOCK_API: "true"` 就能对 `/auth/*`（login / refresh / me / logout）走 canned 响应。模板借此在无后端的情况下演示登录流程。
+dev flavor 在未提供 `USE_MOCK_API` 时默认开启 Mock API。它会短路 `/auth/*`（login / refresh / me / logout）和 `/feedback/*`（FAQ 搜索 / 提交 / 历史 / 详情），因此登录与反馈中心都能在没有后端时继续走真实的 Retrofit/Dio → Repository → UseCase → ViewModel 链路。若要连接 dev 后端，在 `env/dev.json` 中显式设置 `USE_MOCK_API: "false"`。
 
 Prod flavor 在 `AppEnv.fromFlavor` 里硬编码 `useMockApi = false` —— 即使 `env/prod.json` 尝试开启也无效。防 mock 泄漏到生产。
 

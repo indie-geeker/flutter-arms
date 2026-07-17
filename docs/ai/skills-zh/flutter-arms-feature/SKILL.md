@@ -98,7 +98,7 @@ feature 名为 `<name>`（单数、snake_case，例如 `settings`、`post`、`se
 4. **填充 Presentation 层：**
    - `presentation/states/<name>_state.dart` —— `@freezed`，至少含 `isLoading`、`error: Failure?` 及数据字段。
    - `presentation/view_models/<name>_view_model.dart` —— `@riverpod class <Name>ViewModel extends _$<Name>ViewModel`。`build()` 返回初始 state。动作读 UseCase provider，`switch` on `Result`，更新 `state`。
-   - `presentation/pages/<name>_page.dart` —— `@RoutePage()`。读 Riverpod 就用 `ConsumerWidget`，否则 `StatelessWidget`。在 `ref.listen` 里通过 `AppDialog.showError(context, context.failureMessage(failure))` 渲染错误。
+   - `presentation/pages/<name>_page.dart` —— `@RoutePage()`。读 Riverpod 就用 `ConsumerWidget`，否则 `StatelessWidget`。在 `ref.listen` 里通过 `AppDialog.showError(context.failureMessage(failure))` 渲染错误。
    - `presentation/widgets/` —— 私有 `_Xxx` widget；如被复用则提升到 `lib/shared/widgets/`。
 
 5. **注册路由** 在 `lib/app/app_router.dart`：在 `routes` 里加 `AutoRoute(page: <Name>Route.page)`。需要鉴权就加 `guards: <AutoRouteGuard>[_authGuard]`。

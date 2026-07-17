@@ -14,7 +14,10 @@ class LoginPage extends StatelessWidget {
     final t = context.t;
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.auth.title)),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Text(t.auth.title),
+      ),
       body: const SafeArea(
         child: Padding(
           padding: EdgeInsets.all(16),

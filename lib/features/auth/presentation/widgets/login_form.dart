@@ -1,6 +1,4 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_arms/app/app_router.dart';
 import 'package:flutter_arms/core/extensions/build_context_ext.dart';
 import 'package:flutter_arms/features/auth/presentation/view_models/login_view_model.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
@@ -22,10 +20,6 @@ class LoginForm extends ConsumerWidget {
       final failure = next.error;
       if (failure != null) {
         AppDialog.showError(context.failureMessage(failure));
-      }
-
-      if (next.isLoginSuccess) {
-        context.router.replace(const HomeRoute());
       }
     });
 

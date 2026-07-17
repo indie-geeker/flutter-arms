@@ -6,7 +6,7 @@ import 'package:flutter_arms/core/theme/theme_notifier.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:super_overlay/super_overlay.dart';
 
 /// 应用根组件。
 class App extends ConsumerStatefulWidget {
@@ -19,16 +19,19 @@ class App extends ConsumerStatefulWidget {
 
 class _AppState extends ConsumerState<App> {
   late final AppRouter _router;
+  late final SuperOverlayIntegration _overlayIntegration;
 
   @override
   void initState() {
     super.initState();
     _router = AppRouter(ref);
+    _overlayIntegration = SuperOverlay.integration();
   }
 
   @override
   void dispose() {
     _router.authListenable.dispose();
+    _overlayIntegration.dispose();
     super.dispose();
   }
 
@@ -51,9 +54,9 @@ class _AppState extends ConsumerState<App> {
             themeMode: themeState.mode,
             routerConfig: _router.config(
               reevaluateListenable: _router.authListenable,
-              navigatorObservers: () => [FlutterSmartDialog.observer],
+              navigatorObservers: () => [_overlayIntegration.observer],
             ),
-            builder: FlutterSmartDialog.init(),
+            builder: _overlayIntegration.builder,
           );
         },
       ),

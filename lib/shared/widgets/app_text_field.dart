@@ -62,18 +62,19 @@ class _AppTextFieldState extends State<AppTextField> {
         labelText: widget.label,
         errorText: widget.errorText,
         border: const OutlineInputBorder(),
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                onPressed: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-                icon: Icon(
-                  _obscureText ? Icons.visibility : Icons.visibility_off,
-                ),
-              )
-            : null,
+        suffixIcon:
+            widget.isPassword
+                ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
+                  icon: Icon(
+                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                  ),
+                )
+                : null,
       ),
     );
   }

@@ -16,10 +16,12 @@ abstract class RetrofitAuthApi {
   factory RetrofitAuthApi(Dio dio, {String baseUrl}) = _RetrofitAuthApi;
 
   /// 登录。
+  @Extra({'requiresAuth': false})
   @POST('/auth/login')
   Future<TokenModel> login(@Body() Map<String, dynamic> body);
 
   /// 刷新 Token。
+  @Extra({'requiresAuth': false})
   @POST('/auth/refresh')
   Future<TokenModel> refreshToken(@Body() Map<String, dynamic> body);
 
@@ -28,6 +30,7 @@ abstract class RetrofitAuthApi {
   Future<UserModel> me();
 
   /// 登出。
+  @Extra({'requiresAuth': false})
   @POST('/auth/logout')
   Future<void> logout();
 }

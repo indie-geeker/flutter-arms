@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_arms/app/app.dart';
 import 'package:flutter_arms/app/app_env.dart';
+import 'package:flutter_arms/app/app_screen_size_config.dart';
 import 'package:flutter_arms/core/auth/auth_token_refresher.dart';
 import 'package:flutter_arms/core/error/error_handler.dart';
 import 'package:flutter_arms/core/logger/app_logger.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_arms/core/storage/kv_storage.dart';
 import 'package:flutter_arms/features/auth/application/auth_token_refresher_impl.dart';
 import 'package:flutter_arms/i18n/strings.g.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:screen_size_adapter/screen_size_adapter.dart';
 
 /// 应用统一启动入口。
 ///
@@ -27,7 +29,9 @@ Future<void> bootstrap({required AppFlavor flavor}) async {
 
   await runZonedGuarded<Future<void>>(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
+      ScreenSizeWidgetsFlutterBinding.ensureInitialized(
+        appScreenSizeAdapterConfig,
+      );
 
       FlutterError.onError = (FlutterErrorDetails details) {
         logger.handle(details.exception, details.stack, 'FlutterError');

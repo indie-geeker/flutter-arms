@@ -1,6 +1,6 @@
 # Flutter Arms 架构说明
 
-> 最后更新：2026-07-01
+> 最后更新：2026-07-16
 
 ## 1. 总览
 
@@ -12,6 +12,7 @@ lib/
 │   ├── app.dart
 │   ├── app_env.dart      # AppEnv（--dart-define 注入）
 │   ├── app_router.dart
+│   ├── app_screen_size_config.dart # screen_size_adapter 全局设计配置
 │   └── bootstrap.dart    # runZonedGuarded + 错误捕获 + 基建初始化/注入
 ├── core/                 # 框架无关端口与默认适配器
 │   ├── auth/             # AuthTokenRefresher 端口
@@ -24,11 +25,13 @@ lib/
 │   └── theme/
 ├── features/             # 业务切片：<feature>/{application,data,domain,presentation}
 │   ├── auth/             # 登录、Token 刷新、鉴权守卫
-│   ├── home/             # 首页 Tab（含 profile 设置页）
+│   ├── feedback/         # 默认启用的 FAQ / 提交 / 历史 / 详情纵向切片
+│   ├── home/             # 首页壳 + Home/Profile Tab
 │   ├── onboarding/
+│   ├── showcase/         # dev-only Developer Lab，业务项目可删除
 │   └── splash/
 ├── i18n/                 # slang 翻译（*.i18n.json → strings.g.dart）
-├── shared/               # 跨 feature UI 组件
+├── shared/               # 跨 feature UI 组件与反馈门面
 ├── main_dev.dart         # bootstrap(flavor: dev)
 └── main_prod.dart        # bootstrap(flavor: prod)
 ```
@@ -158,11 +161,49 @@ Retrofit adapter 内部使用 `Future<T>.asApi()` 解封或转换 Dio 错误；`
 
 架构选择：业务代码不直接读取静态 Singleton。`AppEnv`、日志、存储、网络和认证刷新都通过 Provider 组合；即使某个 adapter 内部有实例缓存，也只在 adapter 边界内使用，使测试可精准 override。
 
+### 4.1 全局 UI 反馈
+
+应用根状态在 `initState` 创建一个稳定的 `SuperOverlayIntegration`，把同一实例
+的 `builder` 与 `observer` 分别交给 `MaterialApp.router` 和 AutoRoute 根
+Navigator，并在 `dispose` 释放。业务层不直接 import `super_overlay`；toast /
+error / loading / confirm dialog / popup window 统一走
+`lib/shared/dialogs/app_dialog.dart` 的 `AppDialog` 门面。
+
+约束：
+- feature presentation 只能调用 `AppDialog` 门面展示全局反馈。
+- `AppDialog` 使用 `SuperOverlay.toast`、`SuperOverlay.loading`、
+  `SuperOverlay.dialog`、`SuperOverlay.popup` 与 `SuperOverlay.close` 命令服务。
+- loading 只通过 loading service 关闭，避免误关其他 overlay。
+- 自定义 dialog 通过 `AppDialog.showCustom<T>` 保存并关闭自己的 typed
+  `OverlayHandle<T>`，不发全局关闭命令；confirm 与 Profile 颜色选择器均复用该入口。
+- popup 用业务 tag + `OverlayStrategy.replaceExisting` 去重，关闭时只匹配 popup
+  surface 与对应 tag，避免影响 confirm dialog。
+- `features/showcase` 只用于 dev 环境下展示模板能力，不进入默认首页 Tab；
+  派生业务项目可删除该 feature 与对应路由入口，不影响核心模板。
+
+### 4.2 默认完整纵向切片：Feedback Center
+
+`features/feedback` 是默认启用、可直接保留的产品功能，也是模板的 canonical
+architecture example：
+
+```text
+Page -> Riverpod ViewModel -> UseCase -> Repository contract
+     -> Repository implementation -> RemoteDataSource -> Retrofit/Dio
+```
+
+dev 与 prod 使用同一条链路。dev 只在 `MockApiInterceptor` transport 边界提供
+确定性 `/feedback/*` 响应；prod 强制使用真实 API。提交确认、全局 loading 与
+结果 toast 只通过 `AppDialog`，初始加载、空态、错误态与重试由页面 widget 持有。
+FAQ 与历史请求分别保存错误来源，并对竞态、autoDispose 与本地新工单合并做保护。
+
 ## 5. 路由守卫
 
-`lib/app/app_router.dart` 中的 `AuthGuard`：
-- 监听 `authNotifierProvider`（`reevaluateListenable`），登录态变化自动重评估所有路由。
-- 未登录访问受保护页面 → 重定向到 `LoginRoute`，登录成功后 pop 回原页面。
+`lib/app/app_router.dart` 中的 `AuthGuard` / `GuestGuard`：
+- `AuthListenable` 监听 `authProvider`，并通过 `reevaluateListenable` 在登录态变化时重评估路由。
+- 未登录访问受保护页面 → 使用 replace 语义重定向到 `LoginRoute`；已登录访问登录页 → 重定向到 `HomeRoute`，避免残留可返回的认证页面。
+- Feedback center、提交与详情均为受保护路由；Profile 在所有 flavor 显示入口。
+- Showcase 仅在 dev 路由表注册，prod 不暴露该页面。
+- 默认顶层导航只有 Home 与 Profile；FAQ 搜索不占用全局 Tab。
 
 ## 6. 全局错误捕获
 
@@ -171,7 +212,9 @@ Retrofit adapter 内部使用 `Future<T>.asApi()` 解封或转换 Dio 错误；`
 ```dart
 await runZonedGuarded<Future<void>>(
   () async {
-    WidgetsFlutterBinding.ensureInitialized();
+    ScreenSizeWidgetsFlutterBinding.ensureInitialized(
+      appScreenSizeAdapterConfig,
+    );
     FlutterError.onError = (d) => logger.handle(d.exception, d.stack, 'FlutterError');
     PlatformDispatcher.instance.onError = (e, s) { logger.handle(e, s, 'PlatformDispatcher'); return true; };
     ...
@@ -180,6 +223,11 @@ await runZonedGuarded<Future<void>>(
   (e, s) => logger.handle(e, s, 'ZoneUncaught'),
 );
 ```
+
+`appScreenSizeAdapterConfig` 使用 `Size(360, 690)`、`ScaleAxis.width`，并关闭
+桌面缩放。自定义 binding 必须早于存储、插件和 `runApp` 初始化；应用继续使用
+普通 Flutter 数值，不引入历史 `.dp` / `.sp` 扩展。当前模板只使用稳定的单视图
+`runApp` 路径，不接入实验性的 secondary-view registry。
 
 覆盖：UI 构建错误、平台异常、Zone 未捕获 Future、Provider 失败（`AppProviderObserver.providerDidFail`）。
 

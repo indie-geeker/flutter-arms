@@ -13,7 +13,8 @@ extension BuildContextExt on BuildContext {
 
   /// 将 [Failure] 映射为可显示的本地化文案。
   ///
-  /// - `badResponse` / `validation` 若携带 `detail`（来自服务端 message 或校验详情），优先使用 `detail`。
+  /// - `auth` / `badResponse` / `validation` 若携带 `detail`
+  ///   （来自服务端 message 或校验详情），优先使用 `detail`。
   /// - 其他分类统一使用 `t.errors.<code>` 文案。
   String failureMessage(Failure failure) {
     final strings = t.errors;
@@ -21,7 +22,7 @@ extension BuildContextExt on BuildContext {
       FailureCode.network => strings.network,
       FailureCode.timeout => strings.timeout,
       FailureCode.badResponse => failure.detail ?? strings.badResponse,
-      FailureCode.auth => strings.auth,
+      FailureCode.auth => failure.detail ?? strings.auth,
       FailureCode.validation => failure.detail ?? strings.validation,
       FailureCode.cancelled => strings.cancelled,
       FailureCode.unknown => strings.unknown,

@@ -48,20 +48,18 @@ class AppEnv {
         return AppEnv(
           flavor: AppFlavor.dev,
           appName: envAppName.isNotEmpty ? envAppName : 'Flutter Arms Dev',
-          baseUrl: envBaseUrl.isNotEmpty
-              ? envBaseUrl
-              : 'https://example.dev.api',
+          baseUrl:
+              envBaseUrl.isNotEmpty ? envBaseUrl : 'https://example.dev.api',
           enableLog: !hasEnableLog || envEnableLog,
-          // dev 默认开启 mock，无需后端即可演示登录/登出。
+          // dev 默认开启 mock，无需后端即可演示登录与反馈中心。
           useMockApi: !hasUseMockApi || envUseMockApi,
         );
       case AppFlavor.prod:
         return AppEnv(
           flavor: AppFlavor.prod,
           appName: envAppName.isNotEmpty ? envAppName : 'Flutter Arms',
-          baseUrl: envBaseUrl.isNotEmpty
-              ? envBaseUrl
-              : 'https://example.prod.api',
+          baseUrl:
+              envBaseUrl.isNotEmpty ? envBaseUrl : 'https://example.prod.api',
           enableLog: hasEnableLog && envEnableLog,
           // prod 强制走真实后端；即便 --dart-define 打开也一律拒绝。
           useMockApi: false,
@@ -83,8 +81,8 @@ class AppEnv {
 
   /// 是否启用 Mock API（仅 dev flavor 生效）。
   ///
-  /// 启用后 `MockApiInterceptor` 会短路 `/auth/*` 请求，返回预置响应，
-  /// 使派生项目无需真实后端也能跑通登录/登出流程。
+  /// 启用后 `MockApiInterceptor` 会短路 `/auth/*` 与 `/feedback/*` 请求，
+  /// 使派生项目无需真实后端也能跑通登录和反馈中心流程。
   final bool useMockApi;
 }
 

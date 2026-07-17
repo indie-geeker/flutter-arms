@@ -83,7 +83,7 @@ Without `.asApi()`, the `on AppException catch` clause will miss and a raw `DioE
 
 Main Dio (`dioProvider`):
 
-1. `MockApiInterceptor` — **dev flavor only**. Short-circuits `/auth/*` with canned responses. Must be first so it runs before Token/Api interceptors.
+1. `MockApiInterceptor` — **dev flavor only**. Short-circuits `/auth/*` and `/feedback/*` with deterministic responses. Must be first so it runs before Token/Api interceptors.
 2. `TalkerDioLogger` — logs every request/response.
 3. `TokenInterceptor` — injects `Authorization: Bearer <access>`; on 401 queues the request, calls `refreshAction`, retries.
 4. `ApiInterceptor` — maps `DioException` → `AppException`, packs it into `DioException.error`.
@@ -94,7 +94,7 @@ Refresh Dio (`authRefreshDioProvider`):
 
 ## Mock API (dev-only)
 
-`env/dev.json` can set `USE_MOCK_API: "true"` to short-circuit `/auth/*` endpoints (login / refresh / me / logout) with canned responses. This is how the template demos a login flow without a backend.
+Mock API is enabled by default in the dev flavor when `USE_MOCK_API` is omitted. It short-circuits `/auth/*` (login / refresh / me / logout) and `/feedback/*` (FAQ search / submit / history / detail), so both canonical flows use the real Retrofit/Dio → Repository → UseCase → ViewModel stack without requiring a backend. Set `USE_MOCK_API: "false"` in `env/dev.json` to use the configured dev server instead.
 
 Prod flavor hardcodes `useMockApi = false` in `AppEnv.fromFlavor` — even if `env/prod.json` tries to enable it, it's ignored. This prevents mocks leaking to production.
 

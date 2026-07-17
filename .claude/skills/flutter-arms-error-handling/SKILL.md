@@ -53,7 +53,7 @@ flutter_arms uses a **two-layer error model** with a strict conversion boundary.
 - **`references/exceptions.md`** — `AppException` sealed hierarchy, `AppExceptionMapper` (DioException → subclass), `.asApi()` implementation, how `ApiInterceptor` pre-packs exceptions.
 - **`references/failure.md`** — `Failure` shape, `FailureCode` enum, `Failure.fromException`, `context.failureMessage`, detail precedence for badResponse/validation.
 - **`references/repository_flow.md`** — the canonical Repository try/catch shape, how to add a new method, how to handle partial failures (e.g. remote fails but local succeeds, like logout).
-- **`references/ui_display.md`** — `AppDialog.showError`, `ErrorStateWidget`, `SelectableText.rich`, when to use each, the `ref.listen` pattern for dialog triggers.
+- **`references/ui_display.md`** — `AppDialog.showError`, `ErrorStateWidget`, `SelectableText.rich`, when to use each, the `ref.listen` pattern for global error feedback.
 
 ## Quick decision tree
 
@@ -103,7 +103,7 @@ Future<void> openDetail(String id) async {
 ref.listen(postViewModelProvider, (prev, next) {
   final failure = next.error;
   if (failure != null && failure != prev?.error) {
-    AppDialog.showError(context, context.failureMessage(failure));
+    AppDialog.showError(context.failureMessage(failure));
   }
 });
 ```

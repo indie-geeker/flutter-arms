@@ -11,7 +11,7 @@ Use when: the user tried an action (login, save, delete), it failed, and they sh
 ref.listen(featureViewModelProvider, (previous, next) {
   final failure = next.error;
   if (failure != null && failure != previous?.error) {
-    AppDialog.showError(context, context.failureMessage(failure));
+    AppDialog.showError(context.failureMessage(failure));
   }
 });
 ```
@@ -28,7 +28,7 @@ Example from `login_form.dart`:
 ref.listen(loginViewModelProvider, (previous, next) {
   final failure = next.error;
   if (failure != null) {
-    AppDialog.showError(context, context.failureMessage(failure));
+    AppDialog.showError(context.failureMessage(failure));
   }
   if (next.isLoginSuccess) {
     context.router.replace(const HomeRoute());
@@ -135,10 +135,10 @@ Use `AppDialog.showError` or inline `SelectableText.rich`.
 
 ```dart
 // ❌ WRONG
-AppDialog.showError(context, '登录失败，请重试');
+AppDialog.showError('登录失败，请重试');
 
 // ✅ RIGHT
-AppDialog.showError(context, context.failureMessage(failure));
+AppDialog.showError(context.failureMessage(failure));
 ```
 
 The right version:
@@ -148,7 +148,7 @@ The right version:
 
 ## Accessibility bonus
 
-`SelectableText.rich` works well with screen readers. For dialog messages, use the `AppDialog.showError` helper which wraps the content in an accessible `AlertDialog`.
+`SelectableText.rich` works well with screen readers. For transient failures, use the `AppDialog.showError` helper so feature code does not depend on the overlay implementation.
 
 ## Checklist
 

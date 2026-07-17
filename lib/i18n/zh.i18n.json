@@ -22,8 +22,7 @@
     "start": "开始使用"
   },
   "home": {
-    "feed": "首页",
-    "explore": "探索",
+    "home": "首页",
     "profile": "我的"
   },
   "profile": {
@@ -36,7 +35,56 @@
     "custom": "自定义",
     "general": "通用",
     "language": "语言",
-    "guest": "游客"
+    "guest": "游客",
+    "support": "支持",
+    "helpFeedback": "帮助与反馈",
+    "helpFeedbackSubtitle": "查找帮助或向我们反馈问题",
+    "developer": "开发者",
+    "showcase": "功能展示",
+    "showcaseSubtitle": "可选的模板能力演示"
+  },
+  "feedback": {
+    "title": "帮助与反馈",
+    "searchLabel": "搜索帮助",
+    "searchHint": "搜索常见问题",
+    "faqTitle": "常见问题",
+    "noFaqs": "没有找到相关解答",
+    "noFaqsHint": "请尝试其他关键词，或直接向我们反馈。",
+    "submitCta": "发送反馈",
+    "submitCtaSubtitle": "报告问题或提出改进建议",
+    "historyTitle": "我的反馈",
+    "noTickets": "还没有反馈记录",
+    "noTicketsHint": "提交后的反馈会显示在这里。",
+    "loadError": "反馈内容加载失败",
+    "detailTitle": "反馈详情",
+    "detailLoadError": "反馈详情加载失败",
+    "ticketUnavailable": "当前反馈不可用。",
+    "categoryLabel": "反馈类型",
+    "messageLabel": "反馈内容",
+    "messageHelper": "请描述发生的问题以及你的预期。",
+    "messageRequired": "请输入反馈内容",
+    "statusLabel": "处理状态",
+    "submittedAtLabel": "提交时间",
+    "replyLabel": "回复",
+    "noReply": "暂时还没有回复",
+    "submitButton": "发送反馈",
+    "confirmTitle": "确认发送反馈？",
+    "confirmMessage": "反馈内容将发送给支持团队。",
+    "confirmAction": "发送",
+    "cancelAction": "取消",
+    "submitting": "正在发送反馈...",
+    "successMessage": "感谢反馈，我们已经收到。",
+    "categories": {
+      "bug": "问题反馈",
+      "suggestion": "功能建议",
+      "other": "其他"
+    },
+    "statuses": {
+      "submitted": "已提交",
+      "reviewing": "处理中",
+      "resolved": "已解决",
+      "closed": "已关闭"
+    }
   },
   "splash": {
     "title": "Flutter Arms"

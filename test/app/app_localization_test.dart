@@ -46,4 +46,34 @@ void main() {
     expect(materialApp.supportedLocales, AppLocaleUtils.supportedLocales);
     expect(materialApp.localizationsDelegates, isNotEmpty);
   });
+
+  test('home tabs and feedback flow are fully localized', () async {
+    LocaleSettings.setLocaleSync(AppLocale.en);
+
+    expect(t.home.home, 'Home');
+    expect(t.home.profile, 'Profile');
+    expect(t.profile.support, 'Support');
+    expect(t.profile.helpFeedback, 'Help & Feedback');
+    expect(t.profile.developer, 'Developer');
+    expect(t.feedback.title, 'Help & Feedback');
+    expect(t.feedback.searchLabel, 'Search help');
+    expect(t.feedback.submitButton, 'Send feedback');
+    expect(t.feedback.categories.bug, 'Bug report');
+    expect(t.feedback.statuses.reviewing, 'In review');
+    expect(t.feedback.messageRequired, 'Please enter your feedback.');
+
+    await LocaleSettings.setLocale(AppLocale.zh);
+
+    expect(t.home.home, '首页');
+    expect(t.home.profile, '我的');
+    expect(t.profile.support, '支持');
+    expect(t.profile.helpFeedback, '帮助与反馈');
+    expect(t.profile.developer, '开发者');
+    expect(t.feedback.title, '帮助与反馈');
+    expect(t.feedback.searchLabel, '搜索帮助');
+    expect(t.feedback.submitButton, '发送反馈');
+    expect(t.feedback.categories.bug, '问题反馈');
+    expect(t.feedback.statuses.reviewing, '处理中');
+    expect(t.feedback.messageRequired, '请输入反馈内容');
+  });
 }

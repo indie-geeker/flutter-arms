@@ -28,11 +28,11 @@ Dio authRefreshDio(Ref ref) {
   final logger = ref.read(appLoggerProvider);
   final dio = Dio(_baseOptions(env.baseUrl));
   // Mock 必须位于拦截链首位：
-  // - onRequest：短路 `/auth/*` 早于 Token/Api 拦截器；
+  // - onRequest：短路 `/auth/*` 与 `/feedback/*` 早于 Token/Api 拦截器；
   // - onError：`handler.reject(err, true)` 触发的是**后续** onError，
   //   只有首位 reject，ApiInterceptor 的 DioException→AppException 映射才会跑。
   if (env.useMockApi) {
-    dio.interceptors.add(const MockApiInterceptor());
+    dio.interceptors.add(MockApiInterceptor());
   }
   dio.interceptors
     ..add(dioLogInterceptor(logger))
@@ -52,7 +52,7 @@ Dio dio(Ref ref) {
 
   // 同上：Mock 必须首位，参见 authRefreshDio 注释。
   if (env.useMockApi) {
-    dio.interceptors.add(const MockApiInterceptor());
+    dio.interceptors.add(MockApiInterceptor());
   }
   dio.interceptors
     ..add(dioLogInterceptor(logger))

@@ -25,7 +25,9 @@ CI 需要 package 级并行，或者 feature 已经形成稳定团队边界。�
 - **错误模型开箱可用**：AppException（Data 层） ↔ Failure/FailureCode（Domain/UI）双层分离，文案走 i18n，不会再硬编码中文。
 - **环境隔离**：`--dart-define-from-file` + `env/*.json` + 两套 `main_*.dart` + flavor 区分。
 - **运行时可观测**：`runZonedGuarded` + `FlutterError.onError` + `PlatformDispatcher.onError` + Riverpod `providerDidFail` 全线收敛；dev 环境长按 Profile 头像可通过日志面板查看运行日志。
-- **关键路径有测试**：Token 刷新、AuthGuard、Locale 持久化、Profile 页交互等核心链路均有单测/Widget 测覆盖。
+- **默认示例可以直接保留**：`features/feedback` 是产品中立的完整纵向切片，FAQ、提交反馈、历史与详情都走真实的 ViewModel → UseCase → Repository → Retrofit/Dio 链路。
+- **开发演示不污染产品导航**：`features/showcase` 只在 dev 的 Profile 开发者区域与路由表中出现，用于展示 loading/toast/dialog/popup 等 UI 能力。
+- **关键路径有测试**：Token 刷新、AuthGuard、Locale 持久化、反馈中心、Profile 页交互等核心链路均有单测/Widget 测覆盖。
 
 ## 架构分层
 
@@ -73,6 +75,8 @@ flowchart LR
 | 模型 / 状态 | `freezed`、`json_serializable`、`build_runner` |
 | 存储 | `hive_ce`、`hive_ce_flutter`（AES cipher）|
 | 国际化 | `slang`、`slang_flutter`、`flutter_localizations` |
+| 屏幕适配 | `screen_size_adapter`（binding 级设计尺寸适配，默认 `360 × 690`）|
+| 全局 UI 反馈 | `super_overlay`（toast / loading / popup / notify）|
 | 日志 / 可观测 | `talker`、`talker_flutter` |
 | Lint / 测试 | `very_good_analysis`、`flutter_test`、`mocktail` |
 | 启动资源 | `flutter_native_splash`、`flutter_launcher_icons` |
@@ -150,6 +154,12 @@ flutter run -t lib/main_dev.dart --flavor dev
 
 更细的派生 checklist（Mock API、安全短板等）见 [docs/ai/TEMPLATE_GUIDE.md §1](docs/ai/TEMPLATE_GUIDE.md#1-一次性改名派生时)。
 
+### Step 4 — 决定默认功能边界
+
+- **建议保留 `features/feedback`**：它是面向真实产品的默认功能，不是需要每次 clone 后删除的业务占位页。接入后端时只需实现文档约定的 `/feedback/*` 接口。
+- **按需删除 `features/showcase`**：它是 dev-only Developer Lab，生产路由不会注册。派生项目完成基础能力验收后可删除，不影响反馈中心或其它业务。
+- 默认底部导航只有 **Home + Profile**。Home 是产品扩展点；FAQ 搜索位于反馈中心内部，不占用全局 Search Tab。
+
 ## 快速开始
 
 ### 1. 安装依赖
@@ -208,10 +218,12 @@ lib/
 │   └── theme/
 ├── features/
 │   ├── auth/             # application / data / domain / presentation
-│   ├── home/
+│   ├── feedback/         # 默认启用：FAQ / 提交 / 历史 / 详情完整纵向切片
+│   ├── home/             # Home + Profile 两个顶层 Tab
 │   ├── onboarding/
+│   ├── showcase/         # dev-only Developer Lab，派生项目可删
 │   └── splash/
-├── shared/               # 跨 feature UI 组件
+├── shared/               # 跨 feature UI 组件与反馈门面
 ├── i18n/                 # slang 翻译源（*.i18n.json → strings.g.dart）
 ├── main_dev.dart
 └── main_prod.dart

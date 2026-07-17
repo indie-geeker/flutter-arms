@@ -96,7 +96,7 @@ For a feature named `<name>` (singular, snake_case, e.g. `settings`, `post`, `se
 4. **Fill Presentation layer:**
    - `presentation/states/<name>_state.dart` — `@freezed` with at least `isLoading`, `error: Failure?`, and your data fields.
    - `presentation/view_models/<name>_view_model.dart` — `@riverpod class <Name>ViewModel extends _$<Name>ViewModel`. `build()` returns initial state. Actions read a UseCase provider, switch on `Result`, update `state`.
-   - `presentation/pages/<name>_page.dart` — `@RoutePage()`. Use `ConsumerWidget` if it reads Riverpod state, otherwise `StatelessWidget`. Render errors via `AppDialog.showError(context, context.failureMessage(failure))` inside a `ref.listen`.
+   - `presentation/pages/<name>_page.dart` — `@RoutePage()`. Use `ConsumerWidget` if it reads Riverpod state, otherwise `StatelessWidget`. Render errors via `AppDialog.showError(context.failureMessage(failure))` inside a `ref.listen`.
    - `presentation/widgets/` — private `_Xxx` widgets, or promote to `lib/shared/widgets/` if reused.
 
 5. **Register the route** in `lib/app/app_router.dart`: add `AutoRoute(page: <Name>Route.page)` to `routes`. Add `guards: <AutoRouteGuard>[_authGuard]` if it needs auth.

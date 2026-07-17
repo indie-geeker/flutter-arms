@@ -40,7 +40,7 @@ Use these for anything that appears across features:
 - `EmptyStateWidget` — for "no data" screens.
 - `ErrorStateWidget` — for full-screen error; pair with `context.failureMessage`.
 - `LoadingWidget` / `SkeletonLoader` — for loading screens / placeholders.
-- `AppDialog.showError(context, String message)` — localized error dialog.
+- `AppDialog.showError(String message)` — localized global error feedback.
 
 Don't inline new variants. Extend the shared widget (add a named constructor or extra prop) or create a new file under `lib/shared/widgets/`.
 
@@ -52,7 +52,7 @@ Dialog-style (most common):
 ref.listen(%feature%ViewModelProvider, (previous, next) {
   final failure = next.error;
   if (failure != null && failure != previous?.error) {
-    AppDialog.showError(context, context.failureMessage(failure));
+    AppDialog.showError(context.failureMessage(failure));
   }
 });
 ```

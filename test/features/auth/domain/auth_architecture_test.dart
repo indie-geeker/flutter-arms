@@ -23,10 +23,11 @@ void main() {
       final code = content
           .replaceAll(blockCommentPattern, '')
           .replaceAll(lineCommentPattern, '');
-      final directives = directivePattern
-          .allMatches(code)
-          .map((match) => match.group(2)!)
-          .toList();
+      final directives =
+          directivePattern
+              .allMatches(code)
+              .map((match) => match.group(2)!)
+              .toList();
       final riverpodUsagePattern = RegExp(
         r'@riverpod|\bProvider\b|\bNotifierProvider\b|\bConsumer(?:Widget|StatefulWidget|State)?\b|\bRef\b|flutter_riverpod|riverpod_annotation',
       );

@@ -36,12 +36,13 @@ void main() {
 
   group('architecture', () {
     test('domain layer must not import Data-layer transport packages', () {
-      final domainDirs = Directory(p.join(libDir.path, 'features'))
-          .listSync()
-          .whereType<Directory>()
-          .map((d) => Directory(p.join(d.path, 'domain')))
-          .where((d) => d.existsSync())
-          .toList();
+      final domainDirs =
+          Directory(p.join(libDir.path, 'features'))
+              .listSync()
+              .whereType<Directory>()
+              .map((d) => Directory(p.join(d.path, 'domain')))
+              .where((d) => d.existsSync())
+              .toList();
 
       final offenders = <String>[];
       const forbidden = <String>[

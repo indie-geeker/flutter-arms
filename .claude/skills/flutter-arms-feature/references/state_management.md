@@ -108,7 +108,7 @@ class %Feature%View extends ConsumerWidget {
     ref.listen(%feature%ViewModelProvider, (previous, next) {
       final failure = next.error;
       if (failure != null && failure != previous?.error) {
-        AppDialog.showError(context, context.failureMessage(failure));
+        AppDialog.showError(context.failureMessage(failure));
       }
       if (next.isSubmitSuccess && previous?.isSubmitSuccess != true) {
         context.router.replace(const NextRoute());

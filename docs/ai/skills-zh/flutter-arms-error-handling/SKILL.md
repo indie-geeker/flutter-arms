@@ -53,7 +53,7 @@ flutter_arms 采用**双层错误模型**，并在层间设定严格的转换边
 - **`references/exceptions.md`** —— `AppException` sealed 层级、`AppExceptionMapper`（DioException → 子类映射）、`.asApi()` / `DioApiClient.send` 如何在 DataSource 边界规范化异常。
 - **`references/failure.md`** —— `Failure` 结构、`FailureCode` 枚举、`Failure.fromException`、`context.failureMessage`、badResponse/validation 的 detail 优先级规则。
 - **`references/repository_flow.md`** —— Repository 的标准 try/catch 模式、新增方法的写法、部分失败场景（如 logout：远端失败但本地成功）的处理。
-- **`references/ui_display.md`** —— `AppDialog.showError`、`ErrorStateWidget`、`SelectableText.rich`，各自的适用场景，以及触发弹窗的 `ref.listen` 模式。
+- **`references/ui_display.md`** —— `AppDialog.showError`、`ErrorStateWidget`、`SelectableText.rich`，各自的适用场景，以及触发全局错误提示的 `ref.listen` 模式。
 
 ## 快速决策树
 
@@ -113,7 +113,7 @@ Future<void> openDetail(String id) async {
 ref.listen(postViewModelProvider, (prev, next) {
   final failure = next.error;
   if (failure != null && failure != prev?.error) {
-    AppDialog.showError(context, context.failureMessage(failure));
+    AppDialog.showError(context.failureMessage(failure));
   }
 });
 ```

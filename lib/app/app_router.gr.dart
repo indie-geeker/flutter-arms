@@ -11,35 +11,66 @@
 part of 'app_router.dart';
 
 /// generated route for
-/// [ExplorePage]
-class ExploreRoute extends PageRouteInfo<void> {
-  const ExploreRoute({List<PageRouteInfo>? children})
-    : super(ExploreRoute.name, initialChildren: children);
+/// [FeedbackCenterPage]
+class FeedbackCenterRoute extends PageRouteInfo<void> {
+  const FeedbackCenterRoute({List<PageRouteInfo>? children})
+    : super(FeedbackCenterRoute.name, initialChildren: children);
 
-  static const String name = 'ExploreRoute';
+  static const String name = 'FeedbackCenterRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const ExplorePage();
+      return const FeedbackCenterPage();
     },
   );
 }
 
 /// generated route for
-/// [FeedPage]
-class FeedRoute extends PageRouteInfo<void> {
-  const FeedRoute({List<PageRouteInfo>? children})
-    : super(FeedRoute.name, initialChildren: children);
+/// [FeedbackDetailPage]
+class FeedbackDetailRoute extends PageRouteInfo<FeedbackDetailRouteArgs> {
+  FeedbackDetailRoute({
+    required String ticketId,
+    Key? key,
+    List<PageRouteInfo>? children,
+  }) : super(
+         FeedbackDetailRoute.name,
+         args: FeedbackDetailRouteArgs(ticketId: ticketId, key: key),
+         initialChildren: children,
+       );
 
-  static const String name = 'FeedRoute';
+  static const String name = 'FeedbackDetailRoute';
 
   static PageInfo page = PageInfo(
     name,
     builder: (data) {
-      return const FeedPage();
+      final args = data.argsAs<FeedbackDetailRouteArgs>();
+      return FeedbackDetailPage(ticketId: args.ticketId, key: args.key);
     },
   );
+}
+
+class FeedbackDetailRouteArgs {
+  const FeedbackDetailRouteArgs({required this.ticketId, this.key});
+
+  final String ticketId;
+
+  final Key? key;
+
+  @override
+  String toString() {
+    return 'FeedbackDetailRouteArgs{ticketId: $ticketId, key: $key}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! FeedbackDetailRouteArgs) return false;
+    return ticketId == other.ticketId && key == other.key;
+  }
+
+  @override
+  int get hashCode => ticketId.hashCode ^ key.hashCode;
 }
 
 /// generated route for
@@ -54,6 +85,22 @@ class HomeRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const HomePage();
+    },
+  );
+}
+
+/// generated route for
+/// [HomeTabPage]
+class HomeTabRoute extends PageRouteInfo<void> {
+  const HomeTabRoute({List<PageRouteInfo>? children})
+    : super(HomeTabRoute.name, initialChildren: children);
+
+  static const String name = 'HomeTabRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const HomeTabPage();
     },
   );
 }
@@ -107,6 +154,22 @@ class ProfileRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [ShowcasePage]
+class ShowcaseRoute extends PageRouteInfo<void> {
+  const ShowcaseRoute({List<PageRouteInfo>? children})
+    : super(ShowcaseRoute.name, initialChildren: children);
+
+  static const String name = 'ShowcaseRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ShowcasePage();
+    },
+  );
+}
+
+/// generated route for
 /// [SplashPage]
 class SplashRoute extends PageRouteInfo<void> {
   const SplashRoute({List<PageRouteInfo>? children})
@@ -118,6 +181,22 @@ class SplashRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const SplashPage();
+    },
+  );
+}
+
+/// generated route for
+/// [SubmitFeedbackPage]
+class SubmitFeedbackRoute extends PageRouteInfo<void> {
+  const SubmitFeedbackRoute({List<PageRouteInfo>? children})
+    : super(SubmitFeedbackRoute.name, initialChildren: children);
+
+  static const String name = 'SubmitFeedbackRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const SubmitFeedbackPage();
     },
   );
 }

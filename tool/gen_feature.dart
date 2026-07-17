@@ -18,8 +18,9 @@ String toLowerCamelCase(String snakeCase) {
 }
 
 void main(List<String> arguments) {
-  final parser = ArgParser()
-    ..addOption('name', abbr: 'n', help: 'Feature 名称 (例如: user_profile)');
+  final parser =
+      ArgParser()
+        ..addOption('name', abbr: 'n', help: 'Feature 名称 (例如: user_profile)');
 
   final argResults = parser.parse(arguments);
   final featureName = argResults['name'] as String?;
@@ -43,8 +44,7 @@ void main(List<String> arguments) {
 
   final filesToCreate = <String, String>{
     // --- Application Layer ---
-    'application/${featureName}_usecases.dart':
-        '''
+    'application/${featureName}_usecases.dart': '''
 import 'package:flutter_arms/features/$featureName/data/repositories/${featureName}_repository_impl.dart';
 import 'package:flutter_arms/features/$featureName/domain/usecases/get_${featureName}_usecase.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -59,8 +59,7 @@ Get${className}UseCase get${className}UseCase(Ref ref) {
 ''',
 
     // --- Data Layer ---
-    'data/datasources/${featureName}_remote_datasource.dart':
-        '''
+    'data/datasources/${featureName}_remote_datasource.dart': '''
 import 'package:flutter_arms/features/$featureName/data/models/${featureName}_dto.dart';
 
 /// $className 远程数据源接口。
@@ -69,8 +68,7 @@ abstract interface class ${className}RemoteDataSource {
   Future<${className}Dto> get();
 }
 ''',
-    'data/datasources/retrofit_${featureName}_remote_datasource.dart':
-        '''
+    'data/datasources/retrofit_${featureName}_remote_datasource.dart': '''
 import 'package:dio/dio.dart';
 import 'package:flutter_arms/core/network/dio_client.dart';
 import 'package:flutter_arms/core/network/dio_ext.dart';
@@ -115,8 +113,7 @@ ${className}RemoteDataSource ${providerName}RemoteDataSource(Ref ref) {
   );
 }
 ''',
-    'data/datasources/api_client_${featureName}_remote_datasource.dart':
-        '''
+    'data/datasources/api_client_${featureName}_remote_datasource.dart': '''
 import 'package:flutter_arms/core/network/api_client.dart';
 import 'package:flutter_arms/core/network/api_request.dart';
 import 'package:flutter_arms/features/$featureName/data/datasources/${featureName}_remote_datasource.dart';
@@ -157,8 +154,7 @@ ${className}RemoteDataSource ${providerName}ApiClientRemoteDataSource(Ref ref) {
   return ApiClient${className}RemoteDataSource(ref.read(apiClientProvider));
 }
 ''',
-    'data/models/${featureName}_dto.dart':
-        '''
+    'data/models/${featureName}_dto.dart': '''
 import 'package:flutter_arms/features/$featureName/domain/entities/${featureName}_entity.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -186,8 +182,7 @@ extension ${className}DtoMapper on ${className}Dto {
   }
 }
 ''',
-    'data/repositories/${featureName}_repository_impl.dart':
-        '''
+    'data/repositories/${featureName}_repository_impl.dart': '''
 import 'package:flutter_arms/core/error/app_exception.dart';
 import 'package:flutter_arms/core/error/failure.dart';
 import 'package:flutter_arms/core/result/result.dart';
@@ -226,8 +221,7 @@ ${className}Repository ${providerName}Repository(Ref ref) {
 ''',
 
     // --- Domain Layer ---
-    'domain/entities/${featureName}_entity.dart':
-        '''
+    'domain/entities/${featureName}_entity.dart': '''
 /// $className 实体。
 class ${className}Entity {
   /// 构造函数。
@@ -237,8 +231,7 @@ class ${className}Entity {
   final String id;
 }
 ''',
-    'domain/repositories/${featureName}_repository.dart':
-        '''
+    'domain/repositories/${featureName}_repository.dart': '''
 import 'package:flutter_arms/core/result/result.dart';
 import 'package:flutter_arms/features/$featureName/domain/entities/${featureName}_entity.dart';
 
@@ -248,8 +241,7 @@ abstract interface class ${className}Repository {
   Future<Result<${className}Entity>> getData();
 }
 ''',
-    'domain/usecases/get_${featureName}_usecase.dart':
-        '''
+    'domain/usecases/get_${featureName}_usecase.dart': '''
 import 'package:flutter_arms/core/result/result.dart';
 import 'package:flutter_arms/features/$featureName/domain/entities/${featureName}_entity.dart';
 import 'package:flutter_arms/features/$featureName/domain/repositories/${featureName}_repository.dart';
@@ -269,8 +261,7 @@ class Get${className}UseCase {
 ''',
 
     // --- Presentation Layer ---
-    'presentation/pages/${featureName}_page.dart':
-        '''
+    'presentation/pages/${featureName}_page.dart': '''
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -292,8 +283,7 @@ class ${className}Page extends ConsumerWidget {
   }
 }
 ''',
-    'presentation/states/${featureName}_state.dart':
-        '''
+    'presentation/states/${featureName}_state.dart': '''
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part '${featureName}_state.freezed.dart';
@@ -307,8 +297,7 @@ abstract class ${className}State with _\$${className}State {
   }) = _${className}State;
 }
 ''',
-    'presentation/view_models/${featureName}_notifier.dart':
-        '''
+    'presentation/view_models/${featureName}_notifier.dart': '''
 import 'package:flutter_arms/features/$featureName/presentation/states/${featureName}_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

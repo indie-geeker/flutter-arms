@@ -21,7 +21,7 @@ class _RetrofitAuthApi implements RetrofitAuthApi {
 
   @override
   Future<TokenModel> login(Map<String, dynamic> body) async {
-    final _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{'requiresAuth': false};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
@@ -49,7 +49,7 @@ class _RetrofitAuthApi implements RetrofitAuthApi {
 
   @override
   Future<TokenModel> refreshToken(Map<String, dynamic> body) async {
-    final _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{'requiresAuth': false};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
@@ -104,7 +104,7 @@ class _RetrofitAuthApi implements RetrofitAuthApi {
 
   @override
   Future<void> logout() async {
-    final _extra = <String, dynamic>{};
+    final _extra = <String, dynamic>{'requiresAuth': false};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;

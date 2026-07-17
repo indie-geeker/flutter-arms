@@ -40,7 +40,7 @@ class _%Feature%PageState extends ConsumerState<%Feature%Page> {
     ref.listen(%feature%ViewModelProvider, (previous, next) {
       final failure = next.error;
       if (failure != null && failure != previous?.error) {
-        AppDialog.showError(context, context.failureMessage(failure));
+        AppDialog.showError(context.failureMessage(failure));
       }
     });
 

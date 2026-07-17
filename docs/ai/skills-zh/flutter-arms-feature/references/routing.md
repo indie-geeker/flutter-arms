@@ -38,15 +38,14 @@ AutoRoute(
 ),
 ```
 
-嵌套路由（tab/shell）—— 参考 `HomeRoute` 包装 `Feed/Explore/Profile` 的写法：
+嵌套路由（tab/shell）—— 参考 `HomeRoute` 包装 `HomeTab/Profile` 的写法：
 
 ```dart
 AutoRoute(
   page: HomeRoute.page,
   guards: <AutoRouteGuard>[_authGuard],
   children: <AutoRoute>[
-    AutoRoute(page: FeedRoute.page, initial: true),
-    AutoRoute(page: ExploreRoute.page),
+    AutoRoute(page: HomeTabRoute.page, initial: true),
     AutoRoute(page: ProfileRoute.page),
   ],
 ),
@@ -87,7 +86,7 @@ context.router.popUntilRoot();                         // 回到根
 `AuthGuard`（在 `app_router.dart`）读 `authProvider`：
 
 - 已登录 → `resolver.next(true)`。
-- 未登录 → `resolver.redirectUntil(const LoginRoute())`。
+- 未登录 → `resolver.redirectUntil(const LoginRoute(), replace: true)`。
 
 路由通过 `AuthListenable`（一个 `ChangeNotifier`，包装 `ref.listenManual<bool>(authProvider, …)`）监听登录态变化。bool 翻转时，`MaterialApp.router` 的 `reevaluateListenable` 会重新评估所有 guard。因此从任何页面 logout 都会自动跳回 `LoginRoute`。
 
