@@ -1,0 +1,16 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
+
+/// 首页 Tab 页。
+@RoutePage()
+class HomeTabPage extends StatelessWidget {
+  /// 构造函数。
+  const HomeTabPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Home Page')),
+    );
+  }
+}
